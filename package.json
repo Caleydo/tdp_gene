@@ -1,0 +1,47 @@
+{
+  "name": "targid_common",
+  "version": "0.0.1",
+  "license" : "SEE LICENSE IN LICENSE",
+  "repository": "Caleydo/targid_common",
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "caleydo_data_sql": "*"
+  },
+  "caleydo": {
+    "plugins": {
+      "web": [
+        {
+          "type": "targidView",
+          "id": "ensembl_org",
+          "name": "Ensembl.org",
+          "site": "//apr2013.archive.ensembl.org/id/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "single"
+        },
+        {
+          "type": "targidView",
+          "id": "gene_card",
+          "name": "Gene Card",
+          "site": "//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "single"
+        },
+        {
+          "type": "targidView",
+          "id": "cansar",
+          "name": "canSAR",
+          "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
+          "argument": "gene",
+          "idtype": "UniProt",
+          "selection": "single"
+        }
+      ]
+    }
+  },
+  "publishConfig": {
+    "registry": "http://registry.caleydo.org/"
+  }
+}
