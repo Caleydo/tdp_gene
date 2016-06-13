@@ -40,6 +40,16 @@
           "argument": "gene",
           "idtype": "UniProt",
           "selection": "single"
+        },
+        {
+          "type": "targidView",
+          "id": "cosmic",
+          "name": "Cosmic",
+          "category": "static",
+          "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
+          "selection": "single"
         }
       ]
     }
