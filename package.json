@@ -14,7 +14,7 @@
         {
           "type": "targidView",
           "id": "ensembl_org",
-          "name": "Ensembl.org",
+          "name": "Gene Ensembl.org",
           "category": "static",
           "site": "//apr2013.archive.ensembl.org/id/{gene}",
           "argument": "gene",
@@ -34,7 +34,7 @@
         {
           "type": "targidView",
           "id": "cansar",
-          "name": "canSAR",
+          "name": "Gene canSAR",
           "category": "static",
           "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
           "argument": "gene",
@@ -44,7 +44,7 @@
         {
           "type": "targidView",
           "id": "cosmic",
-          "name": "Cosmic",
+          "name": "Gene Cosmic",
           "category": "static",
           "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
           "argument": "cellline",
