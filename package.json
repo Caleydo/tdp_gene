@@ -19,7 +19,7 @@
           "site": "//apr2013.archive.ensembl.org/id/{gene}",
           "argument": "gene",
           "idtype": "Ensembl",
-          "selection": "single"
+          "selection": "multiple"
         },
         {
           "type": "targidView",
@@ -29,7 +29,7 @@
           "site": "//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}",
           "argument": "gene",
           "idtype": "Ensembl",
-          "selection": "single"
+          "selection": "multiple"
         },
         {
           "type": "targidView",
@@ -39,7 +39,7 @@
           "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
           "argument": "gene",
           "idtype": "UniProt",
-          "selection": "single"
+          "selection": "multiple"
         },
         {
           "type": "targidView",
@@ -49,7 +49,7 @@
           "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
           "argument": "cellline",
           "idtype": "Cellline",
-          "selection": "single"
+          "selection": "multiple"
         }
       ]
     }
