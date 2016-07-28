@@ -44,7 +44,7 @@
         {
           "type": "targidView",
           "id": "cosmic",
-          "name": "Gene Cosmic",
+          "name": "COSMIC",
           "category": "static",
           "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
           "argument": "cellline",
