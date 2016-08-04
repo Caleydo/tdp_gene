@@ -43,6 +43,16 @@
         },
         {
           "type": "targidView",
+          "id": "uniprot",
+          "name": "Gene UniProt",
+          "category": "static",
+          "site": "//www.uniprot.org/uniprot/{gene}/",
+          "argument": "gene",
+          "idtype": "UniProt",
+          "selection": "multiple"
+        },
+        {
+          "type": "targidView",
           "id": "cosmic",
           "name": "COSMIC",
           "category": "static",
