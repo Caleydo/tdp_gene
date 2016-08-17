@@ -11,8 +11,204 @@
   "caleydo": {
     "plugins": {
       "web": [
+
+        {
+          "id": "bioinfodb_tissue_start",
+          "name": "Tissues",
+          "type": "targidStartEntryPoint",
+          "file": "CellLineEntryPoint",
+          "factory": "createStartFactory",
+          "viewId": "bioinfodb_tissue_start",
+          "idtype": "Tissue",
+          "selection": "none",
+          "sampleType": "Tissue"
+        },
+        {
+          "id": "bioinfodb_tissue_start",
+          "name": "Tissues",
+          "type": "targidView",
+          "file": "CellLineList",
+          "factory": "createStart",
+          "idtype": "Tissue",
+          "selection": "none",
+          "sampleType": "Tissue"
+        },
+        {
+          "id": "bioinfodb_expressionscore_inverted",
+          "name": "Expression Score",
+          "type": "targidScore",
+          "file": "InvertedExpressionScore",
+          "idtype": "Tissue",
+          "sampleType": "Tissue"
+        },
+        {
+          "id": "bioinfodb_expressiontable_inverted",
+          "name": "Expression",
+          "type": "targidView",
+          "file": "InvertedExpressionTable",
+          "factory": "createTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        },
+        {
+          "id": "bioinfodb_single_gene_score",
+          "name": "Single Gene Score",
+          "type": "targidScore",
+          "file": "SingleGeneScore",
+          "idtype": "Tissue",
+          "sampleType": "Tissue"
+        },
+
+
+        {
+          "id": "celllinedb_genes_start",
+          "name": "Genes",
+          "type": "targidStartEntryPoint",
+          "file": "GeneEntryPoint",
+          "factory": "createStartFactory",
+          "viewId": "celllinedb_start",
+          "idtype": "Ensembl",
+          "selection": "none"
+        },
+        {
+          "id": "celllinedb_start",
+          "name": "Genes",
+          "type": "targidView",
+          "file": "GeneList",
+          "factory": "createStart",
+          "idtype": "Ensembl",
+          "selection": "none"
+        },
+        {
+          "id": "celllinedb_cellline_start",
+          "name": "Cell Lines",
+          "type": "targidStartEntryPoint",
+          "file": "CellLineEntryPoint",
+          "factory": "createStartFactory",
+          "viewId": "celllinedb_cellline",
+          "idtype": "Cellline",
+          "selection": "none"
+        },
+        {
+          "id": "celllinedb_cellline",
+          "name": "Cell Lines",
+          "type": "targidView",
+          "file": "CellLineList",
+          "factory": "createStart",
+          "idtype": "Cellline",
+          "selection": "none"
+        },
         {
           "type": "targidView",
+          "id": "celllinedb_enrichment",
+          "name": "Enrichment",
+          "category": "dynamic",
+          "file": "Enrichment",
+          "idtype": "Ensembl",
+          "selection": "single",
+          "mockup": "true"
+        },
+        {
+          "type": "targidView",
+          "id": "celllinedb_expression_vs_copynumber",
+          "name": "Expression vs. Copy Number",
+          "category": "dynamic",
+          "file": "ExpressionVsCopyNumber",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "small_multiple"
+        },
+        {
+          "type": "targidView",
+          "id": "celllinedb_co_expression",
+          "name": "Co-Expression",
+          "category": "dynamic",
+          "file": "CoExpression",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "small_multiple"
+        },
+        {
+          "id": "celllinedb_onco_print",
+          "name": "OncoPrint",
+          "type": "targidView",
+          "category": "dynamic",
+          "file": "OncoPrint",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "some"
+        },
+        {
+          "type": "targidView",
+          "id": "celllinedb_disease_model_info",
+          "name": "Disease Model Info",
+          "category": "static",
+          "file": "DiseaseModelInfo",
+          "idtype": "DiseaseModel",
+          "selection": "small_multiple",
+          "mockup": true
+        },
+        {
+          "id": "expressionscore",
+          "name": "Aggregated Score",
+          "type": "targidScore",
+          "file": "AggregatedScore",
+          "idtype": "Ensembl"
+        },
+        {
+          "id": "expressiontable",
+          "name": "Expression",
+          "type": "targidView",
+          "file": "RawDataTable",
+          "factory": "createExpressionTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        },
+        {
+          "id": "copynumbertable",
+          "name": "Copy Number",
+          "type": "targidView",
+          "file": "RawDataTable",
+          "factory": "createCopyNumberTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        },
+        {
+          "id": "mutationtable",
+          "name": "Mutation",
+          "type": "targidView",
+          "file": "RawDataTable",
+          "factory": "createMutationTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        },
+        {
+          "id": "celllinedb_expressionscore_inverted",
+          "name": "Expression Score",
+          "type": "targidScore",
+          "file": "InvertedExpressionScore",
+          "idtype": "Cellline"
+        },
+        {
+          "id": "celllinedb_expressiontable_inverted",
+          "name": "Expression",
+          "type": "targidView",
+          "file": "InvertedExpressionTable",
+          "factory": "createTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        },
+        {
+          "id": "celllinedb_single_gene_score",
+          "name": "Single Gene Score",
+          "type": "targlocidScore",
+          "file": "SingleGeneScore",
+          "idtype": "Cellline"
+        },
+
+
+        {
           "type": "targidView",
           "id": "ensembl_org",
           "name": "ensembl.org",
