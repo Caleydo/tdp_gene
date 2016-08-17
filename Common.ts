@@ -43,7 +43,7 @@ const celllinesTumorTypes = ['adrenal gland carcinoma', 'astrocytoma/glioblastom
 export const cellline = {
   idType: 'Cellline',
   name: 'Cell Line',
-  db: 'celllinedb',
+  db: 'bioinfodb',
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
   tumorTypesWithAll : [all_types].concat(celllinesTumorTypes),
@@ -89,7 +89,7 @@ const geneBioTypes = ['protein_coding', 'processed_transcript', 'LRG_gene', 'lin
 export const gene = {
   idType: 'Ensembl',
   name: 'Gene',
-  db: 'celllinedb',
+  db: 'bioinfodb',
   base: 'gene',
   bioTypes: geneBioTypes,
   bioTypesWithAll : [all_types].concat(geneBioTypes),
