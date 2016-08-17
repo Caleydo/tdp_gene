@@ -4,11 +4,13 @@
 /// <reference path="../../tsd.d.ts" />
 
 import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection, AView} from '../targid2/View';
+import {IViewContext, ISelection, AView, IView} from '../targid2/View';
 import {all_types, dataSources, copyNumberVariations, mutationStatus, gene, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 export class OncoPrint extends AView {
+
+  private $table:d3.Selection<IView>;
 
   //private c = d3.scale.category10().domain(alteration_types);
   private c = d3.scale.ordinal<string>().domain(copyNumberVariations.map((d) => String(d.value))).range(copyNumberVariations.map((d) => d.color));
@@ -52,6 +54,7 @@ export class OncoPrint extends AView {
   }
 
   init() {
+    super.init();
     this.build();
     this.update();
   }
@@ -76,13 +79,24 @@ export class OncoPrint extends AView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
+    this.update(true);
+  }
+
+  changeSelection(selection:ISelection) {
+    this.selection = selection;
     return this.update();
   }
 
   private build() {
-    const $legend = this.$node
-      .classed('oncoPrint', true)
-      .append('ul').classed('legend', true);
+
+    this.$node.classed('oncoPrint', true);
+
+    this.$table = this.$node
+      .append('div').classed('geneTableWrapper', true)
+      .append('table')
+      .append('tbody');
+
+    const $legend = this.$node.append('ul').classed('legend', true);
 
     $legend.append('li').classed('title', true).text('Genetic Alteration:');
 
@@ -101,54 +115,72 @@ export class OncoPrint extends AView {
       });
   }
 
-  //celllinename, max(cn) as cn, max(log2fpkm) as expr, max(dna_mutated) as dna_mutated
-  private updateChart(rows: {id: string, name: string, cn: string, expr: number, dna_mutated: string, symbol: string}[]) {
-    // first: group the rows by different keys
-    const data2 = d3.nest()
-      .key((d:any) => d.symbol).sortKeys(d3.ascending)
-      .key((d:any) => d.id).sortKeys(d3.ascending)
-      .key((d:any) => d.cn).sortKeys((a:string, b:string) => {
-        //console.log(a, b, a == 0, b != 0);
-        // sort decending, but put everything with `0` to the end (e.g., [2, -2, 0])
-        return (parseInt(a, 10) === 0 && parseInt(b, 10) !== 0) ? 1 : -1;
-      })
-      .key((d:any) => d.dna_mutated).sortKeys(d3.descending)
-      .entries(rows);
+  private update(updateAll = false) {
+    this.setBusy(true);
 
-    // second: flatten the nested array structure
-    const flat = data2.map((d) => {
-      // symbol
-      return d.values.map((e) => {
-        // id
-        let values2 = e.values.map((f) => {
-          // cn
-          return f.values.map((g) => {
-            // dna_mutated
-            return g.values;
+    const that = this;
+    const ids = this.selection.range.dim(0).asList();
+    const idtype = this.selection.idtype;
 
-          }).reduce((d1, d2) => d1.concat(d2), []);
+    const data:IDataFormat[] = ids.map((id) => {
+      return {id: id, geneName: '', ensg: '', rows: []};
+    });
 
-        }).reduce((d1, d2) => d1.concat(d2), []);
+    const $ids = this.$table.selectAll('tr.gene').data<IDataFormat>(<any>data, (d) => d.id.toString());
+    const $ids_enter = $ids.enter().append('tr').classed('gene', true);
 
-        return {key: d.key, values: values2};
+    // decide whether to load data for newly added items
+    // or to reload the data for all items (e.g. due to parameter change)
+    const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
+
+    enterOrUpdateAll.each(function(d) {
+      const $id = d3.select(this);
+      return that.resolveId(idtype, d.id, gene.idType)
+        .then((name) => {
+          return Promise.all([
+            name,
+            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+              ensgs: '\''+name+'\'',
+              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
+            }),
+            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
+              ensgs: '\''+name+'\''
+            })
+          ]);
+        })
+        .catch((error) => {
+          console.error(error);
+          that.setBusy(false);
+        })
+        .then((input) => {
+          d.geneName = input[2][0].symbol;
+          d.rows = input[1];
+          d.ensg = input[0];
+
+          //console.log('loaded data for', d);
+          that.updateChartData($id);
+          that.setBusy(false);
+        });
       });
 
-    }).reduce((d1, d2) => d1.concat(d2), []);
+    $ids.exit().remove()
+      .each(function(d) {
+        that.setBusy(false);
+      });
+  }
 
-    // data binding
-    const marks = this.$node.selectAll('.gene').data(flat);
+  private updateChartData($parent) {
 
-    // enter
-    marks.enter()
-      .append('div').classed('gene', true)
-      .append('div').classed('geneLabel', true);
+    const data:IDataFormat = $parent.datum();
+    const rows = data.rows;
 
-    // update
-    //marks.style('transform', (d,i) => `translate(0px, ${i* (this.cellHeight + this.cellPadding)}px)`);
-    marks.select('.geneLabel').html((d:any) => `${d.values[0].symbol} <span>${d.values[0].id}</span>`);
+    const $th = $parent.selectAll('th.geneLabel').data([data]);
+    $th.enter().append('th').classed('geneLabel', true);
+    $th.html((d:any) => `${d.geneName} <span>${d.ensg}</span>`);
+    $th.exit().remove();
 
-    const cells = marks.selectAll('.cell').data((d:any) => d.values);
-    cells.enter().append('div')
+    const $cells = $parent.selectAll('td.cell').data(rows);
+    $cells.enter().append('td')
       .classed('cell', true)
       .attr('data-title', (d:any) => d.name)
       .style({
@@ -161,40 +193,31 @@ export class OncoPrint extends AView {
         height: this.cellMutation + 'px'
       });
 
-    cells
+    $cells
       .style('background-color', (d:any) => this.c(d.cn))
       .style('border', (d:any) => '1px solid ' + this.cBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
-    cells.select('.mut')
+    $cells.select('.mut')
       .style('background-color', (d:any) => this.cMut(d.dna_mutated));
 
-    cells.exit().remove();
-
-    // exit
-    marks.exit().remove();
+    $cells.exit().remove();
   }
 
-  changeSelection(selection:ISelection) {
-    this.selection = selection;
-    return this.update();
-  }
+}
 
-  private update() {
-    const idtype = this.selection.idtype;
-    this.setBusy(true);
-
-    return this.resolveIds(idtype, this.selection.range, gene.idType).then((names) => {
-      return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-        ensgs: '\''+names.join('\',\'')+'\'',
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
-      });
-    }).then((rows) => {
-      this.updateChart(rows);
-      this.setBusy(false);
-    });
-  }
-
+interface IDataFormat {
+  id:number;
+  geneName: string;
+  ensg: string;
+  rows: {
+    id: string,
+    name: string,
+    symbol: string,
+    cn: string,
+    expr: number,
+    dna_mutated: string
+  }[];
 }
 
 export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
