@@ -145,7 +145,7 @@ export class OncoPrint extends AView {
     const idtype = this.selection.idtype;
 
     const data:IDataFormat[] = ids.map((id) => {
-      return {id: id, geneName: '', ensg: '', rows: []};
+      return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: []};
     });
 
     const $ids = this.$table.selectAll('tr.gene').data<IDataFormat>(<any>data, (d) => d.id.toString());
@@ -195,12 +195,14 @@ export class OncoPrint extends AView {
   private updateChartData($parent) {
 
     const data:IDataFormat = $parent.datum();
-    console.log(data.geneName);
+    //console.log(data.geneName);
     const rows = this.sortAndAlignData(data.rows);
+    // count amplification/deletions and divide by total nmber of rows
+    data.alterationFreq = rows.filter((r) => (r.cn !== null && r.cn !== 0)).length / rows.length;
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
-    $th.html((d:any) => `${d.geneName} <span>${d.ensg}</span>`);
+    $th.html((d:any) => `<span class="alterationFreq">${d3.format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
     $th.exit().remove();
 
     const $cells = $parent.selectAll('td.cell').data(rows);
@@ -375,6 +377,7 @@ interface IDataFormat {
   id:number;
   geneName: string;
   ensg: string;
+  alterationFreq: number;
   rows: {
     id: string,
     name: string,
