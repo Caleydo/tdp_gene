@@ -109,7 +109,7 @@ class FrequencyScore implements IScore<number> {
 }
 
 export function create(desc: IPluginDesc) {
-
+  // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Aggregated Score', 'Add');
 
