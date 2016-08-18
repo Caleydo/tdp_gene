@@ -9,6 +9,7 @@ import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from '../targid2/LineUpView';
 import {dataSources, all_types, copyNumberVariations, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 export class Enrichment extends ALineUpView {
 
@@ -93,14 +94,26 @@ export class Enrichment extends ALineUpView {
     const id = this.selection.range.first;
     const idtype = this.selection.idtype;
     this.setBusy(true);
-    return Promise.all([this.lineupPromise, this.resolveId(idtype, id, 'Ensembl')]).then((args) => {
-      const gene_name = args[1];
-      return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-        ensg: gene_name,
-        cn: this.getParameter(ParameterFormIds.ALTERATION_TYPE).value,
-        tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
+
+    const promise = Promise.all([this.lineupPromise, this.resolveId(idtype, id, 'Ensembl')])
+      .then((args) => {
+        const gene_name = args[1];
+        return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+          ensg: gene_name,
+          cn: this.getParameter(ParameterFormIds.ALTERATION_TYPE).value,
+          tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
+        });
       });
-    }).then((rows) => {
+
+    // on error
+    promise.catch(showErrorModalDialog)
+      .then((error) => {
+        console.error(error);
+        this.setBusy(false);
+      });
+
+    // on success
+    promise.then((rows) => {
       // show or hide no data message
       this.$nodata.classed('hidden', rows.length > 0);
 
@@ -119,6 +132,8 @@ export class Enrichment extends ALineUpView {
         this.setBusy(false);
       }
     });
+
+    return promise;
   }
 
   private build() {

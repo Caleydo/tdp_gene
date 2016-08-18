@@ -7,6 +7,7 @@ import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, categoricalCol, useDefaultLayout} from '../targid2/LineUpView';
 import {chooseDataSource, IDataSourceConfig} from './Common';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 class CellLineList extends ALineUpView {
   private species : string = null;
@@ -24,7 +25,13 @@ class CellLineList extends ALineUpView {
     //generate random data
     this.setBusy(true);
     const data = this.species === null ? ajax.getAPIJSON(`/targid/db/${this.sample.db}/${this.sample.base}`): ajax.getAPIJSON(`/targid/db/${this.sample.db}/${this.sample.base}_filtered`, {species : this.species});
-    Promise.all([ajax.getAPIJSON(`/targid/db/${this.sample.db}/${this.sample.base}/desc`), data]).then((args) => {
+    const promise = Promise.all([
+        ajax.getAPIJSON(`/targid/db/${this.sample.db}/${this.sample.base}/desc`),
+        data
+      ]);
+
+    // on success
+    promise.then((args) => {
       const desc = args[0];
       const rows : any[] = args[1];
       const columns = [
@@ -40,6 +47,13 @@ class CellLineList extends ALineUpView {
       this.initializedLineUp();
       this.setBusy(false);
     });
+
+    // on error
+    promise.catch(showErrorModalDialog)
+      .then((error) => {
+        console.error(error);
+        this.setBusy(false);
+      });
   }
 
   getItemName(count) {

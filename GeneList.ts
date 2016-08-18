@@ -7,6 +7,7 @@ import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, useDefaultLayout, stringCol, categoricalCol} from '../targid2/LineUpView';
 import {gene} from './Common';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 class GeneList extends ALineUpView {
   private species : string = null;
@@ -19,8 +20,15 @@ class GeneList extends ALineUpView {
 
   private build() {
     this.setBusy(true);
+
     const data = this.species === null ? ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}`): ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}_filtered`, {species : this.species});
-    Promise.all([ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`), data]).then((args) => {
+    const promise = Promise.all([
+        ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`),
+        data
+      ]);
+
+    // on success
+    promise.then((args) => {
       const desc = args[0];
       const rows : any[] = args[1];
       const columns = [
@@ -53,6 +61,13 @@ class GeneList extends ALineUpView {
       this.initializedLineUp();
       this.setBusy(false);
     });
+
+    // on error
+    promise.catch(showErrorModalDialog)
+      .then((error) => {
+        console.error(error);
+        this.setBusy(false);
+      });
   }
 
   getItemName(count) {

@@ -9,6 +9,7 @@ import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
 import {all_types, gene, expression, IDataSourceConfig, chooseDataSource, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 class ExpressionTable extends ALineUpView {
 
@@ -81,65 +82,93 @@ class ExpressionTable extends ALineUpView {
 
   private update() {
     const idtype = this.selection.idtype;
+
     this.setBusy(true);
-    return Promise.all([this.lineupPromise, this.resolveIds(idtype, this.selection.range, this.dataSource.idType)]).then((args) => {
-      const names = args[1];
-      return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/expression_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
-        names: '\''+names.join('\',\'')+'\'',
-        data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-        biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
-      });
-    }).then((rows) => {
 
-      // show or hide no data message
-      this.$nodata.classed('hidden', rows.length > 0);
+    const promise1 = Promise.all([
+        this.lineupPromise,
+        this.resolveIds(idtype, this.selection.range, this.dataSource.idType)
+      ]);
 
-      //console.log(rows.length, rows);
-      if(rows.length === 0) {
-        console.warn('no data --> create a new (empty) LineUp');
-        this.lineup.destroy();
-        this.build();
-        this.lineupPromise.then((d) => {
-          this.setBusy(false);
-        });
-
-      } else {
-
-        var names = d3.set();
-
-        const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
-          const base = values[0];
-          base.strand_cat = base.strand === -1 ? 'reverse strand' : 'forward strand';
-          values.forEach((row) => {
-            base['score_' + row.name] = row.score;
-            names.add(row.name);
-          });
-          return base;
-        }).entries(rows).map((d) => d.values);
-
-        this.withoutTracking(() => {
-          var lineup = this.replaceLineUpData(data);
-          const cols = lineup.data.getColumns().map((d) => d.column);
-          const ranking = lineup.data.getRankings()[0];
-          const usedCols = ranking.flatColumns;
-          //remove old columns
-          usedCols.filter((d) => /score_.*/.test(d.desc.column)).filter((d) => !names.has(d.desc.column.slice(6))).forEach((d) => {
-            d.removeMe();
-          });
-          //add new columns
-          names.values().filter((d) => cols.indexOf('score_' + d) < 0).forEach((d) => {
-            const desc = numberCol2('score_' + d, -3, 3, d);
-            lineup.data.pushDesc(desc);
-            lineup.data.push(ranking, desc);
-          });
-          names.forEach((d) => {
-            this.updateMapping('score_' + d, data);
-          });
-        });
-
+    // on error
+    promise1.catch(showErrorModalDialog)
+      .then((error) => {
+        console.error(error);
         this.setBusy(false);
-      }
-    });
+      });
+
+    // on success
+    const promise2 = promise1.then((args) => {
+        const names = args[1];
+        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/expression_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
+          names: '\''+names.join('\',\'')+'\'',
+          data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
+          biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
+        });
+      });
+
+    // on error
+    promise2.catch(showErrorModalDialog)
+      .then((error) => {
+        console.error(error);
+        this.setBusy(false);
+      });
+
+    // on success
+    promise2.then((rows) => { this.updateRows(rows); });
+
+    return promise2;
+  }
+
+  private updateRows(rows) {
+    // show or hide no data message
+    this.$nodata.classed('hidden', rows.length > 0);
+
+    //console.log(rows.length, rows);
+    if(rows.length === 0) {
+      console.warn('no data --> create a new (empty) LineUp');
+      this.lineup.destroy();
+      this.build();
+      this.lineupPromise.then((d) => {
+        this.setBusy(false);
+      });
+
+    } else {
+
+      var names = d3.set();
+
+      const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
+        const base = values[0];
+        base.strand_cat = base.strand === -1 ? 'reverse strand' : 'forward strand';
+        values.forEach((row) => {
+          base['score_' + row.name] = row.score;
+          names.add(row.name);
+        });
+        return base;
+      }).entries(rows).map((d) => d.values);
+
+      this.withoutTracking(() => {
+        var lineup = this.replaceLineUpData(data);
+        const cols = lineup.data.getColumns().map((d) => d.column);
+        const ranking = lineup.data.getRankings()[0];
+        const usedCols = ranking.flatColumns;
+        //remove old columns
+        usedCols.filter((d) => /score_.*/.test(d.desc.column)).filter((d) => !names.has(d.desc.column.slice(6))).forEach((d) => {
+          d.removeMe();
+        });
+        //add new columns
+        names.values().filter((d) => cols.indexOf('score_' + d) < 0).forEach((d) => {
+          const desc = numberCol2('score_' + d, -3, 3, d);
+          lineup.data.pushDesc(desc);
+          lineup.data.push(ranking, desc);
+        });
+        names.forEach((d) => {
+          this.updateMapping('score_' + d, data);
+        });
+      });
+
+      this.setBusy(false);
+    }
   }
 
   private build() {

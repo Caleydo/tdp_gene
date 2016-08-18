@@ -10,6 +10,7 @@ import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
 import {Range} from '../caleydo_core/range';
 import {all_types, dataSources, gene, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 
 export class ExpressionVsCopyNumber extends ASmallMultipleView {
@@ -103,7 +104,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function(d) {
       const $id = d3.select(this);
-      return that.resolveId(idtype, d.id, gene.idType)
+      const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/expression_vs_copynumber${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
@@ -114,24 +115,29 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
               ensgs: '\''+name+'\''
             })
           ]);
-        })
-        .catch((error) => {
+        });
+
+      // on error
+      promise.catch(showErrorModalDialog)
+        .then((error) => {
           console.error(error);
           that.setBusy(false);
-        })
-        .then((input) => {
-          d.geneName = input[1][0].symbol;
-          d.rows = input[0];
-
-          //console.log('loaded data for', d.geneName);
-
-          that.initChart($id);
-          that.resizeChart($id);
-          that.updateChartData($id);
-
-          that.setBusy(false);
         });
+
+      // on success
+      promise.then((input) => {
+        d.geneName = input[1][0].symbol;
+        d.rows = input[0];
+
+        //console.log('loaded data for', d.geneName);
+
+        that.initChart($id);
+        that.resizeChart($id);
+        that.updateChartData($id);
+
+        that.setBusy(false);
       });
+    });
 
     $ids.exit().remove()
       .each(function(d) {

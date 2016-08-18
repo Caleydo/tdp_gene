@@ -7,6 +7,7 @@ import tooltip = require('../caleydo_d3/tooltip');
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
 import {all_types, dataSources, gene, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 
 export class CoExpression extends ASmallMultipleView {
@@ -122,12 +123,21 @@ export class CoExpression extends ASmallMultipleView {
       .then((genesEnsembl) => {
         //console.log('Ensembl', genesEnsembl);
 
-        return Promise.resolve(
+        const promise = Promise.resolve(
           ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
             ensgs: '\'' + genesEnsembl.join('\',\'') + '\'',
           })
-        )
-        .then((input) => {
+        );
+
+        // on error
+        promise.catch(showErrorModalDialog)
+          .then((error) => {
+            console.error(error);
+            this.setBusy(false);
+          });
+
+        // on success
+        promise.then((input) => {
           const data = input.map((d) => {
             return {
               //use EnsemblID if symbol is empty
@@ -152,6 +162,8 @@ export class CoExpression extends ASmallMultipleView {
           // set reference gene
           this.refGene = refGeneSelect.value;
         });
+
+        return promise;
       });
   }
 
@@ -191,7 +203,7 @@ export class CoExpression extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function(d) {
       const $id = d3.select(this);
-      return that.resolveId(idtype, d.id, gene.idType)
+      const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
@@ -202,25 +214,28 @@ export class CoExpression extends ASmallMultipleView {
               ensgs: '\''+name+'\''
             })
           ]);
-        })
-        .catch((error) => {
+        });
+      // on error
+      promise.catch(showErrorModalDialog)
+        .then((error) => {
           console.error(error);
           that.setBusy(false);
-        })
-        .then((input) => {
-          // use EnsemblID if symbol is empty
-          d.geneName = (input[1][0].symbol) ? input[1][0].symbol : input[1][0].id;
-          d.rows = input[0];
-
-          //console.log('loaded data for', d.geneName);
-
-          that.initChart($id);
-          that.resizeChart($id);
-          that.updateChartData($id);
-
-          that.setBusy(false);
         });
+      // on success
+      promise.then((input) => {
+        // use EnsemblID if symbol is empty
+        d.geneName = (input[1][0].symbol) ? input[1][0].symbol : input[1][0].id;
+        d.rows = input[0];
+
+        //console.log('loaded data for', d.geneName);
+
+        that.initChart($id);
+        that.resizeChart($id);
+        that.updateChartData($id);
+
+        that.setBusy(false);
       });
+    });
 
     $plots.exit().remove()
       .each(function(d) {

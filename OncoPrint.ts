@@ -7,6 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
 import {all_types, dataSources, copyNumberVariations, mutationStatus, gene, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {showErrorModalDialog} from '../targid2/Dialogs';
 
 export class OncoPrint extends AView {
 
@@ -156,7 +157,7 @@ export class OncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
     enterOrUpdateAll.each(function(d) {
-      return that.resolveId(idtype, d.id, gene.idType)
+      const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
             d3.select(this),
@@ -165,16 +166,21 @@ export class OncoPrint extends AView {
               ensgs: '\''+name+'\'',
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
+            ajax.getAPIJSON(`/targid2/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
               ensgs: '\''+name+'\''
             })
           ]);
-        })
-        .catch((error) => {
+        });
+
+      // on error
+      promise.catch(showErrorModalDialog)
+        .then((error) => {
           console.error(error);
           that.setBusy(false);
-        })
-        .then((input) => {
+        });
+
+      // on success
+      promise.then((input) => {
           d.geneName = input[3][0].symbol;
           d.rows = input[2];
           d.ensg = input[1];
@@ -184,7 +190,8 @@ export class OncoPrint extends AView {
           that.updateChartData($id);
           that.setBusy(false);
         });
-      });
+    });
+
 
     $ids.exit().remove()
       .each(function(d) {
