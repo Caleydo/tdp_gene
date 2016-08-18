@@ -30,7 +30,7 @@ export class OncoPrint extends AView {
   private cellMutation = 8;
 
   private sampleList = [];
-  private sampleListSortIndex = 0;
+  //private sampleListSortIndex = 0;
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [
@@ -273,15 +273,15 @@ export class OncoPrint extends AView {
    * @param fromIndex
    * @param toIndex
    */
-  private arrayMove(arr, fromIndex, toIndex) {
-    var element = arr[fromIndex];
-    arr.splice(fromIndex, 1);
-    arr.splice(toIndex, 0, element);
-  }
+  //private arrayMove(arr, fromIndex, toIndex) {
+  //  var element = arr[fromIndex];
+  //  arr.splice(fromIndex, 1);
+  //  arr.splice(toIndex, 0, element);
+  //}
 
 
   //celllinename, max(cn) as cn, max(log2fpkm) as expr, max(dna_mutated) as dna_mutated
-  private updateChart2(rows: {id: string, name: string, cn: string, expr: number, dna_mutated: string, symbol: string}[]) {
+  /*private updateChart2(rows: {id: string, name: string, cn: string, expr: number, dna_mutated: string, symbol: string}[]) {
     // first: group the rows by different keys
     const data2 = d3.nest()
       .key((d:any) => d.symbol).sortKeys(d3.ascending)
@@ -352,9 +352,9 @@ export class OncoPrint extends AView {
 
     // exit
     marks.exit().remove();
-  }
+  }*/
 
-  private update2() {
+  /*private update2() {
     const idtype = this.selection.idtype;
     this.setBusy(true);
 
@@ -368,6 +368,7 @@ export class OncoPrint extends AView {
       this.setBusy(false);
     });
   }
+  */
 }
 
 interface IDataFormat {

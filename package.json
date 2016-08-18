@@ -59,8 +59,6 @@
           "idtype": "Tissue",
           "sampleType": "Tissue"
         },
-
-
         {
           "id": "celllinedb_genes_start",
           "name": "Genes",
