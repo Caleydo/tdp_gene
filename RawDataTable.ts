@@ -106,7 +106,7 @@ class RawDataTable extends ALineUpView {
 
     // on error
     promise1.catch(showErrorModalDialog)
-      .then((error) => {
+      .catch((error) => {
         console.error(error);
         this.setBusy(false);
       });
@@ -132,7 +132,7 @@ class RawDataTable extends ALineUpView {
 
     // on error
     promise2.catch(showErrorModalDialog)
-      .then((error) => {
+      .catch((error) => {
         console.error(error);
         this.setBusy(false);
       });

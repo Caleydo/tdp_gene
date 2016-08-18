@@ -174,7 +174,7 @@ export class OncoPrint extends AView {
 
       // on error
       promise.catch(showErrorModalDialog)
-        .then((error) => {
+        .catch((error) => {
           console.error(error);
           that.setBusy(false);
         });

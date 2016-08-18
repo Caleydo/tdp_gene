@@ -131,7 +131,7 @@ export class CoExpression extends ASmallMultipleView {
 
         // on error
         promise.catch(showErrorModalDialog)
-          .then((error) => {
+          .catch((error) => {
             console.error(error);
             this.setBusy(false);
           });
@@ -217,7 +217,7 @@ export class CoExpression extends ASmallMultipleView {
         });
       // on error
       promise.catch(showErrorModalDialog)
-        .then((error) => {
+        .catch((error) => {
           console.error(error);
           that.setBusy(false);
         });

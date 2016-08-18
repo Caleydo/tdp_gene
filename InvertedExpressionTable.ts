@@ -92,7 +92,7 @@ class ExpressionTable extends ALineUpView {
 
     // on error
     promise1.catch(showErrorModalDialog)
-      .then((error) => {
+      .catch((error) => {
         console.error(error);
         this.setBusy(false);
       });
@@ -109,7 +109,7 @@ class ExpressionTable extends ALineUpView {
 
     // on error
     promise2.catch(showErrorModalDialog)
-      .then((error) => {
+      .catch((error) => {
         console.error(error);
         this.setBusy(false);
       });
