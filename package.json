@@ -211,7 +211,7 @@
           "id": "ensembl_org",
           "name": "ensembl.org",
           "category": "static",
-          "site": "//apr2013.archive.ensembl.org/id/{gene}",
+          "site": "//sep2013.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
           "argument": "gene",
           "idtype": "Ensembl",
           "selection": "multiple"
