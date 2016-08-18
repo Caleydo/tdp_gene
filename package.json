@@ -261,7 +261,7 @@
           "id": "targetvalidation",
           "name": "targetvalidation.org",
           "category": "static",
-          "site": "//www.targetvalidation.org/target/{gene}",
+          "site": "//targetvalidation.org/target/{gene}",
           "argument": "gene",
           "idtype": "Ensembl",
           "selection": "multiple"
