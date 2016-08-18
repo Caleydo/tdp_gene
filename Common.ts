@@ -10,13 +10,13 @@ export const copyNumberVariations = [
   {value: 0, name: 'NORMAL', color: '#dcdcdc', border: 'transparent'},
   //{value: 1, name: 'Low level amplification', color: '#f4a582'},
   //{value: 2, name: 'High level amplification', color: '#ca0020'},
-  {value: null, name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
+  {value: 'null', name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
 ];
 
 export const mutationStatus = [
   {value: 't', name: 'Mutated', color: '#1BA64E'},
   {value: 'f', name: 'Not Mutated', color: '#B70AFF'},
-  {value: null, name: 'Unknown', color: 'transparent'}
+  {value: 'null', name: 'Unknown', color: 'transparent'}
 ];
 
 export const all_types = 'All Tumor Types';

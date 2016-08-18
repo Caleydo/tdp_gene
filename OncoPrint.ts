@@ -16,11 +16,11 @@ export class OncoPrint extends AView {
     .domain(copyNumberVariations.map((d) => String(d.value)))
     .range(copyNumberVariations.map((d) => d.color));
 
-  private cBorder = d3.scale.ordinal<string>()
+  private colorBorder = d3.scale.ordinal<string>()
     .domain(copyNumberVariations.map((d) => String(d.value)))
     .range(copyNumberVariations.map((d) => d.border));
 
-  private cMut = d3.scale.ordinal<string>()
+  private colorMut = d3.scale.ordinal<string>()
     .domain(mutationStatus.map((d) => d.value))
     .range(mutationStatus.map((d) => d.color));
 
@@ -221,11 +221,11 @@ export class OncoPrint extends AView {
 
     $cells
       .style('background-color', (d:any) => this.color(d.cn))
-      .style('border', (d:any) => '1px solid ' + this.cBorder(d.cn));
+      .style('border', (d:any) => '1px solid ' + this.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => this.cMut(d.dna_mutated));
+      .style('background-color', (d:any) => this.colorMut(d.dna_mutated));
 
     $cells.exit().remove();
   }
@@ -240,9 +240,9 @@ export class OncoPrint extends AView {
           id: -1,
           name: sample,
           symbol: '',
-          cn: null, // unknown
+          cn: 'null', // unknown
           expr: 0,
-          dna_mutated: null // unknown
+          dna_mutated: 'null' // unknown
         };
         console.log('added sample', sample);
       }
