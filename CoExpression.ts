@@ -25,6 +25,15 @@ export class CoExpression extends ASmallMultipleView {
   private paramDesc:IFormSelectDesc[] = [
     {
       type: FormElementType.SELECT,
+      label: 'Reference Gene',
+      id: ParameterFormIds.REFERENCE_GENE,
+      options: {
+        optionsData: [],
+      },
+      useSession: true
+    },
+    {
+      type: FormElementType.SELECT,
       label: 'Data Source',
       id: ParameterFormIds.DATA_SOURCE,
       options: {
@@ -42,15 +51,6 @@ export class CoExpression extends ASmallMultipleView {
       options: {
         optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
         optionsData: []
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Reference Gene',
-      id: ParameterFormIds.REFERENCE_GENE,
-      options: {
-        optionsData: [],
       },
       useSession: true
     }
