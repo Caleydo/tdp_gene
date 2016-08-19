@@ -5,7 +5,7 @@
 
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
-import {all_types, dataSources, copyNumberVariations, mutationStatus, gene, ParameterFormIds} from './Common';
+import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -14,16 +14,16 @@ export class OncoPrint extends AView {
   private $table:d3.Selection<IView>;
 
   private color = d3.scale.ordinal<string>()
-    .domain(copyNumberVariations.map((d) => String(d.value)))
-    .range(copyNumberVariations.map((d) => d.color));
+    .domain(copyNumberCat.map((d) => String(d.value)))
+    .range(copyNumberCat.map((d) => d.color));
 
   private colorBorder = d3.scale.ordinal<string>()
-    .domain(copyNumberVariations.map((d) => String(d.value)))
-    .range(copyNumberVariations.map((d) => d.border));
+    .domain(copyNumberCat.map((d) => String(d.value)))
+    .range(copyNumberCat.map((d) => d.border));
 
   private colorMut = d3.scale.ordinal<string>()
-    .domain(mutationStatus.map((d) => d.value))
-    .range(mutationStatus.map((d) => d.color));
+    .domain(mutationCat.map((d) => d.value))
+    .range(mutationCat.map((d) => d.color));
 
   private cellHeight = 25;
   private cellWidth = 7;
@@ -114,13 +114,13 @@ export class OncoPrint extends AView {
 
     $legend.append('li').classed('title', true).text('Genetic Alteration:');
 
-    copyNumberVariations.forEach((d) => {
+    copyNumberCat.forEach((d) => {
       let $li = $legend.append('li').classed('cnv', true);
       $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
       $li.append('span').text(d.name);
     });
 
-    mutationStatus
+    mutationCat
       //.filter((d) => d.value !=='f')
       .forEach((d) => {
         let $li = $legend.append('li').classed('mut', true);
