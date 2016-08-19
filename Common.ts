@@ -3,7 +3,7 @@
  */
 
 
-export const copyNumberVariations = [
+export const copyNumberCat = [
   {value: 2, name: 'Amplification', color: '#ca0020', border: 'transparent'},
   {value: -2, name: 'Homozygous deletion', color: '#0571b0', border: 'transparent'},
   //{value: -1, name: 'Heterozygous deletion', color: '#92c5de'},
@@ -13,9 +13,9 @@ export const copyNumberVariations = [
   {value: 'null', name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
 ];
 
-export const mutationStatus = [
+export const mutationCat = [
   {value: 't', name: 'Mutated', color: '#1BA64E'},
-  {value: 'f', name: 'Not Mutated', color: '#B70AFF'},
+  {value: 'f', name: 'Non Mutated', color: '#B70AFF'},
   {value: 'null', name: 'Unknown', color: 'transparent'}
 ];
 
@@ -131,8 +131,8 @@ export const copyNumber = {
   table: 'copynumber2',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
-    { id: 'cn', name: 'Categorized Copy Number', type: 'number', domain: [-2, 2], missingValue: 0, constantDomain: true}]
+    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true}]
+    //{ id: 'cn', name: 'Categorized Copy Number', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}]
 };
 
 export const mutation = {
@@ -141,7 +141,7 @@ export const mutation = {
   table: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
-    { id: 'dna_mutated', name: 'DNA Mutated', type: 'number', domain: [0, 1], missingValue: 0, constantDomain: true}]
+    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true}]
 };
 
 export const dataTypes = [expression, copyNumber, mutation];

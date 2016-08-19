@@ -7,7 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {dataSources, all_types, expression, copyNumber, mutation, mutationStatus, ParameterFormIds, IDataTypeConfig} from './Common';
+import {dataSources, all_types, expression, copyNumber, mutation, mutationCat, ParameterFormIds, IDataTypeConfig} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -206,7 +206,7 @@ class RawDataTable extends ALineUpView {
 
           var desc;
           if (this.dataType === mutation) {
-            desc = categoricalCol('score_' + d, mutationStatus.map((d) => d.value));
+            desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
           } else {
             desc = numberCol2('score_' + d, -3, 3, label);
           }

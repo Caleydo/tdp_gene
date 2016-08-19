@@ -7,7 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from '../targid2/LineUpView';
-import {dataSources, all_types, copyNumberVariations, ParameterFormIds} from './Common';
+import {dataSources, all_types, copyNumberCat, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -33,7 +33,7 @@ export class Enrichment extends ALineUpView {
       label: 'Alteration Type',
       id: ParameterFormIds.ALTERATION_TYPE,
       options: {
-        optionsData: copyNumberVariations.map((ds) => {
+        optionsData: copyNumberCat.map((ds) => {
           return {name: ds.name, value: ds.name, data: ds};
         })
       },
