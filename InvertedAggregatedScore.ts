@@ -31,7 +31,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/expression_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
       table_name: this.parameter.data_type.table,
       data_subtype: this.parameter.data_subtype.id,
       biotype: this.parameter.bio_type,
@@ -75,15 +75,15 @@ class InvertedAggregatedScore implements IScore<number> {
 }*/
 
 
-/*class InvertedFrequencyScore implements IScore<number> {
-  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private sample: IDataSourceConfig) {
+class InvertedFrequencyScore implements IScore<number> {
+  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, bio_type:string, comparison_operator: string, comparison_value: number}, private sample: IDataSourceConfig) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
+      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" Frequency ${this.parameter.bio_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
       domain: [0, 1],
       missingValue: 0,
       constantDomain: true
@@ -91,10 +91,10 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/frequency_score${this.parameter.bio_type===all_types ? '_all' : ''}`, {
       table_name: this.parameter.data_type.table,
       data_subtype: this.parameter.data_subtype.id,
-      tumortype: this.parameter.tumor_type,
+      biotype: this.parameter.bio_type,
       operator: this.parameter.comparison_operator,
       value: this.parameter.comparison_value
     }).then((rows:any[]) => {
@@ -105,7 +105,7 @@ class InvertedAggregatedScore implements IScore<number> {
       return r;
     });
   }
-}*/
+}
 
 export function create(desc: IPluginDesc) {
   // resolve promise when closing or submitting the modal dialog
@@ -224,17 +224,17 @@ export function create(desc: IPluginDesc) {
 
       var score:IScore<number> = new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 
-      /*if(data[ParameterFormIds.AGGREGATION] === 'frequency') {
+      if(data[ParameterFormIds.AGGREGATION] === 'frequency') {
         switch(data[ParameterFormIds.DATA_TYPE]) {
-          case mutation:
+          /*case mutation:
             score = new InvertedMutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
-            break;
+            break;*/
           case copyNumber:
           case expression:
             score = new InvertedFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
             break;
         }
-      }*/
+      }
       console.log(score, data);
 
       dialog.hide();
