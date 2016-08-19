@@ -166,7 +166,7 @@ export class OncoPrint extends AView {
               ensgs: '\''+name+'\'',
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
-            ajax.getAPIJSON(`/targid2/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
+            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
               ensgs: '\''+name+'\''
             })
           ]);
