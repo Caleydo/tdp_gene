@@ -20,6 +20,7 @@ export const mutationStatus = [
 ];
 
 export const all_types = 'All Tumor Types';
+export const all_bio_types = 'All Bio Types';
 //select distinct tumortype from cellline where tumortype is not null
 
 export interface IDataSourceConfig {
@@ -92,7 +93,7 @@ export const gene = {
   db: 'bioinfodb',
   base: 'gene',
   bioTypes: geneBioTypes,
-  bioTypesWithAll : [all_types].concat(geneBioTypes),
+  bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
   species: ['Homo_sapiens' ]
 };
 

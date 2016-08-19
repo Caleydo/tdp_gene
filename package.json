@@ -34,10 +34,10 @@
           "sampleType": "Tissue"
         },
         {
-          "id": "bioinfodb_expressionscore_inverted",
-          "name": "Expression Score",
+          "id": "tissue_inverted_aggregated_score",
+          "name": "Aggregated Score",
           "type": "targidScore",
-          "file": "InvertedExpressionScore",
+          "file": "InvertedAggregatedScore",
           "idtype": "Tissue",
           "sampleType": "Tissue"
         },
@@ -148,7 +148,7 @@
           "mockup": true
         },
         {
-          "id": "expressionscore",
+          "id": "gene_aggregated_score",
           "name": "Aggregated Score",
           "type": "targidScore",
           "file": "AggregatedScore",
@@ -182,14 +182,14 @@
           "selection": "some"
         },
         {
-          "id": "celllinedb_expressionscore_inverted",
-          "name": "Expression Score",
+          "id": "cellline_inverted_aggregated_score",
+          "name": "Aggregated Score",
           "type": "targidScore",
-          "file": "InvertedExpressionScore",
+          "file": "InvertedAggregatedScore",
           "idtype": "Cellline"
         },
         {
-          "id": "celllinedb_expressiontable_inverted",
+          "id": "inverted_expressiontable",
           "name": "Expression",
           "type": "targidView",
           "file": "InvertedExpressionTable",
