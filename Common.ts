@@ -130,8 +130,8 @@ export const copyNumber = {
   table: 'copynumber2',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
-    { id: 'cn', name: 'Categorized Copy Number', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}]
+    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true}]
+    //{ id: 'cn', name: 'Categorized Copy Number', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}]
 };
 
 export const mutation = {
