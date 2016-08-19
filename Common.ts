@@ -119,8 +119,8 @@ export const expression = {
   table: 'expression',
   query: 'expression_score',
   dataSubtypes: [
-    { id: 'log2tpm', name: 'log2tpm', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
-    { id: 'log2fpkm', name: 'log2fpkm', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
+    { id: 'log2tpm', name: 'Log2 TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
+    { id: 'log2fpkm', name: 'Log2 FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
     { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true}]
 };
 
@@ -130,8 +130,8 @@ export const copyNumber = {
   table: 'copynumber2',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'cn', name: 'Relative Copy Number', type: 'number', domain: [-2, 2], missingValue: 0, constantDomain: true},
-    { id: 'cnv', name: 'Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true}]
+    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
+    { id: 'cn', name: 'Categorized Copy Number', type: 'number', domain: [-2, 2], missingValue: 0, constantDomain: true}]
 };
 
 export const mutation = {
