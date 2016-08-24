@@ -248,6 +248,26 @@
         },
         {
           "type": "targidView",
+          "id": "targetvalidation",
+          "name": "targetvalidation.org",
+          "category": "static",
+          "site": "//targetvalidation.org/target/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        },
+        {
+          "type": "targidView",
+          "id": "clip",
+          "name": "CLIP",
+          "category": "static",
+          "site": "//vie-toolbox/clip/multiViewGene.php?ensg={gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        },
+        {
+          "type": "targidView",
           "id": "cosmic",
           "name": "COSMIC",
           "category": "static",
@@ -258,12 +278,12 @@
         },
         {
           "type": "targidView",
-          "id": "targetvalidation",
-          "name": "targetvalidation.org",
+          "id": "clip_cellline",
+          "name": "CLIP",
           "category": "static",
-          "site": "//targetvalidation.org/target/{gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
+          "site": "///vie-toolbox/clip/multiViewCellline.php?celllinename={cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
           "selection": "multiple"
         }
       ]
