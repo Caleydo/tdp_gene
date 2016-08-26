@@ -7,44 +7,25 @@ import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {all_types, gene, expression, IDataSourceConfig, chooseDataSource, ParameterFormIds} from './Common';
+import {all_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
-class ExpressionTable extends ALineUpView {
+class InvertedRawDataTable extends ALineUpView {
 
   private lineupPromise : Promise<any>;
 
   private dataSource: IDataSourceConfig;
+  private dataType:IDataTypeConfig;
 
   private paramForm:FormBuilder;
-  private paramDesc:IFormSelectDesc[] = [
-    {
-      type: FormElementType.SELECT,
-      label: 'Data Subtype',
-      id: ParameterFormIds.DATA_SUBTYPE,
-      options: {
-        optionsData: expression.dataSubtypes.map((ds) => {
-          return {name: ds.id, value: ds.id, data: ds};
-        })
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Bio Type',
-      id: ParameterFormIds.BIO_TYPE,
-      options: {
-        optionsData: gene.bioTypes
-      },
-      useSession: true
-    }
-  ];
+  private paramDesc:IFormSelectDesc[];
 
-  constructor(context:IViewContext, private selection:ISelection, parent:Element, options?) {
+  constructor(context:IViewContext, private selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
     super(context, parent, options);
 
     this.dataSource = chooseDataSource(context.desc);
+    this.dataType = dataType;
   }
 
   init() {
@@ -54,6 +35,29 @@ class ExpressionTable extends ALineUpView {
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
     this.paramForm = new FormBuilder($parent);
+
+    this.paramDesc = [
+      {
+        type: FormElementType.SELECT,
+        label: 'Data Subtype',
+        id: ParameterFormIds.DATA_SUBTYPE,
+        options: {
+          optionsData: this.dataType.dataSubtypes.map((ds) => {
+            return {name: ds.name, value: ds.id, data: ds};
+          })
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Bio Type',
+        id: ParameterFormIds.BIO_TYPE,
+        options: {
+          optionsData: gene.bioTypes
+        },
+        useSession: true
+      }
+    ];
 
     // map FormElement change function to provenance graph onChange function
     this.paramDesc.forEach((p) => {
@@ -100,8 +104,9 @@ class ExpressionTable extends ALineUpView {
     // on success
     const promise2 = promise1.then((args) => {
         const names = args[1];
-        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/expression_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
+        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
           names: '\''+names.join('\',\'')+'\'',
+          table_name: this.dataType.table,
           data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
           biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
         });
@@ -151,14 +156,34 @@ class ExpressionTable extends ALineUpView {
         var lineup = this.replaceLineUpData(data);
         const cols = lineup.data.getColumns().map((d) => d.column);
         const ranking = lineup.data.getRankings()[0];
-        const usedCols = ranking.flatColumns;
-        //remove old columns
-        usedCols.filter((d) => /score_.*/.test(d.desc.column)).filter((d) => !names.has(d.desc.column.slice(6))).forEach((d) => {
-          d.removeMe();
-        });
-        //add new columns
-        names.values().filter((d) => cols.indexOf('score_' + d) < 0).forEach((d) => {
-          const desc = numberCol2('score_' + d, -3, 3, d);
+        const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
+        const colIds = usedCols.map((d) => d.desc.column);
+        const colors = d3.scale.category10().range().slice();
+
+        // remove old colums
+        usedCols
+          // remove colors that are already in use from the list
+          .map((d) => {
+            colors.splice(colors.indexOf(d.color), 1);
+            return d;
+          })
+          .filter((d) => !names.has(d.desc.column.slice(6)))
+          // remove columns
+          .forEach((d) => {
+            d.removeMe();
+          });
+
+        // add new columns
+        names.values().filter((d) => colIds.indexOf('score_' + d) < 0).forEach((d, i) => {
+
+          var desc;
+          if (this.dataType === mutation) {
+            desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), d);
+          } else {
+            desc = numberCol2('score_' + d, -3, 3, d);
+          }
+
+          desc.color = colors.shift(); // get and remove color from list
           lineup.data.pushDesc(desc);
           lineup.data.push(ranking, desc);
         });
@@ -199,6 +224,14 @@ class ExpressionTable extends ALineUpView {
   }
 }
 
-export function createTable(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new ExpressionTable(context, selection, parent, options);
+export function createExpressionTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
+  return new InvertedRawDataTable(context, selection, parent, expression, options);
+}
+
+export function createCopyNumberTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
+  return new InvertedRawDataTable(context, selection, parent, copyNumber, options);
+}
+
+export function createMutationTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
+  return new InvertedRawDataTable(context, selection, parent, mutation, options);
 }

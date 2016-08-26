@@ -22,7 +22,6 @@ class RawDataTable extends ALineUpView {
 
   constructor(context:IViewContext, private selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
     super(context, parent, options);
-    console.log(dataType);
     this.dataType = dataType;
   }
 

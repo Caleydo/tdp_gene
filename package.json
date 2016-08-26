@@ -42,16 +42,6 @@
           "sampleType": "Tissue"
         },
         {
-          "id": "bioinfodb_expressiontable_inverted",
-          "name": "Expression",
-          "type": "targidView",
-          "file": "InvertedExpressionTable",
-          "factory": "createTable",
-          "idtype": "Tissue",
-          "sampleType": "Tissue",
-          "selection": "some"
-        },
-        {
           "id": "bioinfodb_single_gene_score",
           "name": "Single Gene Score",
           "type": "targidScore",
@@ -189,12 +179,60 @@
           "idtype": "Cellline"
         },
         {
-          "id": "inverted_expressiontable",
+          "id": "celllline_inverted_expressiontable",
           "name": "Expression",
           "type": "targidView",
-          "file": "InvertedExpressionTable",
-          "factory": "createTable",
+          "file": "InvertedRawDataTable",
+          "factory": "createExpressionTable",
           "idtype": "Cellline",
+          "selection": "some"
+        },
+        {
+          "id": "celllline_inverted_copynumbertable",
+          "name": "Copy Number",
+          "type": "targidView",
+          "file": "InvertedRawDataTable",
+          "factory": "createCopyNumberTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        },
+        {
+          "id": "celllline_inverted_mutationtable",
+          "name": "Mutation",
+          "type": "targidView",
+          "file": "InvertedRawDataTable",
+          "factory": "createMutationTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        },
+        {
+          "id": "tissue_inverted_expressiontable",
+          "name": "Expression",
+          "type": "targidView",
+          "file": "InvertedRawDataTable",
+          "factory": "createExpressionTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        },
+        {
+          "id": "tissue_inverted_copynumbertable",
+          "name": "Copy Number",
+          "type": "targidView",
+          "file": "InvertedRawDataTable",
+          "factory": "createCopyNumberTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        },
+        {
+          "id": "tissue_inverted_mutationtable",
+          "name": "Mutation",
+          "type": "targidView",
+          "file": "InvertedRawDataTable",
+          "factory": "createMutationTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
           "selection": "some"
         },
         {
