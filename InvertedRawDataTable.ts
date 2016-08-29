@@ -154,7 +154,7 @@ class InvertedRawDataTable extends ALineUpView {
 
       this.withoutTracking(() => {
         var lineup = this.replaceLineUpData(data);
-        const cols = lineup.data.getColumns().map((d) => d.column);
+        //const cols = lineup.data.getColumns().map((d) => d.column);
         const ranking = lineup.data.getRankings()[0];
         const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
         const colIds = usedCols.map((d) => d.desc.column);
