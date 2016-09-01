@@ -1,7 +1,7 @@
-Targid Common Views ![Caleydo Web Client Plugin](https://img.shields.io/badge/Caleydo%20Web-Client%20Plugin-F47D20.svg)
+TargID Common Views ![Caleydo Web Client Plugin](https://img.shields.io/badge/Caleydo%20Web-Client%20Plugin-F47D20.svg)
 ===================
 
-This repository provides a collection of Targid views and visualization that could be used independent from entry point.
+This repository provides a collection of TargID views and visualization that could be used independent from entry point.
 
 Installation
 ------------
