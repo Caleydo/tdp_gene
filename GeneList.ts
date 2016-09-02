@@ -6,31 +6,56 @@ import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, useDefaultLayout, stringCol, categoricalCol} from '../targid2/LineUpView';
-import {gene} from './Common';
+import {gene, IDataSourceConfig} from './Common';
 import {showErrorModalDialog} from '../targid2/Dialogs';
+import {INamedSet} from '../targid2/storage';
 
 class GeneList extends ALineUpView {
-  private species : string = null;
+  private namedSet : INamedSet;
+
+  private dataSource: IDataSourceConfig;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
-    this.species = options && options.species ? options.species : null;
+    this.dataSource = gene;
+    this.namedSet = options.namedSet;
     this.build();
+  }
+
+  /**
+   * Get sub type for named sets
+   * @returns {{key: string, value: string}}
+   */
+  protected getSubType() {
+    return {
+      key: this.namedSet.subTypeKey,
+      value: this.namedSet.subTypeValue
+    };
   }
 
   private build() {
     this.setBusy(true);
 
-    const data = this.species === null ? ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}`): ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}_filtered`, {species : this.species});
+    var dataPromise;
+
+    if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '') {
+      const param = {};
+      param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered`, param);
+
+    } else {
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}`);
+    }
+
     const promise = Promise.all([
-        ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`),
-        data
+        ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/desc`),
+        dataPromise
       ]);
 
     // on success
     promise.then((args) => {
       const desc = args[0];
-      const rows : any[] = args[1];
+      var rows : any[] = args[1];
       const columns = [
         stringCol('symbol', 'Symbol'),
         stringCol('id', 'Ensembl'),
@@ -42,6 +67,11 @@ class GeneList extends ALineUpView {
         stringCol('seqregionend', 'Seq Region End')
       ];
       rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
+
+      // if ids filter is set, filter the rows
+      if(this.namedSet.ids && this.namedSet.ids.length > 0) {
+        rows = this.filterRowsByIds(rows, this.namedSet.ids);
+      }
 
       var lineup = this.buildLineUp(rows, columns, idtypes.resolve(desc.idType),(d) => d._id);
 
@@ -71,7 +101,7 @@ class GeneList extends ALineUpView {
   }
 
   getItemName(count) {
-    return (count === 1) ? gene.name.toLowerCase() : gene.name.toLowerCase() + 's';
+    return (count === 1) ? this.dataSource.name.toLowerCase() : this.dataSource.name.toLowerCase() + 's';
   }
 }
 

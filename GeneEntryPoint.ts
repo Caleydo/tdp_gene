@@ -5,6 +5,7 @@
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
 import {gene} from './Common';
+import {INamedSet} from '../targid2/storage';
 
 /**
  * Entry point list from all species and LineUp named sets (aka stored LineUp sessions)
@@ -23,8 +24,21 @@ class GeneEntryPointList extends AEntryPointList {
     this.idType = 'Ensembl';
 
     // read species
-    this.data = gene.species.map((d) => ({ type: 'species', v: d}));
-    this.data.unshift({type: 'all', v: 'All'});
+    var species:string[] = gene.species.slice(0);
+    species.unshift('all');
+
+    // convert species to namedset
+    this.data = species.map((d) => {
+      return <INamedSet>{
+        name: d,
+        description: '',
+        idType: '',
+        ids: '',
+        subTypeKey: 'species',
+        subTypeValue: d,
+        creator: ''
+      };
+    });
 
     this.build();
   }
