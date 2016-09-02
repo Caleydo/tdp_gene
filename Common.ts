@@ -31,11 +31,21 @@ export interface IDataSourceConfig {
   tableName: string;
   entityName: string;
   base: string;
-  tumorTypes: string[];
-  tumorTypesWithAll : string[];
   species: string[];
   [key: string]: any;
 }
+
+export interface ITumorTypeDataSourceConfig extends IDataSourceConfig {
+  tumorTypes: string[];
+  tumorTypesWithAll: string[];
+}
+
+export interface IBioTypeDataSourceConfig extends IDataSourceConfig {
+  bioTypes: string[];
+  bioTypesWithAll: string[];
+}
+
+
 
 const celllinesTumorTypes = ['adrenal gland carcinoma', 'astrocytoma/glioblastoma', 'bladder carcinoma', 'bone sarcoma',
   'breast carcinoma', 'cervix carcinoma', 'colon carcinoma', 'esophagus carcinoma', 'gallbladder carcinoma',
@@ -44,7 +54,7 @@ const celllinesTumorTypes = ['adrenal gland carcinoma', 'astrocytoma/glioblastom
   'pancreatic insulinoma', 'placenta carcinoma', 'prostate benign hyperplasia', 'prostate carcinoma', 'renal cancer other', 'renal carcinoma',
   'retinoblastoma', 'rhabdomyosarcoma', 'sarcoma/soft tissue', 'SCLC', 'SCLC/neuroendocrine', 'skin/SCC', 'thyroid carcinoma', 'uterus carcinoma', 'vulva carcinoma'];
 
-export const cellline = {
+export const cellline:ITumorTypeDataSourceConfig = {
   idType: 'Cellline',
   name: 'Cell Line',
   db: 'bioinfodb',
@@ -65,7 +75,7 @@ const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain -
   'Minor Salivary Gland', 'Muscle - Skeletal', 'NEC', 'Nerve - Tibial', 'non small cell lung cancer', 'Ovary', 'Pancreas', 'Pituitary',
   'PNET', 'SCLC, NEC', 'Skin - Sun Exposed (Lower leg)', 'small cell lung cancer', 'Spleen', 'Stomach', 'Testis', 'unclear'];
 
-export const tissue = {
+export const tissue:ITumorTypeDataSourceConfig = {
   idType: 'Tissue',
   name: 'Tissue (PDX Models + Normal Tissue)',
   db: 'bioinfodb',
@@ -96,7 +106,7 @@ export function chooseDataSource(desc: any): IDataSourceConfig {
 
 const geneBioTypes = ['protein_coding', 'processed_transcript', 'LRG_gene', 'lincRNA'];
 
-export const gene = {
+export const gene:IBioTypeDataSourceConfig = {
   idType: 'Ensembl',
   name: 'Gene',
   db: 'bioinfodb',
