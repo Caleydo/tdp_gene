@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene
+  expression, copyNumber, mutation, gene, cellline, dataSources
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
@@ -32,7 +32,9 @@ class InvertedAggregatedScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
-      table_name: this.parameter.data_type.table,
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
       data_subtype: this.parameter.data_subtype.id,
       biotype: this.parameter.bio_type,
       agg: this.parameter.aggregation
@@ -118,9 +120,9 @@ export function create(desc: IPluginDesc) {
         type: FormElementType.SELECT,
         label: 'Data Source',
         id: ParameterFormIds.DATA_SOURCE,
-        visible: false,
+        //visible: false, // TODO hide again, when the default selection matches the entry point
         options: {
-          optionsData: [gene].map((ds) => {
+          optionsData: dataSources.map((ds) => {
             return {name: ds.name, value: ds.name, data: ds};
           })
         },

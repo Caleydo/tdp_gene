@@ -33,7 +33,9 @@ class AggregatedScore implements IScore<number> {
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
 
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      table_name: this.parameter.data_type.table,
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
       data_subtype: this.parameter.data_subtype.id,
       tumortype: this.parameter.tumor_type,
       agg: this.parameter.aggregation
@@ -64,6 +66,8 @@ class MutationFrequencyScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
       tumortype: this.parameter.tumor_type
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
@@ -77,7 +81,7 @@ class MutationFrequencyScore implements IScore<number> {
 
 
 class FrequencyScore implements IScore<number> {
-  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private sample: IDataSourceConfig) {
+  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
 
   }
 
@@ -92,8 +96,10 @@ class FrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      table_name: this.parameter.data_type.table,
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
       data_subtype: this.parameter.data_subtype.id,
       tumortype: this.parameter.tumor_type,
       operator: this.parameter.comparison_operator,
