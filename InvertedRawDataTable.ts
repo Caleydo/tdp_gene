@@ -106,7 +106,9 @@ class InvertedRawDataTable extends ALineUpView {
         const names = args[1];
         return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
           names: '\''+names.join('\',\'')+'\'',
-          table_name: this.dataType.table,
+          schema: this.dataSource.schema,
+          entity_name: this.dataSource.entityName,
+          table_name: this.dataType.tableName,
           data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
           biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
         });
@@ -203,9 +205,10 @@ class InvertedRawDataTable extends ALineUpView {
       const desc= args[0];
       const names = args[1];
       const columns = [
-        stringCol('symbol', 'symbol'),
+        stringCol('symbol', 'Symbol'),
+        stringCol('id', 'Ensembl'), // BUG: will not be shown
         categoricalCol('species', desc.columns.species.categories),
-        categoricalCol('strand_cat', ['reverse strand', 'forward strand']),
+        categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand'),
         categoricalCol('biotype', desc.columns.biotype.categories)
       ];
       names.forEach((d, i) => {
@@ -213,10 +216,18 @@ class InvertedRawDataTable extends ALineUpView {
       });
 
       var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
+
       var r = lineup.data.pushRanking();
       lineup.data.push(r, columns[0]);
-      names.forEach((d,i) => lineup.data.push(r, columns[i+4]));
+      names.forEach((d,i) => lineup.data.push(r, columns[i+5]));
+
       useDefaultLayout(lineup);
+
+      r = lineup.data.getLastRanking().children;
+      r[1].setWidth(75);
+      r[2].setWidth(75);
+      lineup.update();
+
       this.initializedLineUp();
       this.setBusy(false);
       return lineup;

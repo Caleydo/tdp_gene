@@ -27,6 +27,9 @@ export interface IDataSourceConfig {
   idType: string;
   name: string;
   db: string;
+  schema: string;
+  tableName: string;
+  entityName: string;
   base: string;
   tumorTypes: string[];
   tumorTypesWithAll : string[];
@@ -44,7 +47,10 @@ const celllinesTumorTypes = ['adrenal gland carcinoma', 'astrocytoma/glioblastom
 export const cellline = {
   idType: 'Cellline',
   name: 'Cell Line',
-  db: 'celllinedb',
+  db: 'bioinfodb',
+  schema: 'cellline',
+  tableName: 'cellline',
+  entityName: 'celllinename',
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
   tumorTypesWithAll : [all_types].concat(celllinesTumorTypes),
@@ -63,6 +69,9 @@ export const tissue = {
   idType: 'Tissue',
   name: 'Tissue (PDX Models + Normal Tissue)',
   db: 'bioinfodb',
+  schema: 'tissue',
+  tableName: 'tissue',
+  entityName: 'tissuename',
   base: 'tissue',
   tumorTypes: tissueTumorTypes,
   tumorTypesWithAll : [all_types].concat(tissueTumorTypes),
@@ -91,6 +100,9 @@ export const gene = {
   idType: 'Ensembl',
   name: 'Gene',
   db: 'bioinfodb',
+  schema: 'public',
+  tableName: 'gene',
+  entityName: 'ensg',
   base: 'gene',
   bioTypes: geneBioTypes,
   bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
@@ -100,7 +112,7 @@ export const gene = {
 export interface IDataTypeConfig {
   id: string;
   name: string;
-  table: string;
+  tableName: string;
   query: string;
   dataSubtypes: IDataSubtypeConfig[];
 }
@@ -117,7 +129,7 @@ export interface IDataSubtypeConfig {
 export const expression = {
   id: 'expression',
   name: 'Expression',
-  table: 'expression',
+  tableName: 'expression',
   query: 'expression_score',
   dataSubtypes: [
     { id: 'log2tpm', name: 'Log2 TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
@@ -128,17 +140,19 @@ export const expression = {
 export const copyNumber = {
   id: 'copy_number',
   name: 'Copy Number',
-  table: 'copynumber2',
+  tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'cnv', name: 'Log2 Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true}]
-    //{ id: 'cn', name: 'Categorized Copy Number', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}]
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
+    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
+    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}
+  ],
 };
 
 export const mutation = {
   id: 'mutation',
   name: 'Mutation',
-  table: 'mutation',
+  tableName: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
     { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true}]

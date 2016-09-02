@@ -109,6 +109,8 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
           return Promise.all([
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/expression_vs_copynumber${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
               ensg: name,
+              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {

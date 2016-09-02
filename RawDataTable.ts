@@ -117,7 +117,9 @@ class RawDataTable extends ALineUpView {
         return Promise.all([
           ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
             ensgs: '\'' + genes.join('\',\'') + '\'',
-            table_name: this.dataType.table,
+            schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+            entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+            table_name: this.dataType.tableName,
             data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
             tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
           }),

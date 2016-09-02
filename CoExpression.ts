@@ -172,6 +172,8 @@ export class CoExpression extends ASmallMultipleView {
 
     return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
         ensg: this.refGene.data.id,
+        schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+        entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
         tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
       })
       .then((rows) => {
@@ -208,6 +210,8 @@ export class CoExpression extends ASmallMultipleView {
           return Promise.all([
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
               ensg: name,
+              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {

@@ -131,6 +131,9 @@ export class OncoPrint extends AView {
 
   private loadSampleList() {
     return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print_sample_list${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+        schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+        entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+        table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
         tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
       })
       .then((rows) => {
@@ -164,6 +167,9 @@ export class OncoPrint extends AView {
             name,
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
               ensgs: '\''+name+'\'',
+              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+              table_name: that.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
