@@ -5,7 +5,7 @@
 import ajax = require('../caleydo_core/ajax');
 import tooltip = require('../caleydo_d3/tooltip');
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
-import {all_types, dataSources, gene, ParameterFormIds} from './Common';
+import {all_types, dataSources, gene, expression, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -43,6 +43,17 @@ export class CoExpression extends ASmallMultipleView {
         })
       },
       useSession: true
+    },
+    {
+      type: FormElementType.SELECT,
+      label: 'Expression',
+      id: ParameterFormIds.EXPRESSION_SUBTYPE,
+      options: {
+        optionsData: expression.dataSubtypes.map((ds) => {
+          return {name: ds.name, value: ds.name, data: ds};
+        })
+      },
+      useSession: false
     },
     {
       type: FormElementType.SELECT,
@@ -174,6 +185,7 @@ export class CoExpression extends ASmallMultipleView {
         ensg: this.refGene.data.id,
         schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
         entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+        expression_subtype: this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
         tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
       })
       .then((rows) => {
@@ -212,6 +224,7 @@ export class CoExpression extends ASmallMultipleView {
               ensg: name,
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+              expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
@@ -339,8 +352,8 @@ export class CoExpression extends ASmallMultipleView {
       title = geneName;
     }
 
-    $g.select('text.x.label').text('Expression of '+ this.getParameter(ParameterFormIds.REFERENCE_GENE).symbol);
-    $g.select('text.y.label').text('Expression of '+ geneName);
+    $g.select('text.x.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name + ' of '+ this.getParameter(ParameterFormIds.REFERENCE_GENE).symbol);
+    $g.select('text.y.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name + ' of '+ geneName);
 
     $g.select('text.title').text(title);
 

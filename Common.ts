@@ -142,8 +142,8 @@ export const expression = {
   tableName: 'expression',
   query: 'expression_score',
   dataSubtypes: [
-    { id: 'log2tpm', name: 'Log2 TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
-    { id: 'log2fpkm', name: 'Log2 FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
+    { id: 'log2tpm', name: 'Log2TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
+    { id: 'log2fpkm', name: 'Log2FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
     { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true}]
 };
 
@@ -180,6 +180,8 @@ export class ParameterFormIds {
   static ALTERATION_TYPE = 'alteration_type';
   static DATA_TYPE = 'data_type';
   static DATA_SUBTYPE = 'data_subtype';
+  static COPYNUMBER_SUBTYPE = 'copynumber_subtype';
+  static EXPRESSION_SUBTYPE = 'expression_subtype';
   static REFERENCE_GENE = 'reference_gene';
   static BIO_TYPE = 'bio_type';
   static AGGREGATION = 'aggregation';

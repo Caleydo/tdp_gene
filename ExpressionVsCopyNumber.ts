@@ -8,7 +8,7 @@ import tooltip = require('../caleydo_d3/tooltip');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
 import {Range} from '../caleydo_core/range';
-import {all_types, dataSources, gene, ParameterFormIds} from './Common';
+import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -32,6 +32,28 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
         })
       },
       useSession: true
+    },
+    {
+      type: FormElementType.SELECT,
+      label: 'Expression',
+      id: ParameterFormIds.EXPRESSION_SUBTYPE,
+      options: {
+        optionsData: expression.dataSubtypes.map((ds) => {
+          return {name: ds.name, value: ds.id, data: ds};
+        })
+      },
+      useSession: false
+    },
+    {
+      type: FormElementType.SELECT,
+      label: 'Copy Number',
+      id: ParameterFormIds.COPYNUMBER_SUBTYPE,
+      options: {
+        optionsData: copyNumber.dataSubtypes.map((ds) => {
+          return {name: ds.name, value: ds.id, data: ds};
+        })
+      },
+      useSession: false
     },
     {
       type: FormElementType.SELECT,
@@ -111,6 +133,8 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
               ensg: name,
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+              expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
+              copynumber_subtype: that.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).id,
               tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
@@ -172,7 +196,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     svg.append('text')
       .attr('class', 'x label')
       .style('text-anchor', 'middle')
-      .text('Copy Number');
+      .text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
 
     svg.append('g')
       .attr('class', 'y axis');
@@ -182,7 +206,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('transform', 'rotate(-90)')
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
-      .text('Expression');
+      .text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
   }
 
   private resizeChart($parent) {
