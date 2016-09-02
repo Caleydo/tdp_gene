@@ -5,6 +5,7 @@
 
 import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
+import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
 import {all_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds} from './Common';
@@ -26,6 +27,19 @@ class InvertedRawDataTable extends ALineUpView {
 
     this.dataSource = chooseDataSource(context.desc);
     this.dataType = dataType;
+  }
+
+  /**
+   * Override the pushScore function to give DataSource to InvertedAggregatedScore factory method
+   * @param scorePlugin
+   * @param ranking
+   */
+  pushScore(scorePlugin:plugins.IPlugin, ranking = this.lineup.data.getLastRanking()) {
+    //TODO clueify
+    Promise.resolve(scorePlugin.factory(scorePlugin.desc, this.dataSource)) // open modal dialog
+      .then((scoreImpl) => { // modal dialog is closed and score created
+        this.startScoreComputation(scoreImpl, scorePlugin, ranking);
+      });
   }
 
   init() {
