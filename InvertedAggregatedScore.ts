@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene, cellline, dataSources
+  expression, copyNumber, mutation, gene
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
@@ -109,7 +109,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 }*/
 
-export function create(desc: IPluginDesc) {
+export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Aggregated Score', 'Add');
@@ -120,9 +120,9 @@ export function create(desc: IPluginDesc) {
         type: FormElementType.SELECT,
         label: 'Data Source',
         id: ParameterFormIds.DATA_SOURCE,
-        //visible: false, // TODO hide again, when the default selection matches the entry point
+        visible: false,
         options: {
-          optionsData: dataSources.map((ds) => {
+          optionsData: [dataSource].map((ds) => {
             return {name: ds.name, value: ds.name, data: ds};
           })
         },
