@@ -77,7 +77,7 @@ const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain -
 
 export const tissue:ITumorTypeDataSourceConfig = {
   idType: 'Tissue',
-  name: 'Tissue (PDX Models + Normal Tissue)',
+  name: 'Tissue',
   db: 'bioinfodb',
   schema: 'tissue',
   tableName: 'tissue',

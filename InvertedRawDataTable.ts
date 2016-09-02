@@ -194,6 +194,7 @@ class InvertedRawDataTable extends ALineUpView {
         });
       });
 
+      this.updateLineUpStats();
       this.setBusy(false);
     }
   }
@@ -232,6 +233,10 @@ class InvertedRawDataTable extends ALineUpView {
       this.setBusy(false);
       return lineup;
     });
+  }
+
+  getItemName(count: number) {
+    return (count === 1) ? gene.name.toLowerCase() : gene.name.toLowerCase() + 's';
   }
 }
 
