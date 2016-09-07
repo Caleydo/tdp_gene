@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation
+  expression, copyNumber, mutation, convertLog2ToLinear
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
@@ -36,10 +36,16 @@ class AggregatedScore implements IScore<number> {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
       table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.id,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
       tumortype: this.parameter.tumor_type,
       agg: this.parameter.aggregation
     }).then((rows:any[]) => {
+
+      // convert log2 to linear scale
+      if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+        rows = convertLog2ToLinear(rows, 'score');
+      }
+
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
         r[idMapper(row.id)] = row.score;
@@ -100,7 +106,7 @@ class FrequencyScore implements IScore<number> {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
       table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.id,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
       tumortype: this.parameter.tumor_type,
       operator: this.parameter.comparison_operator,
       value: this.parameter.comparison_value

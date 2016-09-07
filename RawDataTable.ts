@@ -8,7 +8,7 @@ import idtypes = require('../caleydo_core/idtype');
 import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {dataSources, all_types, expression, copyNumber, mutation, mutationCat, ParameterFormIds, IDataTypeConfig} from './Common';
+import {dataSources, all_types, expression, copyNumber, mutation, mutationCat, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -161,8 +161,12 @@ class RawDataTable extends ALineUpView {
   }
 
   private updateData(args) {
-    const rows = args[0];
+    var rows = args[0];
     const mapping = args[1];
+
+    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).id.indexOf('log2') !== -1) {
+      rows = convertLog2ToLinear(rows, 'score');
+    }
 
     // show or hide no data message
     this.$nodata.classed('hidden', rows.length > 0);

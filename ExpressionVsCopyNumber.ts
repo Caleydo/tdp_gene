@@ -245,6 +245,9 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
 
     const $g = $parent.select('svg g');
 
+    $g.select('text.x.label').text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
+    $g.select('text.y.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
+
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 

@@ -8,7 +8,7 @@ import idtypes = require('../caleydo_core/idtype');
 import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {all_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds} from './Common';
+import {all_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds, convertLog2ToLinear} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -144,6 +144,10 @@ class InvertedRawDataTable extends ALineUpView {
   private updateRows(rows) {
     // show or hide no data message
     this.$nodata.classed('hidden', rows.length > 0);
+
+    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
+      rows = convertLog2ToLinear(rows, 'score');
+    }
 
     //console.log(rows.length, rows);
     if(rows.length === 0) {
