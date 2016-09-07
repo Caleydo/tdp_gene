@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene
+  expression, copyNumber, mutation, gene, convertLog2ToLinear
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
@@ -35,10 +35,15 @@ class InvertedAggregatedScore implements IScore<number> {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
       table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.id,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
       biotype: this.parameter.bio_type,
       agg: this.parameter.aggregation
     }).then((rows:any[]) => {
+
+      if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+        rows = convertLog2ToLinear(rows, 'score');
+      }
+
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
         r[row._id] = row.score;

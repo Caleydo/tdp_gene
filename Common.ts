@@ -134,6 +134,7 @@ export interface IDataSubtypeConfig {
   domain: number[];
   missingValue: number;
   constantDomain: boolean;
+  useForAggregation: string;
 }
 
 export const expression = {
@@ -142,9 +143,9 @@ export const expression = {
   tableName: 'expression',
   query: 'expression_score',
   dataSubtypes: [
-    { id: 'log2tpm', name: 'Log2TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
-    { id: 'log2fpkm', name: 'Log2FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true},
-    { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true}]
+    { id: 'log2tpm', name: 'TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
+    { id: 'log2fpkm', name: 'FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
+    { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}]
 };
 
 export const copyNumber = {
@@ -153,9 +154,9 @@ export const copyNumber = {
   tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
-    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true}
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'log2relativecopynumber'},
+    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
+    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -165,7 +166,7 @@ export const mutation = {
   tableName: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
-    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true}]
+    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: 'dna_mutated'}]
 };
 
 export const dataTypes = [expression, copyNumber, mutation];
@@ -183,8 +184,17 @@ export class ParameterFormIds {
   static COPYNUMBER_SUBTYPE = 'copynumber_subtype';
   static EXPRESSION_SUBTYPE = 'expression_subtype';
   static REFERENCE_GENE = 'reference_gene';
+  static SELECTION = 'selection';
   static BIO_TYPE = 'bio_type';
   static AGGREGATION = 'aggregation';
   static COMPARISON_OPERATOR = 'comparison_operator';
   static COMPARISON_VALUE = 'comparison_value';
+}
+
+export function convertLog2ToLinear (rows, field:string) {
+  console.log('convert log2 score to linear scale');
+  return rows.map((row) => {
+    row[field] = Math.pow(2, row[field]);
+    return row;
+  });
 }
