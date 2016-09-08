@@ -88,7 +88,6 @@ class CellLineList extends ALineUpView {
       useDefaultLayout(lineup);
       lineup.update();
       this.initializedLineUp();
-      this.setBusy(false);
     });
 
     // on error

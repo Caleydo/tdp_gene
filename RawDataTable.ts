@@ -262,8 +262,9 @@ class RawDataTable extends ALineUpView {
         lineup.data.push(r, columns[0]);
 
         useDefaultLayout(lineup);
+
+        lineup.update();
         this.initializedLineUp();
-        this.setBusy(false);
         return lineup;
       });
   }

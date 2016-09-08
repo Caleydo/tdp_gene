@@ -89,7 +89,6 @@ class GeneList extends ALineUpView {
       r[3].setWidth(120);
       lineup.update();
       this.initializedLineUp();
-      this.setBusy(false);
     });
 
     // on error

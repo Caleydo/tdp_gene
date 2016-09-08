@@ -248,7 +248,6 @@ class InvertedRawDataTable extends ALineUpView {
       lineup.update();
 
       this.initializedLineUp();
-      this.setBusy(false);
       return lineup;
     });
   }
