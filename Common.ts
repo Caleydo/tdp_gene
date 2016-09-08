@@ -88,6 +88,53 @@ export const tissue:ITumorTypeDataSourceConfig = {
   species: ['human']
 };
 
+const geneBioTypes = ['3prime_overlapping_ncrna',
+'antisense',
+'IG_C_gene',
+'IG_C_pseudogene',
+'IG_D_gene',
+'IG_J_gene',
+'IG_J_pseudogene',
+'IG_LV_gene',
+'IG_V_gene',
+'IG_V_pseudogene',
+'lincRNA',
+'LRG_gene',
+'miRNA',
+'misc_RNA',
+'Mt_rRNA',
+'Mt_tRNA',
+'non_coding',
+'polymorphic_pseudogene',
+'processed_pseudogene',
+'processed_transcript',
+'protein_coding',
+'pseudogene',
+'rRNA',
+'sense_intronic',
+'sense_overlapping',
+'snoRNA',
+'snRNA',
+'TR_C_gene',
+'TR_D_gene',
+'TR_J_gene',
+'TR_J_pseudogene',
+'TR_V_gene',
+'TR_V_pseudogene'];
+
+export const gene:IBioTypeDataSourceConfig = {
+  idType: 'Ensembl',
+  name: 'Gene',
+  db: 'bioinfodb',
+  schema: 'public',
+  tableName: 'gene',
+  entityName: 'ensg',
+  base: 'gene',
+  bioTypes: geneBioTypes,
+  bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
+  species: ['Homo_sapiens']
+};
+
 export const dataSources = [cellline, tissue];
 
 export function chooseDataSource(desc: any): IDataSourceConfig {
@@ -103,21 +150,6 @@ export function chooseDataSource(desc: any): IDataSourceConfig {
       return tissue;
   }
 }
-
-const geneBioTypes = ['protein_coding', 'processed_transcript', 'LRG_gene', 'lincRNA'];
-
-export const gene:IBioTypeDataSourceConfig = {
-  idType: 'Ensembl',
-  name: 'Gene',
-  db: 'bioinfodb',
-  schema: 'public',
-  tableName: 'gene',
-  entityName: 'ensg',
-  base: 'gene',
-  bioTypes: geneBioTypes,
-  bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
-  species: ['Homo_sapiens']
-};
 
 export interface IDataTypeConfig {
   id: string;
