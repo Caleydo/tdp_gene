@@ -8,7 +8,7 @@ import idtypes = require('../caleydo_core/idtype');
 import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {all_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds, convertLog2ToLinear} from './Common';
+import {all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataSourceConfig, IDataTypeConfig, chooseDataSource, ParameterFormIds, convertLog2ToLinear} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -118,7 +118,7 @@ class InvertedRawDataTable extends ALineUpView {
     // on success
     const promise2 = promise1.then((args) => {
         const names = args[1];
-        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_types ? '_all' : ''}`, {
+        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`, {
           names: '\''+names.join('\',\'')+'\'',
           schema: this.dataSource.schema,
           entity_name: this.dataSource.entityName,
