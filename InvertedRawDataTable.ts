@@ -67,7 +67,7 @@ class InvertedRawDataTable extends ALineUpView {
         label: 'Bio Type',
         id: ParameterFormIds.BIO_TYPE,
         options: {
-          optionsData: gene.bioTypes
+          optionsData: gene.bioTypesWithAll
         },
         useSession: true
       }
