@@ -164,7 +164,7 @@ class RawDataTable extends ALineUpView {
     var rows = args[0];
     const mapping = args[1];
 
-    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).id.indexOf('log2') !== -1) {
+    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }
 

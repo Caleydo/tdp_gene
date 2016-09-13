@@ -41,14 +41,7 @@
           "idtype": "Tissue",
           "sampleType": "Tissue"
         },
-        {
-          "id": "bioinfodb_single_gene_score",
-          "name": "Single Gene Score",
-          "type": "targidScore",
-          "file": "SingleGeneScore",
-          "idtype": "Tissue",
-          "sampleType": "Tissue"
-        },
+
         {
           "id": "celllinedb_genes_start",
           "name": "Genes",
@@ -128,16 +121,6 @@
           "selection": "some"
         },
         {
-          "type": "targidView",
-          "id": "celllinedb_disease_model_info",
-          "name": "Disease Model Info",
-          "category": "static",
-          "file": "DiseaseModelInfo",
-          "idtype": "DiseaseModel",
-          "selection": "small_multiple",
-          "mockup": true
-        },
-        {
           "id": "gene_aggregated_score",
           "name": "Aggregated Score",
           "type": "targidScore",
@@ -168,6 +151,15 @@
           "type": "targidView",
           "file": "RawDataTable",
           "factory": "createMutationTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        },
+        {
+          "id": "gene_infotable",
+          "name": "Info",
+          "type": "targidView",
+          "file": "InfoTable",
+          "factory": "createGeneInfo",
           "idtype": "Ensembl",
           "selection": "some"
         },
@@ -234,13 +226,6 @@
           "idtype": "Tissue",
           "sampleType": "Tissue",
           "selection": "some"
-        },
-        {
-          "id": "celllinedb_single_gene_score",
-          "name": "Single Gene Score",
-          "type": "targlocidScore",
-          "file": "SingleGeneScore",
-          "idtype": "Cellline"
         },
 
 
