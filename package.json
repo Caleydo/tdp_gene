@@ -155,15 +155,6 @@
           "selection": "some"
         },
         {
-          "id": "gene_infotable",
-          "name": "Info",
-          "type": "targidView",
-          "file": "InfoTable",
-          "factory": "createGeneInfo",
-          "idtype": "Ensembl",
-          "selection": "some"
-        },
-        {
           "id": "cellline_inverted_aggregated_score",
           "name": "Aggregated Score",
           "type": "targidScore",

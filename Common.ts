@@ -186,7 +186,7 @@ export const copyNumber = {
   tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'log2relativecopynumber'},
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
     { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', domain: [-2, 2], missingValue: 0, constantDomain: true, useForAggregation: 'copynumberclass'}
   ],
