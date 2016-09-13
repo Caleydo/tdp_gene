@@ -30,8 +30,8 @@ class InvertedAggregatedScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
       table_name: this.parameter.data_type.tableName,
@@ -46,7 +46,7 @@ class InvertedAggregatedScore implements IScore<number> {
 
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[row._id] = row.score;
+        r[idMapper(row.id)] = row.score;
       });
       return r;
     });
@@ -68,13 +68,13 @@ class InvertedAggregatedScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
       tumortype: this.parameter.tumor_type
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[row._id] = row.score;
+        r[idMapper(row.id)] = row.score;
       });
       return r;
     });
@@ -97,8 +97,8 @@ class InvertedAggregatedScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/no_assigner/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
       table_name: this.parameter.data_type.table,
       data_subtype: this.parameter.data_subtype.id,
       biotype: this.parameter.bio_type,
@@ -107,7 +107,7 @@ class InvertedAggregatedScore implements IScore<number> {
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[row._id] = row.score;
+        r[idMapper(row.id)] = row.score;
       });
       return r;
     });

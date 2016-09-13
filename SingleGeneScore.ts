@@ -40,7 +40,7 @@ class SingleGeneScore implements IScore<any> {
     }
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<{ [id:string]:any }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
     let score;
     switch(this.parameter.score) {
       case 'cnv':
@@ -52,12 +52,12 @@ class SingleGeneScore implements IScore<any> {
       default: // mutation
         score = 'mutation';
     }
-    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/${this.sample.base}_gene_${score}` , {
+    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/no_assigner/${this.sample.base}_gene_${score}` , {
       ensg: this.parameter.gene
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[row._id] = row.score;
+        r[idMapper(row.id)] = row.score;
       });
       return r;
     });
