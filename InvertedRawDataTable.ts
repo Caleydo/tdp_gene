@@ -181,7 +181,7 @@ class InvertedRawDataTable extends ALineUpView {
       const colIds = usedCols.map((d) => d.desc.column);
       const colors = d3.scale.category10().range().slice();
 
-      // remove old colums
+      // remove old columns
       usedCols
         // remove colors that are already in use from the list
         .map((d) => {

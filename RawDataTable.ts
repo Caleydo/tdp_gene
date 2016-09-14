@@ -204,7 +204,7 @@ class RawDataTable extends ALineUpView {
         const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
         const colIds = usedCols.map((d) => d.desc.column);
         const colors = d3.scale.category10().range().slice();
-        // remove old colums
+        // remove old columns
         usedCols
           // remove colors that are already in use from the list
           .map((d) => {
