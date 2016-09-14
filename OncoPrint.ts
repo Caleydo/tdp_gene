@@ -209,9 +209,11 @@ export class OncoPrint extends AView {
 
     const data:IDataFormat = $parent.datum();
     //console.log(data.geneName);
-    const rows = this.sortAndAlignData(data.rows);
+    var rows = data.rows;
+    rows = this.alignData(rows);
+    rows = this.sortData(rows);
     // count amplification/deletions and divide by total nmber of rows
-    data.alterationFreq = rows.filter((r) => (r.cn !== null && r.cn !== 0)).length / rows.length;
+    data.alterationFreq = rows.filter((r) => ((<any>r.cn) !== null && (<any>r.cn) !== 0)).length / rows.length;
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
@@ -243,12 +245,16 @@ export class OncoPrint extends AView {
     $cells.exit().remove();
   }
 
-  private sortAndAlignData(rows) {
+  private alignData(rows) {
+    // build hash map first for faster access
+    var hash = {};
+    rows.forEach((r) => hash[r.name] = r);
+
     // align items --> fill missing values up to match sample list
-    const rows2 = this.sampleList.map((sample) => {
-      var r = rows.filter((r) => sample === r.name)[0];
+    return this.sampleList.map((sample) => {
+      var r = hash[sample];
       // no data found --> add unknown sample
-      if(!r) {
+      if (!r) {
         r = {
           id: -1,
           name: sample,
@@ -261,9 +267,10 @@ export class OncoPrint extends AView {
       }
       return r;
     });
+  }
 
-    return rows2;
-
+  private sortData(rows) {
+    return rows;
     /*var sorted = rows2.slice(0, this.sampleListSortIndex);
     const toSort = rows2.slice(this.sampleListSortIndex, rows2.length);
 
