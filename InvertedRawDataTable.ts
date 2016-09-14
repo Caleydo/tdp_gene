@@ -158,63 +158,63 @@ class InvertedRawDataTable extends ALineUpView {
         this.setBusy(false);
       });
 
-    } else {
-
-      var names = d3.set();
-
-      const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
-        const base = values[0];
-        base.strand_cat = base.strand === -1 ? 'reverse strand' : 'forward strand';
-        values.forEach((row) => {
-          base['score_' + row.name] = row.score;
-          names.add(row.name);
-        });
-        return base;
-      }).entries(rows).map((d) => d.values);
-
-      this.withoutTracking(() => {
-        var lineup = this.replaceLineUpData(data);
-        //const cols = lineup.data.getColumns().map((d) => d.column);
-        const ranking = lineup.data.getRankings()[0];
-        const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
-        const colIds = usedCols.map((d) => d.desc.column);
-        const colors = d3.scale.category10().range().slice();
-
-        // remove old colums
-        usedCols
-          // remove colors that are already in use from the list
-          .map((d) => {
-            colors.splice(colors.indexOf(d.color), 1);
-            return d;
-          })
-          .filter((d) => !names.has(d.desc.column.slice(6)))
-          // remove columns
-          .forEach((d) => {
-            d.removeMe();
-          });
-
-        // add new columns
-        names.values().filter((d) => colIds.indexOf('score_' + d) < 0).forEach((d, i) => {
-
-          var desc;
-          if (this.dataType === mutation) {
-            desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), d);
-          } else {
-            desc = numberCol2('score_' + d, -3, 3, d);
-          }
-
-          desc.color = colors.shift(); // get and remove color from list
-          lineup.data.pushDesc(desc);
-          lineup.data.push(ranking, desc);
-        });
-        names.forEach((d) => {
-          this.updateMapping('score_' + d, data);
-        });
-      });
-
-      this.updateLineUpStats();
-      this.setBusy(false);
+      return;
     }
+
+    var names = d3.set();
+
+    const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
+      const base = values[0];
+      base.strand_cat = base.strand === -1 ? 'reverse strand' : 'forward strand';
+      values.forEach((row) => {
+        base['score_' + row.name] = row.score;
+        names.add(row.name);
+      });
+      return base;
+    }).entries(rows).map((d) => d.values);
+
+    this.withoutTracking(() => {
+      var lineup = this.replaceLineUpData(data);
+      //const cols = lineup.data.getColumns().map((d) => d.column);
+      const ranking = lineup.data.getRankings()[0];
+      const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
+      const colIds = usedCols.map((d) => d.desc.column);
+      const colors = d3.scale.category10().range().slice();
+
+      // remove old colums
+      usedCols
+        // remove colors that are already in use from the list
+        .map((d) => {
+          colors.splice(colors.indexOf(d.color), 1);
+          return d;
+        })
+        .filter((d) => !names.has(d.desc.column.slice(6)))
+        // remove columns
+        .forEach((d) => {
+          d.removeMe();
+        });
+
+      // add new columns
+      names.values().filter((d) => colIds.indexOf('score_' + d) < 0).forEach((d, i) => {
+
+        var desc;
+        if (this.dataType === mutation) {
+          desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), d);
+        } else {
+          desc = numberCol2('score_' + d, -3, 3, d);
+        }
+
+        desc.color = colors.shift(); // get and remove color from list
+        lineup.data.pushDesc(desc);
+        lineup.data.push(ranking, desc);
+      });
+      names.forEach((d) => {
+        this.updateMapping('score_' + d, data);
+      });
+    });
+
+    this.updateLineUpStats();
+    this.setBusy(false);
   }
 
   private build() {
@@ -231,13 +231,16 @@ class InvertedRawDataTable extends ALineUpView {
         categoricalCol('biotype', desc.columns.biotype.categories)
       ];
       names.forEach((d, i) => {
-        columns.push(numberCol2('score_' + d, -3, 3, d));
+        columns[columns.length] = numberCol2('score_' + d, -3, 3, d);
       });
 
       var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
 
       var r = lineup.data.pushRanking();
-      lineup.data.push(r, columns[0]);
+      //Show first 2 columns and the rest will only show up in the list of columns that the user can manually add
+      columns.slice(0,2).forEach((d) => {
+        lineup.data.push(r, d);
+      });
       names.forEach((d,i) => lineup.data.push(r, columns[i+5]));
 
       useDefaultLayout(lineup);
