@@ -223,7 +223,7 @@
         {
           "type": "targidView",
           "id": "ensembl_org",
-          "name": "ensembl.org",
+          "name": "Ensembl",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
@@ -235,7 +235,7 @@
         {
           "type": "targidView",
           "id": "gene_card",
-          "name": "genecards.org",
+          "name": "GeneCards",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
@@ -247,7 +247,7 @@
         {
           "type": "targidView",
           "id": "cansar",
-          "name": "cansar.icr.ac.uk",
+          "name": "canSAR",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
@@ -259,7 +259,7 @@
         {
           "type": "targidView",
           "id": "uniprot",
-          "name": "uniprot.org",
+          "name": "UniProt",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
@@ -271,7 +271,7 @@
         {
           "type": "targidView",
           "id": "targetvalidation",
-          "name": "targetvalidation.org",
+          "name": "Open Targets",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
