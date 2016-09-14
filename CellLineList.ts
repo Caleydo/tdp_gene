@@ -52,14 +52,15 @@ class CellLineList extends ALineUpView {
     this.setBusy(true);
 
     var dataPromise;
+    var namedSetIdUrlPrefix = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
 
-    if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '') {
+    if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
       const param = {};
       param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered`, param);
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered${namedSetIdUrlPrefix}`, param);
 
     } else {
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}`);
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}${namedSetIdUrlPrefix}`);
     }
 
     const promise = Promise.all([
@@ -78,11 +79,6 @@ class CellLineList extends ALineUpView {
         categoricalCol('organ', desc.columns.organ.categories, 'Organ'),
         categoricalCol('gender', desc.columns.gender.categories, 'Gender')
       ];
-
-      // if ids filter is set, filter the rows
-      if(this.namedSet.ids && this.namedSet.ids.length > 0) {
-        rows = this.filterRowsByIds(rows, this.namedSet.ids);
-      }
 
       var lineup = this.buildLineUp(rows, columns, idtypes.resolve(this.dataSource.idType),(d) => d._id);
       useDefaultLayout(lineup);

@@ -37,14 +37,15 @@ class GeneList extends ALineUpView {
     this.setBusy(true);
 
     var dataPromise;
+    var namedSetIdUrlPrefix = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
 
-    if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '') {
+    if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
       const param = {};
       param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered`, param);
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered${namedSetIdUrlPrefix}`, param);
 
     } else {
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}`);
+      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}${namedSetIdUrlPrefix}`);
     }
 
     const promise = Promise.all([
@@ -67,11 +68,6 @@ class GeneList extends ALineUpView {
         stringCol('seqregionend', 'Seq Region End')
       ];
       rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
-
-      // if ids filter is set, filter the rows
-      if(this.namedSet.ids && this.namedSet.ids.length > 0) {
-        rows = this.filterRowsByIds(rows, this.namedSet.ids);
-      }
 
       var lineup = this.buildLineUp(rows, columns, idtypes.resolve(desc.idType),(d) => d._id);
 
