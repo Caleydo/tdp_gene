@@ -106,6 +106,17 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     this.update();
   }
 
+  /**
+   * Filter expression values with 0, because log scale cannot handle log(0)
+   * @param rows
+   * @returns {any}
+   */
+  private filterZeroValues(rows) {
+    const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
+    console.log(`filtered ${rows.length-rows2.length} zero values`);
+    return rows2;
+  }
+
   private update(updateAll = false) {
     this.setBusy(true);
 
@@ -153,7 +164,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
       // on success
       promise.then((input) => {
         d.geneName = input[1][0].symbol;
-        d.rows = input[0];
+        d.rows = that.filterZeroValues(input[0]);
 
         //console.log('loaded data for', d.geneName);
 
