@@ -17,10 +17,10 @@ export class CoExpression extends ASmallMultipleView {
   private refGene;
   private refGeneExpression : {id:string, symbol:string, celllinename:string, expression:number}[] = [];
 
-  private x = d3.scale.linear();
-  private y = d3.scale.linear();
-  private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
-  private yAxis = d3.svg.axis().orient('left').scale(this.y);
+  private x = d3.scale.log();
+  private y = d3.scale.log();
+  private xAxis = d3.svg.axis().orient('bottom').scale(this.x).ticks(5);
+  private yAxis = d3.svg.axis().orient('left').scale(this.y).ticks(5);
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [
@@ -189,8 +189,19 @@ export class CoExpression extends ASmallMultipleView {
         tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
       })
       .then((rows) => {
-        this.refGeneExpression = rows;
+        this.refGeneExpression = this.filterZeroValues(rows);
       });
+  }
+
+  /**
+   * Filter expression values with 0, because log scale cannot handle log(0)
+   * @param rows
+   * @returns {any}
+   */
+  private filterZeroValues(rows) {
+    const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
+    console.log(`filtered ${rows.length-rows2.length} zero values`);
+    return rows2;
   }
 
   private update(updateAll = false) {
@@ -242,7 +253,7 @@ export class CoExpression extends ASmallMultipleView {
       promise.then((input) => {
         // use EnsemblID if symbol is empty
         d.geneName = (input[1][0].symbol) ? input[1][0].symbol : input[1][0].id;
-        d.rows = input[0];
+        d.rows = that.filterZeroValues(input[0]);
 
         //console.log('loaded data for', d.geneName);
 
@@ -339,8 +350,8 @@ export class CoExpression extends ASmallMultipleView {
       return;
     }
 
-    this.x.domain([0, d3.max(this.refGeneExpression, (d) => d.expression)]);
-    this.y.domain([0, d3.max(rows, (d) => d.expression)]);
+    this.x.domain([0.01, d3.max(this.refGeneExpression, (d) => d.expression)]).clamp(true);
+    this.y.domain([0.01, d3.max(rows, (d) => d.expression)]).clamp(true);
 
     const $g = $parent.select('svg g');
 
@@ -357,13 +368,23 @@ export class CoExpression extends ASmallMultipleView {
 
     $g.select('text.title').text(title);
 
-    var data2 = [];
+    // get smaller and larger array to build intersection between both
+    const largerArray = (this.refGeneExpression.length <= rows.length) ? rows : this.refGeneExpression;
+    const smallerArray = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
 
-    if (this.refGeneExpression.length === rows.length) {
-      data2 = this.refGeneExpression.map((d, i) => {
-        return [d.expression, rows[i].expression, rows[i].celllinename];
-      });
-    }
+    // build hashmap for faster access
+    const hash = d3.map(largerArray, (d) => d.celllinename);
+
+    const data2 = smallerArray
+      .map((d) => {
+        if(hash.has(d.celllinename)) {
+          // return values that are contained in both arrays
+          return [d.expression, hash.get(d.celllinename).expression, d.celllinename];
+        }
+        return null;
+      })
+      // remove empty values
+      .filter((d) => d !== null);
 
     const marks = $g.selectAll('.mark').data(data2);
 

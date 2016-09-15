@@ -16,7 +16,7 @@ import {showErrorModalDialog} from '../targid2/Dialogs';
 export class ExpressionVsCopyNumber extends ASmallMultipleView {
 
   private x = d3.scale.linear();
-  private y = d3.scale.linear();
+  private y = d3.scale.log();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y);
 
@@ -241,7 +241,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     const rows = data.rows;
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
-    this.y.domain([0, d3.max(rows, (d) => d.expression)]);
+    this.y.domain([0.01, d3.max(rows, (d) => d.expression)]).clamp(true);
 
     const $g = $parent.select('svg g');
 
