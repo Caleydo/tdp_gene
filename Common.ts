@@ -14,9 +14,9 @@ export const copyNumberCat = [
 ];
 
 export const mutationCat = [
-  {value: 't', name: 'Mutated', color: '#1BA64E'},
-  {value: 'f', name: 'Non Mutated', color: '#B70AFF'},
-  {value: 'null', name: 'Unknown', color: 'transparent'}
+  {value: 'true', name: 'Mutated', color: '#1BA64E'},
+  {value: 'false', name: 'Non Mutated', color: '#B70AFF'},
+  {value: '', name: 'Unknown', color: 'transparent'}
 ];
 
 export const all_types = 'All Tumor Types';
@@ -198,7 +198,11 @@ export const mutation = {
   tableName: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
-    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: 'dna_mutated'}]
+    { id: 'aa_mutated', name: 'AA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: 'aa_mutated'},
+    { id: 'aamutation', name: 'AA Mutation', type: 'string', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: ''},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: 'dna_mutated'},
+    { id: 'dnamutation', name: 'DNA Mutation', type: 'string', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: ''}
+  ]
 };
 
 export const dataTypes = [expression, copyNumber, mutation];

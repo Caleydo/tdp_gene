@@ -8,7 +8,9 @@ import idtypes = require('../caleydo_core/idtype');
 import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
-import {dataSources, all_types, expression, copyNumber, mutation, mutationCat, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear} from './Common';
+import {
+  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear
+} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -224,9 +226,16 @@ class RawDataTable extends ALineUpView {
           }
 
           var desc;
-          if (this.dataType === mutation) {
-            desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
+
+          //TODO: Handle categorical columns. Same for copy number needed.
+          //desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
+
+          if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'boolean') {
+            desc = stringCol('score_' + d, label);
+          } else if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'string') {
+            desc = stringCol('score_' + d, label);
           } else {
+            // TODO: take bounds from description
             desc = numberCol2('score_' + d, -3, 3, label);
           }
 
@@ -250,7 +259,7 @@ class RawDataTable extends ALineUpView {
     this.lineupPromise = Promise.resolve(ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/${this.getParameter(ParameterFormIds.DATA_SOURCE).base}/desc`))
       .then((desc) => {
         const columns = [
-          stringCol('id', 'Name'),
+          stringCol('id', 'name'),
           categoricalCol('species', desc.columns.species.categories),
           categoricalCol('organ', desc.columns.organ.categories),
           categoricalCol('gender', desc.columns.gender.categories)
