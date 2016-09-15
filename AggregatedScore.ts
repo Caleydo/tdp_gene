@@ -56,14 +56,14 @@ class AggregatedScore implements IScore<number> {
 }
 
 class MutationFrequencyScore implements IScore<number> {
-  constructor(private parameter: {tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
+  constructor(private parameter: {tumor_type:string, data_subtype:IDataSubtypeConfig, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `Mutation Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
+      label: `${this.parameter.data_subtype.name} Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
       domain: [0, 1],
       missingValue: 0,
       constantDomain: true
@@ -74,6 +74,7 @@ class MutationFrequencyScore implements IScore<number> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
       tumortype: this.parameter.tumor_type
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
@@ -94,7 +95,7 @@ class FrequencyScore implements IScore<number> {
   createDesc() {
     return {
       type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
+      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
       domain: [0, 1],
       missingValue: 0,
       constantDomain: true
