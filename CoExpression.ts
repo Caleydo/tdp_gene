@@ -19,8 +19,8 @@ export class CoExpression extends ASmallMultipleView {
 
   private x = d3.scale.log();
   private y = d3.scale.log();
-  private xAxis = d3.svg.axis().orient('bottom').scale(this.x).ticks(5);
-  private yAxis = d3.svg.axis().orient('left').scale(this.y).ticks(5);
+  private xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
+  private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [

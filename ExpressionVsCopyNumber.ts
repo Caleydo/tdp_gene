@@ -18,7 +18,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
   private x = d3.scale.linear();
   private y = d3.scale.log();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
-  private yAxis = d3.svg.axis().orient('left').scale(this.y);
+  private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [
