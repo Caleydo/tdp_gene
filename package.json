@@ -315,6 +315,18 @@
           "argument": "cellline",
           "idtype": "Cellline",
           "selection": "multiple"
+        },
+        {
+          "type": "targidView",
+          "id": "proteinatlas_org",
+          "name": "The Human Protein Atlas",
+          "file": "ProxyView",
+          "factory": "create",
+          "category": "static",
+          "site": "//proteinatlas.org/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
         }
       ]
     }
