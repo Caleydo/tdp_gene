@@ -241,8 +241,8 @@ class InvertedRawDataTable extends ALineUpView {
       var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
 
       var r = lineup.data.pushRanking();
-      //Show first 6 columns and the rest will only show up in the list of columns that the user can manually add
-      columns.slice(0,6).forEach((d) => {
+      //Show first 2 columns and the rest will only show up in the list of columns that the user can manually add
+      columns.slice(0,2).forEach((d) => {
         lineup.data.push(r, d);
       });
       names.forEach((d,i) => lineup.data.push(r, columns[i+defaultColLength]));
