@@ -259,10 +259,11 @@ class RawDataTable extends ALineUpView {
     this.lineupPromise = Promise.resolve(ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/${this.getParameter(ParameterFormIds.DATA_SOURCE).base}/desc`))
       .then((desc) => {
         const columns = [
-          stringCol('id', 'name'),
-          categoricalCol('species', desc.columns.species.categories),
-          categoricalCol('organ', desc.columns.organ.categories),
-          categoricalCol('gender', desc.columns.gender.categories)
+          stringCol('id', 'Name'),
+          categoricalCol('species', desc.columns.species.categories, 'Species'),
+          categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type'),
+          categoricalCol('organ', desc.columns.organ.categories, 'Organ'),
+          categoricalCol('gender', desc.columns.gender.categories, 'Gender')
         ];
 
         var lineup = this.buildLineUp([], columns, idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), (d) => d._id);
