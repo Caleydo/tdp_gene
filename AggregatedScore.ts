@@ -56,14 +56,14 @@ class AggregatedScore implements IScore<number> {
 }
 
 class MutationFrequencyScore implements IScore<number> {
-  constructor(private parameter: {tumor_type:string, data_subtype:IDataSubtypeConfig, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
+  constructor(private parameter: {tumor_type:string, data_subtype:IDataSubtypeConfig, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig, private countOnly) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `${this.parameter.data_subtype.name} Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
+      label: `${this.parameter.data_subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
       domain: this.parameter.data_subtype.domain,
       missingValue: this.parameter.data_subtype.missingValue
     };
@@ -78,7 +78,7 @@ class MutationFrequencyScore implements IScore<number> {
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+        r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
       });
       return r;
     });
@@ -87,14 +87,14 @@ class MutationFrequencyScore implements IScore<number> {
 
 
 class FrequencyScore implements IScore<number> {
-  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
+  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig, private countOnly) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
+      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
       domain: this.parameter.data_subtype.domain,
       missingValue: this.parameter.data_subtype.missingValue
     };
@@ -112,7 +112,7 @@ class FrequencyScore implements IScore<number> {
     }).then((rows:any[]) => {
       const r:{ [id:string]:number } = {};
       rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+        r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
       });
       return r;
     });
@@ -122,7 +122,7 @@ class FrequencyScore implements IScore<number> {
 export function create(desc: IPluginDesc) {
   // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
-    const dialog = dialogs.generateDialog('Add Aggregated Score', 'Add');
+    const dialog = dialogs.generateDialog('Aggregated Score', 'Add Score Column');
 
     const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
     const formDesc:IFormSelectDesc[] = [
@@ -187,7 +187,7 @@ export function create(desc: IPluginDesc) {
               ];
             } else {
               r = [
-                {name: 'Avg', value: 'avg', data: 'avg'},
+                {name: 'Average', value: 'avg', data: 'avg'},
                 {name: 'Min', value: 'min', data: 'min'},
                 {name: 'Max', value: 'max', data: 'max'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
@@ -206,7 +206,7 @@ export function create(desc: IPluginDesc) {
         id: ParameterFormIds.COMPARISON_OPERATOR,
         dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          (dependantValues[1].value === 'frequency' && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count')  && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         options: {
           optionsData: [
             {name: '&lt; less than', value: '<', data: '<'},
@@ -224,7 +224,7 @@ export function create(desc: IPluginDesc) {
         id: ParameterFormIds.COMPARISON_VALUE,
         dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          (dependantValues[1].value === 'frequency' && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count') && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         useSession: true
       }
     ];
@@ -236,14 +236,20 @@ export function create(desc: IPluginDesc) {
 
       var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 
-      if(data[ParameterFormIds.AGGREGATION] === 'frequency') {
+      if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
+
+        // boolean to indicate that the resulting score does not need to be divided by the total count
+        var countOnly = false;
+        if (data[ParameterFormIds.AGGREGATION] === 'count') {
+          countOnly = true;
+        }
         switch(data[ParameterFormIds.DATA_TYPE]) {
           case mutation:
-            score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
+            score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
             break;
           case copyNumber:
           case expression:
-            score = new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
+            score = new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
             break;
         }
       }
