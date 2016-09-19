@@ -81,14 +81,14 @@
           "selection": "none"
         },
         {
-          "type": "targidView",
+          "type": "__targidView__backup",
           "id": "celllinedb_enrichment",
           "name": "Enrichment",
           "category": "dynamic",
           "file": "Enrichment",
           "idtype": "Ensembl",
           "selection": "single",
-          "mockup": "true"
+          "mockup": true
         },
         {
           "type": "targidView",
