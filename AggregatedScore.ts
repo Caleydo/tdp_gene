@@ -64,9 +64,8 @@ class MutationFrequencyScore implements IScore<number> {
     return {
       type: 'number',
       label: `${this.parameter.data_subtype.name} Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
-      domain: [0, 1],
-      missingValue: 0,
-      constantDomain: true
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
     };
   }
 
@@ -96,9 +95,8 @@ class FrequencyScore implements IScore<number> {
     return {
       type: 'number',
       label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
-      domain: [0, 1],
-      missingValue: 0,
-      constantDomain: true
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
     };
   }
 
@@ -184,14 +182,16 @@ export function create(desc: IPluginDesc) {
             var r = [];
             if(selection[0].data === mutation) {
               r = [
-                {name: 'Frequency', value: 'frequency', data: 'frequency'}
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
+                {name: 'Count', value: 'count', data: 'count'}
               ];
             } else {
               r = [
-                {name: 'AVG', value: 'avg', data: 'avg'},
-                {name: 'MIN', value: 'min', data: 'min'},
-                {name: 'MAX', value: 'max', data: 'max'},
-                {name: 'Frequency', value: 'frequency', data: 'frequency'}
+                {name: 'Avg', value: 'avg', data: 'avg'},
+                {name: 'Min', value: 'min', data: 'min'},
+                {name: 'Max', value: 'max', data: 'max'},
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
+                {name: 'Count', value: 'count', data: 'count'}
               ];
             }
             return r;
