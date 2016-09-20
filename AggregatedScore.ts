@@ -13,11 +13,20 @@ import {
   expression, copyNumber, mutation, convertLog2ToLinear
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 
 
 class AggregatedScore implements IScore<number> {
-  constructor(private parameter: { data_source: IDataSourceConfig, data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, aggregation: string }, private dataSource: IDataSourceConfig) {
+  constructor(
+    private parameter: {
+      data_source: IDataSourceConfig,
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      tumor_type:string,
+      aggregation: string
+    },
+    private dataSource: IDataSourceConfig
+  ) {
 
   }
 
@@ -33,30 +42,40 @@ class AggregatedScore implements IScore<number> {
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
 
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      schema: this.dataSource.schema,
-      entity_name: this.dataSource.entityName,
-      table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.useForAggregation,
-      tumortype: this.parameter.tumor_type,
-      agg: this.parameter.aggregation
-    }).then((rows:any[]) => {
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        tumortype: this.parameter.tumor_type,
+        agg: this.parameter.aggregation
+      })
+      .then((rows:any[]) => {
 
-      // convert log2 to linear scale
-      if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-        rows = convertLog2ToLinear(rows, 'score');
-      }
+        // convert log2 to linear scale
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
 
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = row.score;
+        });
+        return r;
       });
-      return r;
-    });
   }
 }
 
 class MutationFrequencyScore implements IScore<number> {
-  constructor(private parameter: {tumor_type:string, data_subtype:IDataSubtypeConfig, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig, private countOnly) {
+  constructor(
+    private parameter: {
+      tumor_type:string,
+      data_subtype:IDataSubtypeConfig,
+      comparison_operator: string,
+      comparison_value: number
+    },
+    private dataSource: IDataSourceConfig,
+    private countOnly
+  ) {
 
   }
 
@@ -71,23 +90,34 @@ class MutationFrequencyScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      schema: this.dataSource.schema,
-      entity_name: this.dataSource.entityName,
-      data_subtype: this.parameter.data_subtype.useForAggregation,
-      tumortype: this.parameter.tumor_type
-    }).then((rows:any[]) => {
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        tumortype: this.parameter.tumor_type
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        });
+        return r;
       });
-      return r;
-    });
   }
 }
 
 
 class FrequencyScore implements IScore<number> {
-  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig, private countOnly) {
+  constructor(
+    private parameter: {
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      tumor_type:string,
+      comparison_operator: string,
+      comparison_value: number
+    },
+    private dataSource: IDataSourceConfig,
+    private countOnly
+  ) {
 
   }
 
@@ -102,20 +132,21 @@ class FrequencyScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      schema: this.dataSource.schema,
-      entity_name: this.dataSource.entityName,
-      table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.useForAggregation,
-      tumortype: this.parameter.tumor_type,
-      operator: this.parameter.comparison_operator,
-      value: this.parameter.comparison_value
-    }).then((rows:any[]) => {
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        tumortype: this.parameter.tumor_type,
+        operator: this.parameter.comparison_operator,
+        value: this.parameter.comparison_value
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        });
+        return r;
       });
-      return r;
-    });
   }
 }
 
@@ -125,7 +156,7 @@ export function create(desc: IPluginDesc) {
     const dialog = dialogs.generateDialog('Aggregated Score', 'Add Score Column');
 
     const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
-    const formDesc:IFormSelectDesc[] = [
+    const formDesc:IFormElementDesc[] = [
       {
         type: FormElementType.SELECT,
         label: 'Data Source',
@@ -234,25 +265,7 @@ export function create(desc: IPluginDesc) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
-
-      if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
-
-        // boolean to indicate that the resulting score does not need to be divided by the total count
-        var countOnly = false;
-        if (data[ParameterFormIds.AGGREGATION] === 'count') {
-          countOnly = true;
-        }
-        switch(data[ParameterFormIds.DATA_TYPE]) {
-          case mutation:
-            score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-            break;
-          case copyNumber:
-          case expression:
-            score = new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-            break;
-        }
-      }
+      const score:IScore<number> = createAggregatedScore(data);
       //console.log(score, data);
 
       dialog.hide();
@@ -266,5 +279,29 @@ export function create(desc: IPluginDesc) {
 
     dialog.show();
   });
+}
+
+function createAggregatedScore(data):IScore<number> {
+  var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+
+  if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
+
+    // boolean to indicate that the resulting score does not need to be divided by the total count
+    var countOnly = false;
+    if (data[ParameterFormIds.AGGREGATION] === 'count') {
+      countOnly = true;
+    }
+    switch(data[ParameterFormIds.DATA_TYPE]) {
+      case mutation:
+        score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
+        break;
+      case copyNumber:
+      case expression:
+        score = new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
+        break;
+    }
+  }
+
+  return score;
 }
 
