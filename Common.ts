@@ -88,39 +88,41 @@ export const tissue:ITumorTypeDataSourceConfig = {
   species: ['human']
 };
 
-const geneBioTypes = ['3prime_overlapping_ncrna',
-'antisense',
-'IG_C_gene',
-'IG_C_pseudogene',
-'IG_D_gene',
-'IG_J_gene',
-'IG_J_pseudogene',
-'IG_LV_gene',
-'IG_V_gene',
-'IG_V_pseudogene',
-'lincRNA',
-'LRG_gene',
-'miRNA',
-'misc_RNA',
-'Mt_rRNA',
-'Mt_tRNA',
-'non_coding',
-'polymorphic_pseudogene',
-'processed_pseudogene',
-'processed_transcript',
-'protein_coding',
-'pseudogene',
-'rRNA',
-'sense_intronic',
-'sense_overlapping',
-'snoRNA',
-'snRNA',
-'TR_C_gene',
-'TR_D_gene',
-'TR_J_gene',
-'TR_J_pseudogene',
-'TR_V_gene',
-'TR_V_pseudogene'];
+const geneBioTypes = [
+  '3prime_overlapping_ncrna',
+  'antisense',
+  'IG_C_gene',
+  'IG_C_pseudogene',
+  'IG_D_gene',
+  'IG_J_gene',
+  'IG_J_pseudogene',
+  'IG_LV_gene',
+  'IG_V_gene',
+  'IG_V_pseudogene',
+  'lincRNA',
+  'LRG_gene',
+  'miRNA',
+  'misc_RNA',
+  'Mt_rRNA',
+  'Mt_tRNA',
+  'non_coding',
+  'polymorphic_pseudogene',
+  'processed_pseudogene',
+  'processed_transcript',
+  'protein_coding',
+  'pseudogene',
+  'rRNA',
+  'sense_intronic',
+  'sense_overlapping',
+  'snoRNA',
+  'snRNA',
+  'TR_C_gene',
+  'TR_D_gene',
+  'TR_J_gene',
+  'TR_J_pseudogene',
+  'TR_V_gene',
+  'TR_V_pseudogene'
+];
 
 export const gene:IBioTypeDataSourceConfig = {
   idType: 'Ensembl',
@@ -169,7 +171,7 @@ export interface IDataSubtypeConfig {
   useForAggregation: string;
 }
 
-export const expression = {
+export const expression:IDataTypeConfig = {
   id: 'expression',
   name: 'Expression',
   tableName: 'expression',
@@ -177,10 +179,11 @@ export const expression = {
   dataSubtypes: [
     { id: 'log2tpm', name: 'TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
     { id: 'log2fpkm', name: 'FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
-    { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}]
+    { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}
+  ]
 };
 
-export const copyNumber = {
+export const copyNumber:IDataTypeConfig = {
   id: 'copy_number',
   name: 'Copy Number',
   tableName: 'copynumber',
@@ -192,7 +195,7 @@ export const copyNumber = {
   ],
 };
 
-export const mutation = {
+export const mutation:IDataTypeConfig = {
   id: 'mutation',
   name: 'Mutation',
   tableName: 'mutation',
@@ -205,7 +208,7 @@ export const mutation = {
   ]
 };
 
-export const dataTypes = [expression, copyNumber, mutation];
+export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
 /**
  * List of ids for parameter form elements
@@ -213,6 +216,8 @@ export const dataTypes = [expression, copyNumber, mutation];
  */
 export class ParameterFormIds {
   static DATA_SOURCE = 'data_source';
+  static FILTER_BY = 'filter_by';
+  static GENE_SYMBOL = 'gene_symbol';
   static TUMOR_TYPE = 'tumor_type';
   static ALTERATION_TYPE = 'alteration_type';
   static DATA_TYPE = 'data_type';

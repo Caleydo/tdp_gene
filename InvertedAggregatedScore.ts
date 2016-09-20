@@ -13,11 +13,21 @@ import {
   expression, copyNumber, mutation, gene, convertLog2ToLinear
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
+import {api2absURL} from '../caleydo_core/ajax';
 
 
 class InvertedAggregatedScore implements IScore<number> {
-  constructor(private parameter: { data_source: IDataSourceConfig, data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, bio_type:string, aggregation: string }, private dataSource: IDataSourceConfig) {
+  constructor(
+    private parameter: {
+      data_source: IDataSourceConfig,
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      bio_type:string,
+      aggregation: string
+    },
+    private dataSource: IDataSourceConfig
+  ) {
 
   }
 
@@ -32,24 +42,23 @@ class InvertedAggregatedScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
-      schema: this.dataSource.schema,
-      entity_name: this.dataSource.entityName,
-      table_name: this.parameter.data_type.tableName,
-      data_subtype: this.parameter.data_subtype.useForAggregation,
-      biotype: this.parameter.bio_type,
-      agg: this.parameter.aggregation
-    }).then((rows:any[]) => {
-
-      if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-        rows = convertLog2ToLinear(rows, 'score');
-      }
-
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        biotype: this.parameter.bio_type,
+        agg: this.parameter.aggregation
+      })
+      .then((rows:any[]) => {
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = row.score;
+        });
+        return r;
       });
-      return r;
-    });
   }
 }
 
@@ -114,13 +123,55 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 }*/
 
+class SingleGeneScore implements IScore<any> {
+  constructor(
+    private parameter: {
+      data_source: IDataSourceConfig,
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      tumor_type:string,
+      aggregation: string,
+      gene_symbol: {id:string, text:string}
+    },
+    private dataSource: IDataSourceConfig
+  ) {
+
+  }
+
+  createDesc(): any {
+    return {
+      type: (this.parameter.data_subtype.type === 'cat') ? 'string' : this.parameter.data_subtype.type,
+      label: `${this.parameter.data_subtype.name} of ${this.parameter.gene_symbol.text}`,
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
+    };
+  }
+
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_gene_score` , {
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        ensg: this.parameter.gene_symbol.id
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = row.score;
+        });
+        return r;
+      });
+  }
+}
+
 export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Aggregated Score', 'Add');
 
     const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
-    const formDesc:IFormSelectDesc[] = [
+    const formDesc:IFormElementDesc[] = [
       {
         type: FormElementType.SELECT,
         label: 'Data Source',
@@ -132,15 +183,68 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
           })
         },
         useSession: true
+      },{
+        type: FormElementType.SELECT,
+        label: `Filter By`,
+        id: ParameterFormIds.FILTER_BY,
+        options: {
+          optionsData: [
+            {name: 'Bio Type', value:'bio_type', data:'bio_type'},
+            {name: 'Single Entity', value:'single_entity', data:'single_entity'}
+          ]
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT2,
+        label: 'Gene Symbol',
+        id: ParameterFormIds.GENE_SYMBOL,
+        dependsOn: [ParameterFormIds.FILTER_BY],
+        showIf: (dependantValues) => (dependantValues[0].value === 'single_entity'),
+        attributes: {
+          style: 'width:100%'
+        },
+        options: {
+          optionsData: [],
+          ajax: {
+            url: api2absURL(`/targid/db/${dataSource.db}/gene_lookup/lookup`),
+            data: (params:any) => {
+              return {
+                column: 'symbol',
+                query: params.term,
+                page: params.page
+              };
+            },
+            processResults: (data, params) => {
+              params.page = params.page || 1;
+              return {
+                results: data.items,
+                pagination: { // indicate infinite scrolling
+                  more: (params.page * data.items_per_page) < data.total_count
+                }
+              };
+            }
+          },
+          templateResult: (item:any) => {
+            if(item.symbol) {
+              item.text = item.symbol;
+            }
+            return item.text;
+          }
+        },
+        useSession: true
       },
       {
         type: FormElementType.SELECT,
         label: 'Bio Type',
         id: ParameterFormIds.BIO_TYPE,
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_SOURCE],
+        showIf: (dependantValues) => (dependantValues[0].value === 'bio_type'),
         options: {
-          optionsData: gene.bioTypesWithAll.map((d) => {
+          optionsFnc: (selection) => gene.bioTypesWithAll.map((d) => {
             return {name: d, value: d, data: d};
-          })
+          }),
+          optionsData: []
         },
         useSession: true
       },
@@ -172,7 +276,8 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         type: FormElementType.SELECT,
         label: 'Aggregation',
         id: ParameterFormIds.AGGREGATION,
-        dependsOn: [ParameterFormIds.DATA_TYPE],
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
+        showIf: (dependantValues) => (dependantValues[0].value === 'bio_type'),
         options: {
           optionsFnc: (selection) => {
             var r = [];
@@ -229,19 +334,16 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score:IScore<number> = new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+      var score:IScore<number>;
 
-      /*if(data[ParameterFormIds.AGGREGATION] === 'frequency') {
-        switch(data[ParameterFormIds.DATA_TYPE]) {
-          case mutation:
-            score = new InvertedMutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
-            break;
-          case copyNumber:
-          case expression:
-            score = new InvertedFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE]);
-            break;
-        }
-      }*/
+      switch(data[ParameterFormIds.FILTER_BY]) {
+        case 'single_entity':
+          score = createSingleGeneScore(data);
+          break;
+
+        default:
+          score = createInvertedAggregatedScore(data);
+      }
 
       //console.log(score, data);
 
@@ -258,3 +360,10 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   });
 }
 
+function createSingleGeneScore(data):IScore<number> {
+  return new SingleGeneScore(data, data[ParameterFormIds.DATA_SOURCE]);
+}
+
+function createInvertedAggregatedScore(data):IScore<number> {
+  return new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+}
