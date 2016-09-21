@@ -220,43 +220,49 @@ class InvertedRawDataTable extends ALineUpView {
   private build() {
     //generate random data
     this.setBusy(true);
-    this.lineupPromise = Promise.all([ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`), this.resolveIds(this.selection.idtype, this.selection.range, this.dataSource.idType)]).then((args) => {
-      const desc= args[0];
-      const names = args[1];
-      const columns = [
-        stringCol('symbol', 'Symbol'),
-        stringCol('id', 'Ensembl'), // BUG: will not be shown
-        stringCol('chromosome', 'Chromosome'),
-        categoricalCol('species', desc.columns.species.categories, 'Species'),
-        categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand'),
-        categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype'),
-        stringCol('seqregionstart', 'Seq Region Start'),
-        stringCol('seqregionend', 'Seq Region End')
-      ];
-      const defaultColLength = columns.length;
-      names.forEach((d, i) => {
-        columns[columns.length] = numberCol2('score_' + d, -3, 3, d);
+    this.lineupPromise = Promise.all([
+        ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`),
+        this.resolveIds(this.selection.idtype, this.selection.range, this.dataSource.idType)
+      ])
+      .then((args) => {
+        const desc= args[0];
+        const names = args[1];
+        const columns = [
+          stringCol('symbol', 'Symbol'),
+          stringCol('id', 'Ensembl'), // BUG: will not be shown
+          stringCol('chromosome', 'Chromosome'),
+          categoricalCol('species', desc.columns.species.categories, 'Species'),
+          categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand'),
+          categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype'),
+          stringCol('seqregionstart', 'Seq Region Start'),
+          stringCol('seqregionend', 'Seq Region End')
+        ];
+        const defaultColLength = columns.length;
+
+        names.forEach((d, i) => {
+          columns[columns.length] = numberCol2('score_' + d, -3, 3, d);
+        });
+
+        var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
+
+        var r = lineup.data.pushRanking();
+        //Show first 2 columns and the rest will only show up in the list of columns that the user can manually add
+        columns.slice(0,2).forEach((d) => {
+          lineup.data.push(r, d);
+        });
+
+        names.forEach((d,i) => lineup.data.push(r, columns[i+defaultColLength]));
+
+        useDefaultLayout(lineup);
+        r = lineup.data.getLastRanking().children;
+        r[1].setWidth(75);
+        r[2].setWidth(75);
+        r[3].setWidth(120);
+        lineup.update();
+        this.initializedLineUp();
+
+        return lineup;
       });
-
-      var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
-
-      var r = lineup.data.pushRanking();
-      //Show first 2 columns and the rest will only show up in the list of columns that the user can manually add
-      columns.slice(0,2).forEach((d) => {
-        lineup.data.push(r, d);
-      });
-      names.forEach((d,i) => lineup.data.push(r, columns[i+defaultColLength]));
-
-      useDefaultLayout(lineup);
-      r = lineup.data.getLastRanking().children;
-      r[1].setWidth(75);
-      r[2].setWidth(75);
-      r[3].setWidth(120);
-      lineup.update();
-      this.initializedLineUp();
-
-      return lineup;
-    });
   }
 
   getItemName(count: number) {
