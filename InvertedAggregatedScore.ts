@@ -156,7 +156,7 @@ class SingleGeneScore implements IScore<any> {
       data_subtype:IDataSubtypeConfig,
       tumor_type:string,
       aggregation: string,
-      gene_symbol: {id:string, text:string}
+      entity_value: {id:string, text:string}
     },
     private dataSource: IDataSourceConfig
   ) {
@@ -166,19 +166,19 @@ class SingleGeneScore implements IScore<any> {
   createDesc(): any {
     return {
       type: (this.parameter.data_subtype.type === 'cat') ? 'string' : this.parameter.data_subtype.type,
-      label: `${this.parameter.data_subtype.name} of ${this.parameter.gene_symbol.text}`,
+      label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
       domain: this.parameter.data_subtype.domain,
       missingValue: this.parameter.data_subtype.missingValue
     };
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_gene_score` , {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_entity_score_inverted` , {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
-        ensg: this.parameter.gene_symbol.id
+        entity_value: this.parameter.entity_value.id
       })
       .then((rows:any[]) => {
         const r:{ [id:string]:number } = {};
@@ -208,14 +208,15 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
           })
         },
         useSession: true
-      },{
+      },
+      {
         type: FormElementType.SELECT,
         label: `Filter By`,
         id: ParameterFormIds.FILTER_BY,
         options: {
           optionsData: [
             {name: 'Bio Type', value:'bio_type', data:'bio_type'},
-            {name: 'Single Entity', value:'single_entity', data:'single_entity'}
+            {name: 'Single Gene', value:'single_entity', data:'single_entity'}
           ]
         },
         useSession: true
@@ -232,29 +233,17 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         options: {
           optionsData: [],
           ajax: {
-            url: api2absURL(`/targid/db/${dataSource.db}/gene_lookup/lookup`),
+            url: api2absURL(`/targid/db/${dataSource.db}/single_entity_lookup/lookup`),
             data: (params:any) => {
               return {
-                column: 'symbol',
+                schema: gene.schema, // use `gene` explicitly as datasource
+                table_name: gene.tableName,
+                id_column: gene.entityName,
+                query_column: 'symbol',
                 query: params.term,
                 page: params.page
               };
-            },
-            processResults: (data, params) => {
-              params.page = params.page || 1;
-              return {
-                results: data.items,
-                pagination: { // indicate infinite scrolling
-                  more: (params.page * data.items_per_page) < data.total_count
-                }
-              };
             }
-          },
-          templateResult: (item:any) => {
-            if(item.symbol) {
-              item.text = item.symbol;
-            }
-            return item.text;
           }
         },
         useSession: true
@@ -306,7 +295,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         options: {
           optionsFnc: (selection) => {
             var r = [];
-            if(selection[0].data === mutation) {
+            if(selection[1].data === mutation) {
               r = [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Count', value: 'count', data: 'count'}
@@ -365,6 +354,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
 
       switch(data[ParameterFormIds.FILTER_BY]) {
         case 'single_entity':
+          data.entity_value = data[ParameterFormIds.GENE_SYMBOL];
           score = createSingleGeneScore(data);
           break;
 

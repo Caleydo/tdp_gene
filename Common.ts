@@ -218,6 +218,8 @@ export class ParameterFormIds {
   static DATA_SOURCE = 'data_source';
   static FILTER_BY = 'filter_by';
   static GENE_SYMBOL = 'gene_symbol';
+  static CELLLINE_NAME = 'cellline_name';
+  static TISSUE_NAME = 'tissue_name';
   static TUMOR_TYPE = 'tumor_type';
   static ALTERATION_TYPE = 'alteration_type';
   static DATA_TYPE = 'data_type';

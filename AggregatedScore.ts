@@ -10,10 +10,11 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, convertLog2ToLinear
+  expression, copyNumber, mutation, convertLog2ToLinear, cellline
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
+import {api2absURL} from '../caleydo_core/ajax';
 
 
 class AggregatedScore implements IScore<number> {
@@ -150,6 +151,46 @@ class FrequencyScore implements IScore<number> {
   }
 }
 
+class SingleEntityScore implements IScore<any> {
+  constructor(
+    private parameter: {
+      data_source: IDataSourceConfig,
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      entity_value: {id:string, text:string}
+    },
+    private dataSource: IDataSourceConfig
+  ) {
+
+  }
+
+  createDesc(): any {
+    return {
+      type: (this.parameter.data_subtype.type === 'cat') ? 'string' : this.parameter.data_subtype.type,
+      label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
+    };
+  }
+
+  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_entity_score` , {
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        entity_value: this.parameter.entity_value.id
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = row.score;
+        });
+        return r;
+      });
+  }
+}
+
 export function create(desc: IPluginDesc) {
   // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
@@ -170,11 +211,88 @@ export function create(desc: IPluginDesc) {
       },
       {
         type: FormElementType.SELECT,
-        label: 'Tumor Type',
-        id: ParameterFormIds.TUMOR_TYPE,
+        label: `Filter By`,
+        id: ParameterFormIds.FILTER_BY,
         dependsOn: [ParameterFormIds.DATA_SOURCE],
         options: {
-          optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
+          optionsFnc: (selection) => {
+            if(selection[0].data === cellline) {
+              return [
+                {name: 'Tumor Type', value:'tumor_type', data:'tumor_type'},
+                {name: `Single ${selection[0].data.name}`, value: `single_cellline`, data: `single_cellline`}
+              ];
+            }
+            return [
+              {name: 'Tumor Type', value:'tumor_type', data:'tumor_type'},
+              {name: `Single ${selection[0].data.name}`, value: `single_tissue`, data: `single_tissue`}
+            ];
+          },
+          optionsData: [],
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT2,
+        label: 'Cell Line Name',
+        id: ParameterFormIds.CELLLINE_NAME,
+        dependsOn: [ParameterFormIds.FILTER_BY],
+        showIf: (dependantValues) => (dependantValues[0].value === 'single_cellline'),
+        attributes: {
+          style: 'width:100%'
+        },
+        options: {
+          optionsData: [],
+          ajax: {
+            url: api2absURL(`/targid/db/${dataSources[0].db}/single_entity_lookup/lookup`),
+            data: (params:any) => {
+              return {
+                schema: dataSources[0].schema,
+                table_name: dataSources[0].tableName,
+                id_column: dataSources[0].entityName,
+                query_column: dataSources[0].entityName,
+                query: params.term,
+                page: params.page
+              };
+            }
+          }
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT2,
+        label: 'Tissue Name',
+        id: ParameterFormIds.TISSUE_NAME,
+        dependsOn: [ParameterFormIds.FILTER_BY],
+        showIf: (dependantValues) => (dependantValues[0].value === 'single_tissue'),
+        attributes: {
+          style: 'width:100%'
+        },
+        options: {
+          optionsData: [],
+          ajax: {
+            url: api2absURL(`/targid/db/${dataSources[1].db}/single_entity_lookup/lookup`),
+            data: (params:any) => {
+              return {
+                schema: dataSources[1].schema,
+                table_name: dataSources[1].tableName,
+                id_column: dataSources[1].entityName,
+                query_column: dataSources[1].entityName,
+                query: params.term,
+                page: params.page
+              };
+            }
+          }
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Tumor Type',
+        id: ParameterFormIds.TUMOR_TYPE,
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_SOURCE],
+        showIf: (dependantValues) => (dependantValues[0].value === 'tumor_type'),
+        options: {
+          optionsFnc: (selection) => selection[1].data.tumorTypesWithAll,
           optionsData: [],
         },
         useSession: true
@@ -207,11 +325,12 @@ export function create(desc: IPluginDesc) {
         type: FormElementType.SELECT,
         label: 'Aggregation',
         id: ParameterFormIds.AGGREGATION,
-        dependsOn: [ParameterFormIds.DATA_TYPE],
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
+        showIf: (dependantValues) => (dependantValues[0].value === 'tumor_type'),
         options: {
           optionsFnc: (selection) => {
             var r = [];
-            if(selection[0].data === mutation) {
+            if(selection[1].data === mutation) {
               r = [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Count', value: 'count', data: 'count'}
@@ -265,7 +384,23 @@ export function create(desc: IPluginDesc) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      const score:IScore<number> = createAggregatedScore(data);
+      var score:IScore<number>;
+
+      switch(data[ParameterFormIds.FILTER_BY]) {
+        case 'single_cellline':
+          data.entity_value = data[ParameterFormIds.CELLLINE_NAME];
+          score = createSingleEntityScore(data);
+          break;
+
+        case 'single_tissue':
+          data.entity_value = data[ParameterFormIds.TISSUE_NAME];
+          score = createSingleEntityScore(data);
+          break;
+
+        default:
+          score = createAggregatedScore(data);
+      }
+
       //console.log(score, data);
 
       dialog.hide();
@@ -279,6 +414,10 @@ export function create(desc: IPluginDesc) {
 
     dialog.show();
   });
+}
+
+function createSingleEntityScore(data):IScore<number> {
+  return new SingleEntityScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }
 
 function createAggregatedScore(data):IScore<number> {
