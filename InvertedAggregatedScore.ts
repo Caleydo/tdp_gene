@@ -62,66 +62,91 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 }
 
-/*class InvertedMutationFrequencyScore implements IScore<number> {
-  constructor(private parameter: {tumor_type:string, comparison_operator: string, comparison_value: number}, private dataSource: IDataSourceConfig) {
+
+class InvertedMutationFrequencyScore implements IScore<number> {
+  constructor(
+    private parameter: {
+      bio_type:string,
+      data_subtype:IDataSubtypeConfig,
+      comparison_operator: string,
+      comparison_value: number
+    },
+    private dataSource: IDataSourceConfig,
+    private countOnly
+  ) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `Mutation Frequency ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
-      domain: [0, 1],
-      missingValue: 0,
-      constantDomain: true
+      label: `${this.parameter.data_subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`,
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
     };
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
-      tumortype: this.parameter.tumor_type
-    }).then((rows:any[]) => {
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        biotype: this.parameter.bio_type
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        });
+        return r;
       });
-      return r;
-    });
   }
-}*/
+}
 
 
-/*class InvertedFrequencyScore implements IScore<number> {
-  constructor(private parameter: { data_type:IDataTypeConfig, data_subtype:IDataSubtypeConfig, bio_type:string, comparison_operator: string, comparison_value: number}, private sample: IDataSourceConfig) {
+class InvertedFrequencyScore implements IScore<number> {
+  constructor(
+    private parameter: {
+      data_type:IDataTypeConfig,
+      data_subtype:IDataSubtypeConfig,
+      bio_type:string,
+      comparison_operator: string,
+      comparison_value: number
+    },
+    private dataSource: IDataSourceConfig,
+    private countOnly
+  ) {
 
   }
 
   createDesc() {
     return {
       type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} "${this.parameter.comparison_value}" Frequency ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`,
-      domain: [0, 1],
-      missingValue: 0,
-      constantDomain: true
+      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`,
+      domain: this.parameter.data_subtype.domain,
+      missingValue: this.parameter.data_subtype.missingValue
     };
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.sample.db}/no_assigner/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
-      table_name: this.parameter.data_type.table,
-      data_subtype: this.parameter.data_subtype.id,
-      biotype: this.parameter.bio_type,
-      operator: this.parameter.comparison_operator,
-      value: this.parameter.comparison_value
-    }).then((rows:any[]) => {
-      const r:{ [id:string]:number } = {};
-      rows.forEach((row) => {
-        r[idMapper(row.id)] = row.score;
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+        schema: this.dataSource.schema,
+        entity_name: this.dataSource.entityName,
+        table_name: this.parameter.data_type.tableName,
+        data_subtype: this.parameter.data_subtype.useForAggregation,
+        biotype: this.parameter.bio_type,
+        operator: this.parameter.comparison_operator,
+        value: this.parameter.comparison_value
+      })
+      .then((rows:any[]) => {
+        const r:{ [id:string]:number } = {};
+        rows.forEach((row) => {
+          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
+        });
+        return r;
       });
-      return r;
-    });
   }
-}*/
+}
 
 class SingleGeneScore implements IScore<any> {
   constructor(
@@ -283,7 +308,8 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
             var r = [];
             if(selection[0].data === mutation) {
               r = [
-                {name: 'Frequency', value: 'frequency', data: 'frequency'}
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
+                {name: 'Count', value: 'count', data: 'count'}
               ];
 
             } else {
@@ -291,7 +317,8 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
                 {name: 'AVG', value: 'avg', data: 'avg'},
                 {name: 'MIN', value: 'min', data: 'min'},
                 {name: 'MAX', value: 'max', data: 'max'},
-                {name: 'Frequency', value: 'frequency', data: 'frequency'}
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
+                {name: 'Count', value: 'count', data: 'count'}
               ];
             }
             return r;
@@ -306,7 +333,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         id: ParameterFormIds.COMPARISON_OPERATOR,
         dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          (dependantValues[1].value === 'frequency' && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count')  && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         options: {
           optionsData: [
             {name: '&lt; less than', value: '<', data: '<'},
@@ -324,7 +351,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         id: ParameterFormIds.COMPARISON_VALUE,
         dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          (dependantValues[1].value === 'frequency' && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count') && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         useSession: true
       }
     ];
@@ -365,5 +392,25 @@ function createSingleGeneScore(data):IScore<number> {
 }
 
 function createInvertedAggregatedScore(data):IScore<number> {
-  return new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+  var score:IScore<number> = new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+
+  if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
+
+    // boolean to indicate that the resulting score does not need to be divided by the total count
+    var countOnly = false;
+    if (data[ParameterFormIds.AGGREGATION] === 'count') {
+      countOnly = true;
+    }
+    switch(data[ParameterFormIds.DATA_TYPE]) {
+      case mutation:
+        score = new InvertedMutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
+        break;
+      case copyNumber:
+      case expression:
+        score = new InvertedFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
+        break;
+    }
+  }
+
+  return score;
 }
