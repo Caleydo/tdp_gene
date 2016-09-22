@@ -35,7 +35,7 @@
         },
         {
           "id": "tissue_inverted_aggregated_score",
-          "name": "Aggregated Score",
+          "name": "Score",
           "type": "targidScore",
           "file": "InvertedAggregatedScore",
           "idtype": "Tissue",
@@ -122,7 +122,7 @@
         },
         {
           "id": "gene_aggregated_score",
-          "name": "Aggregated Score",
+          "name": "Score",
           "type": "targidScore",
           "file": "AggregatedScore",
           "idtype": "Ensembl"
@@ -156,7 +156,7 @@
         },
         {
           "id": "cellline_inverted_aggregated_score",
-          "name": "Aggregated Score",
+          "name": "Score",
           "type": "targidScore",
           "file": "InvertedAggregatedScore",
           "idtype": "Cellline"

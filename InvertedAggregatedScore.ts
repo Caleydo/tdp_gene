@@ -193,7 +193,7 @@ class SingleGeneScore implements IScore<any> {
 export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   // resolve promise when closing or submitting the modal dialog
   return new Promise((resolve) => {
-    const dialog = dialogs.generateDialog('Add Aggregated Score', 'Add Score Column');
+    const dialog = dialogs.generateDialog('Add Score Column', 'Add Score Column');
 
     const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
     const formDesc:IFormElementDesc[] = [
