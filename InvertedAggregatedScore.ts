@@ -279,9 +279,12 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         id: ParameterFormIds.DATA_SUBTYPE,
         dependsOn: [ParameterFormIds.DATA_TYPE],
         options: {
-          optionsFnc: (selection) => (<IDataTypeConfig>selection[0].data).dataSubtypes.map((ds) => {
-            return {name: ds.name, value: ds.id, data: ds};
-          }),
+          optionsFnc: (selection) => (<IDataTypeConfig>selection[0].data)
+            .dataSubtypes
+            .filter((d)=>d.type !== ('string'))
+            .map((ds) => {
+              return {name: ds.name, value: ds.id, data: ds};
+            }),
           optionsData: []
         },
         useSession: true
