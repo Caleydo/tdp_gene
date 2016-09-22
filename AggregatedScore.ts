@@ -178,7 +178,7 @@ class SingleEntityScore implements IScore<any> {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
-        data_subtype: this.parameter.data_subtype.useForAggregation,
+        data_subtype: this.parameter.data_subtype.id,
         entity_value: this.parameter.entity_value.id
       })
       .then((rows:any[]) => {
@@ -316,7 +316,6 @@ export function create(desc: IPluginDesc) {
         options: {
           optionsFnc: (selection) => (<IDataTypeConfig>selection[0].data)
             .dataSubtypes
-            .filter((d)=>d.type !== ('string'))
             .map((ds) => {
               return {name: ds.name, value: ds.id, data: ds};
             }),
