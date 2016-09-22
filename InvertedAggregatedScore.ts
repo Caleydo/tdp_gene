@@ -244,7 +244,9 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
                 page: params.page
               };
             }
-          }
+          },
+          templateResult: (item:any) => (item.id) ? `${item.text} <span class="ensg">${item.id}</span>` : item.text,
+          templateSelection: (item:any) => (item.id) ? `${item.text} <span class="ensg">${item.id}</span>` : item.text
         },
         useSession: true
       },
