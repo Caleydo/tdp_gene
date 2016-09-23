@@ -134,7 +134,7 @@ export const gene:IBioTypeDataSourceConfig = {
   base: 'gene',
   bioTypes: geneBioTypes,
   bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
-  species: ['Homo_sapiens']
+  species: ['human', 'mouse', 'rat']
 };
 
 export const dataSources = [cellline, tissue];
