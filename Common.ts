@@ -177,8 +177,7 @@ export const expression:IDataTypeConfig = {
   tableName: 'expression',
   query: 'expression_score',
   dataSubtypes: [
-    { id: 'log2tpm', name: 'TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
-    { id: 'log2fpkm', name: 'FPKM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'log2tpm'},
+    { id: 'tpm', name: 'TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'tpm'},
     { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}
   ]
 };
