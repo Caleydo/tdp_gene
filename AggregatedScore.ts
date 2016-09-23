@@ -51,12 +51,10 @@ class AggregatedScore implements IScore<number> {
         agg: this.parameter.aggregation
       })
       .then((rows:any[]) => {
-
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-
         const r:{ [id:string]:number } = {};
         rows.forEach((row) => {
           r[idMapper(row.id)] = row.score;
@@ -182,6 +180,10 @@ class SingleEntityScore implements IScore<any> {
         entity_value: this.parameter.entity_value.id
       })
       .then((rows:any[]) => {
+        // convert log2 to linear scale
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
         const r:{ [id:string]:number } = {};
         rows.forEach((row) => {
           r[idMapper(row.id)] = row.score;
