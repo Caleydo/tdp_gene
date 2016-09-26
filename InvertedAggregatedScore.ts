@@ -282,13 +282,17 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         type: FormElementType.SELECT,
         label: 'Data Subtype',
         id: ParameterFormIds.DATA_SUBTYPE,
-        dependsOn: [ParameterFormIds.DATA_TYPE],
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
         options: {
-          optionsFnc: (selection) => (<IDataTypeConfig>selection[0].data)
-            .dataSubtypes
-            .map((ds) => {
+          optionsFnc: (selection) => {
+            var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
+            if(selection[0].value === 'bio_type') {
+              r = r.filter((d)=>d.type !== ('string'));
+            }
+            return r.map((ds) => {
               return {name: ds.name, value: ds.id, data: ds};
-            }),
+            });
+          },
           optionsData: []
         },
         useSession: true
