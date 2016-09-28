@@ -316,17 +316,17 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
               r = [
                 {name: 'Count', value: 'count', data: 'count'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'MIN', value: 'min', data: 'min'},
-                {name: 'MAX', value: 'max', data: 'max'}
+                {name: 'Min', value: 'min', data: 'min'},
+                {name: 'Max', value: 'max', data: 'max'}
               ];
 
             } else {
               r = [
                 {name: 'Count', value: 'count', data: 'count'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'AVG', value: 'avg', data: 'avg'},
-                {name: 'MIN', value: 'min', data: 'min'},
-                {name: 'MAX', value: 'max', data: 'max'}
+                {name: 'Average', value: 'avg', data: 'avg'},
+                {name: 'Min', value: 'min', data: 'min'},
+                {name: 'Max', value: 'max', data: 'max'}
               ];
             }
 
