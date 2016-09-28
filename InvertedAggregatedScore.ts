@@ -301,7 +301,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         type: FormElementType.SELECT,
         label: 'Aggregation',
         id: ParameterFormIds.AGGREGATION,
-        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE, ParameterFormIds.BIO_TYPE],
         showIf: (dependantValues) => (dependantValues[0].value === 'bio_type'),
         options: {
           optionsFnc: (selection) => {
@@ -312,15 +312,24 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
                 {name: 'Count', value: 'count', data: 'count'}
               ];
 
+            } else if(selection[2].name === all_bio_types) {
+              r = [
+                {name: 'Count', value: 'count', data: 'count'},
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
+                {name: 'MIN', value: 'min', data: 'min'},
+                {name: 'MAX', value: 'max', data: 'max'}
+              ];
+
             } else {
               r = [
+                {name: 'Count', value: 'count', data: 'count'},
+                {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'AVG', value: 'avg', data: 'avg'},
                 {name: 'MIN', value: 'min', data: 'min'},
-                {name: 'MAX', value: 'max', data: 'max'},
-                {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'Count', value: 'count', data: 'count'}
+                {name: 'MAX', value: 'max', data: 'max'}
               ];
             }
+
             return r;
           },
           optionsData: []
