@@ -142,6 +142,8 @@ class InvertedRawDataTable extends ALineUpView {
   }
 
   private updateRows(rows) {
+    this.fillIDTypeMapCache(this.selection.idtype, rows);
+
     // show or hide no data message
     this.$nodata.classed('hidden', rows.length > 0);
 

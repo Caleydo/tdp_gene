@@ -117,6 +117,8 @@ export class Enrichment extends ALineUpView {
 
     // on success
     promise.then((rows) => {
+      this.fillIDTypeMapCache(idtype, rows);
+
       // show or hide no data message
       this.$nodata.classed('hidden', rows.length > 0);
 

@@ -72,6 +72,9 @@ class CellLineList extends ALineUpView {
     promise.then((args) => {
       const desc = args[0];
       var rows : any[] = args[1];
+
+      this.fillIDTypeMapCache(idtypes.resolve(desc.idType), rows);
+
       const columns = [
         stringCol('id', 'Name'),
         categoricalCol('species', desc.columns.species.categories, 'Species'),

@@ -166,6 +166,8 @@ class RawDataTable extends ALineUpView {
     var rows = args[0];
     const mapping = args[1];
 
+    this.fillIDTypeMapCache(this.selection.idtype, rows);
+
     if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }

@@ -57,6 +57,9 @@ class GeneList extends ALineUpView {
     promise.then((args) => {
       const desc = args[0];
       var rows : any[] = args[1];
+
+      this.fillIDTypeMapCache(idtypes.resolve(desc.idType), rows);
+
       const columns = [
         stringCol('symbol', 'Symbol'),
         stringCol('id', 'Ensembl'),
