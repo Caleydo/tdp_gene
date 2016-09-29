@@ -340,9 +340,9 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         type: FormElementType.SELECT,
         label: 'Comparison Operator',
         id: ParameterFormIds.COMPARISON_OPERATOR,
-        dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
+        dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION, ParameterFormIds.FILTER_BY],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count')  && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          (dependantValues[2].value === 'bio_type' && (dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count')  && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         options: {
           optionsData: [
             {name: '&lt; less than', value: '<', data: '<'},
@@ -358,9 +358,9 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         type: FormElementType.INPUT_TEXT,
         label: 'Comparison Value',
         id: ParameterFormIds.COMPARISON_VALUE,
-        dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
+        dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION, ParameterFormIds.FILTER_BY],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count') && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          (dependantValues[2].value === 'bio_type' && (dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count') && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         useSession: true
       }
     ];
