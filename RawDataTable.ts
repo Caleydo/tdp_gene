@@ -9,7 +9,7 @@ import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
 import {
-  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear
+  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear, gene
 } from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
@@ -116,7 +116,7 @@ class RawDataTable extends ALineUpView {
 
     const promise1 = Promise.all([
       this.lineupPromise,
-      this.resolveIds(this.selection.idtype, this.selection.range, 'Ensembl')
+      this.resolveIds(this.selection.idtype, this.selection.range)
     ]);
 
     // on error
@@ -166,7 +166,7 @@ class RawDataTable extends ALineUpView {
     var rows = args[0];
     const mapping = args[1];
 
-    this.fillIDTypeMapCache(this.selection.idtype, rows);
+    this.fillIDTypeMapCache(idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), rows);
 
     if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');

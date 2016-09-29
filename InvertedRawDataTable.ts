@@ -99,13 +99,12 @@ class InvertedRawDataTable extends ALineUpView {
   }
 
   private update() {
-    const idtype = this.selection.idtype;
 
     this.setBusy(true);
 
     const promise1 = Promise.all([
         this.lineupPromise,
-        this.resolveIds(idtype, this.selection.range, this.dataSource.idType)
+        this.resolveIds(this.selection.idtype, this.selection.range)
       ]);
 
     // on error
@@ -142,7 +141,7 @@ class InvertedRawDataTable extends ALineUpView {
   }
 
   private updateRows(rows) {
-    this.fillIDTypeMapCache(this.selection.idtype, rows);
+    this.fillIDTypeMapCache(idtypes.resolve(gene.idType), rows);
 
     // show or hide no data message
     this.$nodata.classed('hidden', rows.length > 0);
