@@ -41,7 +41,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
@@ -87,7 +87,7 @@ class InvertedMutationFrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
@@ -129,7 +129,7 @@ class InvertedFrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
@@ -173,7 +173,7 @@ class SingleGeneScore implements IScore<any> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_entity_score_inverted` , {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/single_entity_score_inverted` , {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,

@@ -42,7 +42,7 @@ class AggregatedScore implements IScore<number> {
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
 
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
@@ -88,7 +88,7 @@ class MutationFrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
@@ -130,7 +130,7 @@ class FrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
@@ -172,7 +172,7 @@ class SingleEntityScore implements IScore<any> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/no_assigner/single_entity_score` , {
+    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/single_entity_score` , {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
