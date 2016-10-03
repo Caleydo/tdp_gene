@@ -102,6 +102,7 @@ class RawDataTable extends ALineUpView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
+    this.build();
     return this.update();
   }
 
@@ -197,7 +198,11 @@ class RawDataTable extends ALineUpView {
       const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
         const base = values[0];
         values.forEach((row) => {
-          base['score_' + row.ensg] = row.score;
+          if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+            base['score_' + row.ensg] = row.score.toString();
+          } else {
+            base['score_' + row.ensg] = row.score;
+          }
         });
         return base;
       }).entries(rows).map((d) => d.values);
@@ -228,17 +233,16 @@ class RawDataTable extends ALineUpView {
           }
 
           var desc;
+          const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
 
-          //TODO: Handle categorical columns. Same for copy number needed.
-          //desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
-
-          if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'boolean') {
+          if (dataSubType.type === 'boolean') {
             desc = stringCol('score_' + d, label);
-          } else if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'string') {
+          } else if (dataSubType.type === 'string') {
             desc = stringCol('score_' + d, label);
+          } else if (dataSubType.type === 'cat') {
+            desc = categoricalCol('score_' + d, dataSubType.categories, label);
           } else {
-            // TODO: take bounds from description
-            desc = numberCol2('score_' + d, -3, 3, label);
+            desc = numberCol2('score_' + d, dataSubType.domain[0], dataSubType.domain[1], label);
           }
 
           desc.color = colors.shift(); // get and remove color from list
@@ -257,6 +261,8 @@ class RawDataTable extends ALineUpView {
 
   private build() {
     this.setBusy(true);
+
+    this.destroyLineUp();
 
     this.lineupPromise = Promise.resolve(ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/${this.getParameter(ParameterFormIds.DATA_SOURCE).base}/desc`))
       .then((desc) => {

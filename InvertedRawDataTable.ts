@@ -90,6 +90,7 @@ class InvertedRawDataTable extends ALineUpView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
+    this.build();
     return this.update();
   }
 
@@ -168,7 +169,11 @@ class InvertedRawDataTable extends ALineUpView {
       const base = values[0];
       base.strand_cat = base.strand === -1 ? 'reverse strand' : 'forward strand';
       values.forEach((row) => {
-        base['score_' + row.name] = row.score;
+        if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+          base['score_' + row.name] = (row.score === null) ? 'undefined' : row.score.toString();
+        } else {
+          base['score_' + row.name] = row.score;
+        }
         names.add(row.name);
       });
       return base;
@@ -197,12 +202,22 @@ class InvertedRawDataTable extends ALineUpView {
 
       // add new columns
       names.values().filter((d) => colIds.indexOf('score_' + d) < 0).forEach((d, i) => {
-
         var desc;
-        if (this.dataType === mutation) {
-          desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), d);
+        const label = d;
+        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+
+        if (dataSubType.type === 'boolean') {
+          desc = stringCol('score_' + d, label);
+        } else if (dataSubType.type === 'string') {
+          desc = stringCol('score_' + d, label);
+        } else if (dataSubType.type === 'cat') {
+          if (this.dataType === mutation) {
+            desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
+          } else {
+            desc = categoricalCol('score_' + d, dataSubType.categories, label);
+          }
         } else {
-          desc = numberCol2('score_' + d, -3, 3, d);
+          desc = numberCol2('score_' + d, dataSubType.domain[0], dataSubType.domain[1], label);
         }
 
         desc.color = colors.shift(); // get and remove color from list
@@ -221,6 +236,9 @@ class InvertedRawDataTable extends ALineUpView {
   private build() {
     //generate random data
     this.setBusy(true);
+
+    this.destroyLineUp();
+
     this.lineupPromise = Promise.all([
         ajax.getAPIJSON(`/targid/db/${gene.db}/${gene.base}/desc`),
         this.resolveIds(this.selection.idtype, this.selection.range, this.dataSource.idType)
@@ -240,8 +258,26 @@ class InvertedRawDataTable extends ALineUpView {
         ];
         const defaultColLength = columns.length;
 
+        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+
         names.forEach((d, i) => {
-          columns[columns.length] = numberCol2('score_' + d, -3, 3, d);
+          var desc;
+          const label = d;
+
+          if (dataSubType.type === 'boolean') {
+            desc = stringCol('score_' + d, label);
+          } else if (dataSubType.type === 'string') {
+            desc = stringCol('score_' + d, label);
+          } else if (dataSubType.type === 'cat') {
+            if (this.dataType === mutation) {
+              desc = categoricalCol('score_' + d, mutationCat.map((d) => d.value), label);
+            } else {
+              desc = categoricalCol('score_' + d, dataSubType.categories, label);
+            }
+          } else {
+            desc = numberCol2('score_' + d, dataSubType.domain[0], dataSubType.domain[1], label);
+          }
+          columns[columns.length] = desc;
         });
 
         var lineup = this.buildLineUp([], columns, idtypes.resolve(gene.idType), (d) => d._id);
