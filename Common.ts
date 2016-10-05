@@ -15,7 +15,7 @@ export const copyNumberCat = [
 
 export const mutationCat = [
   {value: 'true', name: 'Mutated', color: '#1BA64E'},
-  {value: 'false', name: 'Non Mutated', color: '#B70AFF'},
+  {value: 'false', name: 'Non Mutated', color: '#dcdcdc'},
   {value: '', name: 'Unknown', color: 'transparent'}
 ];
 
