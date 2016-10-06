@@ -3,24 +3,91 @@
  */
 
 import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
-import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
-import {ALineUpView, stringCol, categoricalCol, useDefaultLayout} from '../targid2/LineUpView';
-import {chooseDataSource, IDataSourceConfig} from './Common';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+import {stringCol, categoricalCol, ALineUpView2} from '../targid2/LineUpView';
+import {chooseDataSource, ParameterFormIds} from './Common';
 import {INamedSet} from '../targid2/storage';
+import {FormBuilder, IFormSelectDesc, FormElementType} from '../targid2/FormBuilder';
 
-class CellLineList extends ALineUpView {
+
+class CellLineList extends ALineUpView2 {
+
+  /**
+   * Initialize LineUp view with named set
+   * Override in constructor of extended class
+   */
   private namedSet : INamedSet;
 
-  private dataSource: IDataSourceConfig;
+  /**
+   * Parameter UI form
+   */
+  private paramForm:FormBuilder;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
+
+    //this.idAccessor = (d) => d._id;
+
     this.dataSource = chooseDataSource(context.desc);
     this.namedSet = options.namedSet;
-    this.build();
+  }
+
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    const paramDesc:IFormSelectDesc[] = [
+      {
+        type: FormElementType.SELECT,
+        label: 'Data Source',
+        id: ParameterFormIds.DATA_SOURCE,
+        visible: false,
+        options: {
+          optionsData: [this.dataSource].map((ds) => {
+            return {name: ds.name, value: ds.name, data: ds};
+          })
+        }
+      }/*,
+      {
+        type: FormElementType.SELECT,
+        label: 'Data Subtype',
+        id: ParameterFormIds.DATA_SUBTYPE,
+        options: {
+          optionsData: expression.dataSubtypes.map((ds) => {
+            return {name: ds.name, value: ds.id, data: ds};
+          })
+        }
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Tumor Type',
+        id: ParameterFormIds.TUMOR_TYPE,
+        dependsOn: [ParameterFormIds.DATA_SOURCE],
+        options: {
+          optionsFnc: (selection) => selection[0].data.bioTypesWithAll,
+          optionsData: []
+        }
+      }*/
+    ];
+
+    // map FormElement change function to provenance graph onChange function
+    paramDesc.forEach((p) => {
+      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
+    });
+
+    this.paramForm.build(paramDesc);
+
+    // add other fields
+    super.buildParameterUI($parent.select('form'), onChange);
+  }
+
+  getParameter(name: string): any {
+    return this.paramForm.getElementById(name).value.data;
+  }
+
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
+    this.clear();
+    return this.update();
   }
 
   /**
@@ -34,74 +101,49 @@ class CellLineList extends ALineUpView {
     };
   }
 
-  /**
-   * Override the pushScore function to give DataSource to InvertedAggregatedScore factory method
-   * @param scorePlugin
-   * @param ranking
-   */
-  pushScore(scorePlugin:plugins.IPlugin, ranking = this.lineup.data.getLastRanking()) {
-    //TODO clueify
-    Promise.resolve(scorePlugin.factory(scorePlugin.desc, this.dataSource)) // open modal dialog
-      .then((scoreImpl) => { // modal dialog is closed and score created
-        this.startScoreComputation(scoreImpl, scorePlugin, ranking);
-      });
+  protected loadColumnDesc() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
   }
 
-  private build() {
-    //generate random data
-    this.setBusy(true);
+  protected initColumns(desc) {
+    super.initColumns(desc);
 
-    var dataPromise;
-    var namedSetIdUrlPrefix = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+    const columns = [
+      stringCol('id', 'Name', true, 120),
+      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type', true),
+      categoricalCol('organ', desc.columns.organ.categories, 'Organ', true),
+      categoricalCol('gender', desc.columns.gender.categories, 'Gender', true)
+    ];
+
+    this.build([], columns);
+    return columns;
+  }
+
+  protected loadRows() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const namedSetIdUrl = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+    const param = {};
+    var filteredUrl = '';
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
-      const param = {};
       param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered${namedSetIdUrlPrefix}`, param);
-
-    } else {
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}${namedSetIdUrlPrefix}`);
+      filteredUrl = '_filtered';
     }
 
-    const promise = Promise.all([
-        ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/desc`),
-        dataPromise
-      ]);
-
-    // on success
-    promise.then((args) => {
-      const desc = args[0];
-      var rows : any[] = args[1];
-
-      this.fillIDTypeMapCache(idtypes.resolve(desc.idType), rows);
-
-      const columns = [
-        stringCol('id', 'Name'),
-        categoricalCol('species', desc.columns.species.categories, 'Species'),
-        categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type'),
-        categoricalCol('organ', desc.columns.organ.categories, 'Organ'),
-        categoricalCol('gender', desc.columns.gender.categories, 'Gender')
-      ];
-
-      var lineup = this.buildLineUp(rows, columns, idtypes.resolve(this.dataSource.idType),(d) => d._id);
-      useDefaultLayout(lineup);
-      lineup.update();
-      this.initializedLineUp();
-    });
-
-    // on error
-    promise.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
-      });
+    const baseURL = `/targid/db/${dataSource.db}/${dataSource.base}${filteredUrl}${namedSetIdUrl}`;
+    return ajax.getAPIJSON(baseURL, param);
   }
 
   getItemName(count) {
-    return (count === 1) ? this.dataSource.name.toLowerCase() : this.dataSource.name.toLowerCase() + 's';
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
+
 }
 
 export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?) {
   return new CellLineList(context, selection, parent, options);
 }
+

@@ -3,23 +3,89 @@
  */
 
 import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
-import {ALineUpView, useDefaultLayout, stringCol, categoricalCol} from '../targid2/LineUpView';
-import {gene, IDataSourceConfig} from './Common';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
+import {gene, ParameterFormIds} from './Common';
 import {INamedSet} from '../targid2/storage';
+import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
-class GeneList extends ALineUpView {
+class GeneList2 extends ALineUpView2 {
+
+  /**
+   * Initialize LineUp view with named set
+   * Override in constructor of extended class
+   */
   private namedSet : INamedSet;
 
-  private dataSource: IDataSourceConfig;
+  /**
+   * Parameter UI form
+   */
+  private paramForm:FormBuilder;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
+
+    //this.idAccessor = (d) => d._id;
     this.dataSource = gene;
     this.namedSet = options.namedSet;
-    this.build();
+  }
+
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    const paramDesc:IFormSelectDesc[] = [
+      {
+        type: FormElementType.SELECT,
+        label: 'Data Source',
+        id: ParameterFormIds.DATA_SOURCE,
+        visible: false,
+        options: {
+          optionsData: [this.dataSource].map((ds) => {
+            return {name: ds.name, value: ds.name, data: ds};
+          })
+        }
+      }/*,
+      {
+        type: FormElementType.SELECT,
+        label: 'Data Subtype',
+        id: ParameterFormIds.DATA_SUBTYPE,
+        options: {
+          optionsData: expression.dataSubtypes.map((ds) => {
+            return {name: ds.name, value: ds.id, data: ds};
+          })
+        }
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Tumor Type',
+        id: ParameterFormIds.TUMOR_TYPE,
+        dependsOn: [ParameterFormIds.DATA_SOURCE],
+        options: {
+          optionsFnc: (selection) => selection[0].data.bioTypesWithAll,
+          optionsData: []
+        }
+      }*/
+    ];
+
+    // map FormElement change function to provenance graph onChange function
+    paramDesc.forEach((p) => {
+      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
+    });
+
+    this.paramForm.build(paramDesc);
+
+    // add other fields
+    super.buildParameterUI($parent.select('form'), onChange);
+  }
+
+  getParameter(name: string): any {
+    return this.paramForm.getElementById(name).value.data;
+  }
+
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
+    this.clear();
+    return this.update();
   }
 
   /**
@@ -33,76 +99,51 @@ class GeneList extends ALineUpView {
     };
   }
 
-  private build() {
-    this.setBusy(true);
+  protected loadColumnDesc() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
+  }
 
-    var dataPromise;
-    var namedSetIdUrlPrefix = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+  protected initColumns(desc) {
+    super.initColumns(desc);
+
+    const columns = [
+      stringCol('symbol', 'Symbol', true, 100),
+      stringCol('id', 'Ensembl', true, 120),
+      stringCol('chromosome', 'Chromosome', true, 150),
+      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand', true),
+      categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
+      stringCol('seqregionstart', 'Seq Region Start', false),
+      stringCol('seqregionend', 'Seq Region End', false)
+    ];
+
+    this.build([], columns);
+    return columns;
+  }
+
+  protected loadRows() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const namedSetIdUrl = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+    const param = {};
+    var filteredUrl = '';
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
-      const param = {};
       param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_filtered${namedSetIdUrlPrefix}`, param);
-
-    } else {
-      dataPromise = ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}${namedSetIdUrlPrefix}`);
+      filteredUrl = '_filtered';
     }
 
-    const promise = Promise.all([
-        ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/desc`),
-        dataPromise
-      ]);
-
-    // on success
-    promise.then((args) => {
-      const desc = args[0];
-      var rows : any[] = args[1];
-
-      this.fillIDTypeMapCache(idtypes.resolve(desc.idType), rows);
-
-      const columns = [
-        stringCol('symbol', 'Symbol'),
-        stringCol('id', 'Ensembl'),
-        stringCol('chromosome', 'Chromosome'),
-        categoricalCol('species', desc.columns.species.categories, 'Species'),
-        categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand'),
-        categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype'),
-        stringCol('seqregionstart', 'Seq Region Start'),
-        stringCol('seqregionend', 'Seq Region End')
-      ];
-      rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
-
-      var lineup = this.buildLineUp(rows, columns, idtypes.resolve(desc.idType),(d) => d._id);
-
-      var r = lineup.data.pushRanking();
-
-      //Show first 6 columns and the rest will only show up in the list of columns that the user can manually add
-      columns.slice(0,6).forEach((d) => {
-        lineup.data.push(r, d);
-      });
-
-      useDefaultLayout(lineup);
-      r = lineup.data.getLastRanking().children;
-      r[1].setWidth(75);
-      r[2].setWidth(75);
-      r[3].setWidth(120);
-      lineup.update();
-      this.initializedLineUp();
-    });
-
-    // on error
-    promise.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
-      });
+    const baseURL = `/targid/db/${dataSource.db}/${dataSource.base}${filteredUrl}${namedSetIdUrl}`;
+    return ajax.getAPIJSON(baseURL, param);
   }
 
   getItemName(count) {
-    return (count === 1) ? this.dataSource.name.toLowerCase() : this.dataSource.name.toLowerCase() + 's';
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
+
 }
 
 export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new GeneList(context, selection, parent, options);
+  return new GeneList2(context, selection, parent, options);
 }
