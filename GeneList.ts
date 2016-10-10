@@ -137,6 +137,12 @@ class GeneList2 extends ALineUpView2 {
     return ajax.getAPIJSON(baseURL, param);
   }
 
+  protected mapRows(rows:any[]) {
+    rows = super.mapRows(rows);
+    rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
+    return rows;
+  }
+
   getItemName(count) {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
