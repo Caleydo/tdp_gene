@@ -190,12 +190,14 @@ class InvertedRawDataTable extends ALineUpView2 {
       rows = convertLog2ToLinear(rows, 'score');
     }
 
-    rows = rows.map((row) => {
-      if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
-        row.score = (row.score === null) ? 'undefined' : row.score.toString();
-      }
-      return row;
-    });
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+      rows = rows
+        .filter((row) => row.score !== null)
+        .map((row) => {
+          row.score = row.score.toString();
+          return row;
+        });
+    }
 
     return rows;
   }
