@@ -88,6 +88,12 @@ class InvertedMutationFrequencyScore implements IScore<number> {
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
         biotype: this.parameter.bio_type
+      })
+      .then((rows:any[]) => {
+        return rows.map((row) => {
+          row.score = this.countOnly ? row.count : row.count / row.total;
+          return row;
+        });
       });
   }
 }
@@ -126,6 +132,12 @@ class InvertedFrequencyScore implements IScore<number> {
         biotype: this.parameter.bio_type,
         operator: this.parameter.comparison_operator,
         value: this.parameter.comparison_value
+      })
+      .then((rows:any[]) => {
+        return rows.map((row) => {
+          row.score = this.countOnly ? row.count : row.count / row.total;
+          return row;
+        });
       });
   }
 }
