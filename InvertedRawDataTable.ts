@@ -4,8 +4,6 @@
 /// <reference path='../../tsd.d.ts' />
 
 import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
-import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
 import {
   stringCol, numberCol2, categoricalCol,
