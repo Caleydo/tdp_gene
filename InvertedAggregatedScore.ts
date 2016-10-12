@@ -166,7 +166,7 @@ class SingleGeneScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-        return rows
+        return rows;
       });
   }
 }
