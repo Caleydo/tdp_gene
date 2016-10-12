@@ -74,8 +74,14 @@ class InvertedRawDataTable extends ALineUpView2 {
 
     this.paramForm.build(paramDesc);
 
+    this.updateDataSource();
+
     // add other fields
     super.buildParameterUI($parent.select('form'), onChange);
+  }
+
+  private updateDataSource() {
+    this.dataSource = this.paramForm.getElementById(ParameterFormIds.DATA_SOURCE).value.data;
   }
 
   getParameter(name: string): any {
@@ -84,6 +90,7 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
+    this.updateDataSource();
     this.clear();
     return this.update();
   }
