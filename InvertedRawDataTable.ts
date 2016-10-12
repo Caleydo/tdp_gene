@@ -186,7 +186,7 @@ class InvertedRawDataTable extends ALineUpView2 {
   }
 
   protected mapSelectionRows(rows:any[]) {
-    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }
 

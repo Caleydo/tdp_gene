@@ -10,7 +10,8 @@ import {
   ALineUpView2
 } from '../targid2/LineUpView';
 import {
-  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear
+  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
+  copyNumberCat
 } from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
@@ -185,7 +186,7 @@ class RawDataTable extends ALineUpView2 {
   }
 
   protected mapSelectionRows(rows:any[]) {
-    if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }
 
@@ -196,6 +197,16 @@ class RawDataTable extends ALineUpView2 {
           row.score = row.score.toString();
           return row;
         });
+    }
+
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).id === 'copynumberclass') {
+      var mapping = {};
+      copyNumberCat.forEach((d) => mapping[d.value] = d.name);
+
+      rows = rows.map((row) => {
+        row.score = mapping[row.score];
+        return row;
+      });
     }
 
     return rows;
