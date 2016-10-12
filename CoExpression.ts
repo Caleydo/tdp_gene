@@ -350,8 +350,8 @@ export class CoExpression extends ASmallMultipleView {
       return;
     }
 
-    this.x.domain([0.01, d3.max(this.refGeneExpression, (d) => d.expression)]).clamp(true);
-    this.y.domain([0.01, d3.max(rows, (d) => d.expression)]).clamp(true);
+    this.x.domain([1, d3.max(this.refGeneExpression, (d) => d.expression)]).clamp(true);
+    this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
 
     const $g = $parent.select('svg g');
 

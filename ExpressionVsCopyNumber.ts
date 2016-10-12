@@ -252,7 +252,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     const rows = data.rows;
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
-    this.y.domain([0.01, d3.max(rows, (d) => d.expression)]).clamp(true);
+    this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
 
     const $g = $parent.select('svg g');
 
