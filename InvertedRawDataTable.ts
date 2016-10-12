@@ -7,7 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection} from '../targid2/View';
 import {
   stringCol, numberCol2, categoricalCol,
-  ALineUpView2
+  ALineUpView2, IScoreRow
 } from '../targid2/LineUpView';
 import {
   all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
@@ -185,7 +185,7 @@ class InvertedRawDataTable extends ALineUpView2 {
       });
   }
 
-  protected mapSelectionRows(rows:any[]) {
+  protected mapSelectionRows(rows:IScoreRow<any>[]) {
     if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }

@@ -7,7 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection} from '../targid2/View';
 import {
   stringCol, numberCol2, categoricalCol,
-  ALineUpView2
+  ALineUpView2, IScoreRow
 } from '../targid2/LineUpView';
 import {
   dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
@@ -185,7 +185,7 @@ class RawDataTable extends ALineUpView2 {
       });
   }
 
-  protected mapSelectionRows(rows:any[]) {
+  protected mapSelectionRows(rows:IScoreRow<any>[]) {
     if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }
