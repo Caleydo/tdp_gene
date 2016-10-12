@@ -4,52 +4,34 @@
 /// <reference path='../../tsd.d.ts' />
 
 import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
-import plugins = require('../caleydo_core/plugin');
 import {IViewContext, ISelection} from '../targid2/View';
-import {ALineUpView, stringCol, numberCol2, useDefaultLayout, categoricalCol} from '../targid2/LineUpView';
+import {
+  stringCol, numberCol2, categoricalCol,
+  ALineUpView2
+} from '../targid2/LineUpView';
 import {
   dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear
 } from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
 
-class RawDataTable extends ALineUpView {
-
-  private lineupPromise:Promise<any>;
+class RawDataTable extends ALineUpView2 {
 
   private dataType:IDataTypeConfig;
 
-  private paramForm:FormBuilder;
-  private paramDesc:IFormSelectDesc[];
-
-  constructor(context:IViewContext, private selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
-    super(context, parent, options);
-    this.dataType = dataType;
-  }
-
   /**
-   * Override the pushScore function to give DataSource to InvertedAggregatedScore factory method
-   * @param scorePlugin
-   * @param ranking
+   * Parameter UI form
    */
-  pushScore(scorePlugin:plugins.IPlugin, ranking = this.lineup.data.getLastRanking()) {
-    //TODO clueify
-    Promise.resolve(scorePlugin.factory(scorePlugin.desc, this.getParameter(ParameterFormIds.DATA_SOURCE))) // open modal dialog
-      .then((scoreImpl) => { // modal dialog is closed and score created
-        this.startScoreComputation(scoreImpl, scorePlugin, ranking);
-      });
-  }
+  private paramForm:FormBuilder;
 
-  init() {
-    this.build();
-    this.update();
+  constructor(context:IViewContext, selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
+    super(context, selection, parent, options);
+    this.dataType = dataType;
   }
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
     this.paramForm = new FormBuilder($parent);
 
-    this.paramDesc = [
+    const paramDesc:IFormSelectDesc[] = [
       {
         type: FormElementType.SELECT,
         label: 'Data Source',
@@ -86,11 +68,11 @@ class RawDataTable extends ALineUpView {
     ];
 
     // map FormElement change function to provenance graph onChange function
-    this.paramDesc.forEach((p) => {
+    paramDesc.forEach((p) => {
       p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
     });
 
-    this.paramForm.build(this.paramDesc);
+    this.paramForm.build(paramDesc);
 
     // add other fields
     super.buildParameterUI($parent.select('form'), onChange);
@@ -102,195 +84,121 @@ class RawDataTable extends ALineUpView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
-    this.build();
+    this.clear();
     return this.update();
   }
 
-  changeSelection(selection:ISelection) {
-    this.selection = selection;
-    return this.update();
+  protected loadColumnDesc() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
   }
 
-  private update() {
+  protected initColumns(desc) {
+    super.initColumns(desc);
 
-    this.setBusy(true);
+    const columns = [
+      stringCol('id', 'Name', true, 120),
+      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type', true),
+      categoricalCol('organ', desc.columns.organ.categories, 'Organ', true),
+      categoricalCol('gender', desc.columns.gender.categories, 'Gender', true)
+    ];
 
-    const promise1 = Promise.all([
-      this.lineupPromise,
-      this.resolveIds(this.selection.idtype, this.selection.range)
-    ]);
+    this.build([], columns);
+    this.handleSelectionColumns(this.selection);
 
-    // on error
-    promise1.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
-      });
-
-    // on success
-    const promise2 = promise1.then((args) => {
-        const genes = args[1];
-
-        return Promise.all([
-          ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-            ensgs: '\'' + genes.join('\',\'') + '\'',
-            schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-            entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-            table_name: this.dataType.tableName,
-            data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-            tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
-          }),
-          //resolve Ensembl IDs to gene object containing id and symbol
-          ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-            ensgs: '\'' + genes.join('\',\'') + '\''
-          })
-        ]);
-
-      });
-
-    // on error
-    promise2.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
-      });
-
-    // on success
-    promise2.then((args) => {
-        this.updateData(args);
-      });
-
-    return promise2;
+    return columns;
   }
 
-  private updateData(args) {
-    var rows = args[0];
-    const mapping = args[1];
+  protected loadRows() {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const param = {
+      schema: dataSource.schema,
+      entity_name: dataSource.entityName,
+      table_name: this.dataType.tableName,
+      data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
+      tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
+    };
+    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, param);
+  }
 
-    this.fillIDTypeMapCache(idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), rows);
+  protected mapRows(rows:any[]) {
+    rows = super.mapRows(rows);
+    return rows;
+  }
 
+  protected getSelectionColumnDesc(id) {
+    return this.getSelectionColumnLabel(id)
+      .then((label:string) => {
+        var desc;
+        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+
+        if (dataSubType.type === 'boolean') {
+          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+        } else if (dataSubType.type === 'string') {
+          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+        } else if (dataSubType.type === 'cat') {
+          desc = categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
+        } else {
+          desc = numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
+        }
+        return desc;
+      });
+  }
+
+  protected getSelectionColumnLabel(id) {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    // resolve `_id` (= `targidid`) to symbol (`ensg`)
+    // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
+    return this.resolveId(this.selection.idtype, id)
+      .then((ensg) => {
+        return ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
+            ensgs: `'${ensg}'`
+          });
+      })
+      .then((mapping) => {
+        // resolve ensg to gene name
+        return mapping[0].symbol;
+      });
+  }
+
+  protected loadSelectionColumnData(id) {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
+    return this.resolveId(this.selection.idtype, id)
+      .then((ensg) => {
+        return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
+          ensg: ensg,
+          schema: dataSource.schema,
+          entity_name: dataSource.entityName,
+          table_name: this.dataType.tableName,
+          data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id
+        });
+      });
+  }
+
+  protected mapSelectionRows(rows:any[]) {
     if (this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
     }
 
-    // show or hide no data message
-    this.$nodata.classed('hidden', rows.length > 0);
+    rows = rows.map((row) => {
+      if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+        row.score = row.score.toString();
+      }
+      return row;
+    });
 
-    //console.log(rows.length, rows);
-    if(rows.length === 0) {
-      console.warn('no data --> create a new (empty) LineUp');
-      this.lineup.destroy();
-      this.build();
-      this.lineupPromise.then((d) => {
-        this.setBusy(false);
-      });
-
-    } else {
-      var names = d3.set();
-      var symbols = d3.map<string>();
-
-      // fill names and symbols with mapping data
-      mapping.forEach((d) => {
-        names.add(d.id);
-        symbols.set(d.id, d.symbol);
-      });
-
-      const data = d3.nest().key((d: any) => d.id).rollup((values: any[]) => {
-        const base = values[0];
-        values.forEach((row) => {
-          if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
-            base['score_' + row.ensg] = row.score.toString();
-          } else {
-            base['score_' + row.ensg] = row.score;
-          }
-        });
-        return base;
-      }).entries(rows).map((d) => d.values);
-
-      this.withoutTracking(() => {
-        var lineup = this.replaceLineUpData(data);
-        const ranking = lineup.data.getRankings()[0];
-        const usedCols = ranking.flatColumns.filter((d) => /score_.*/.test(d.desc.column));
-        const colIds = usedCols.map((d) => d.desc.column);
-        const colors = d3.scale.category10().range().slice();
-        // remove old columns
-        usedCols
-          // remove colors that are already in use from the list
-          .map((d) => {
-            colors.splice(colors.indexOf(d.color), 1);
-            return d;
-          })
-          .filter((d) => !names.has(d.desc.column.slice(6)))
-          // remove columns
-          .forEach((d) => {
-            d.removeMe();
-          });
-        // add new columns
-        names.values().filter((d) => colIds.indexOf('score_' + d) < 0).forEach((d, i) => {
-          var label = symbols.get(d);
-          if(!label) {
-            label = d;
-          }
-
-          var desc;
-          const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
-
-          if (dataSubType.type === 'boolean') {
-            desc = stringCol('score_' + d, label);
-          } else if (dataSubType.type === 'string') {
-            desc = stringCol('score_' + d, label);
-          } else if (dataSubType.type === 'cat') {
-            desc = categoricalCol('score_' + d, dataSubType.categories, label);
-          } else {
-            desc = numberCol2('score_' + d, dataSubType.domain[0], dataSubType.domain[1], label);
-          }
-
-          desc.color = colors.shift(); // get and remove color from list
-          lineup.data.pushDesc(desc);
-          lineup.data.push(ranking, desc);
-        });
-        names.forEach((d) => {
-          this.updateMapping('score_' + d, data);
-        });
-      });
-
-      this.updateLineUpStats();
-      this.setBusy(false);
-    }
+    return rows;
   }
 
-  private build() {
-    this.setBusy(true);
-
-    this.destroyLineUp();
-
-    this.lineupPromise = Promise.resolve(ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/${this.getParameter(ParameterFormIds.DATA_SOURCE).base}/desc`))
-      .then((desc) => {
-        const columns = [
-          stringCol('id', 'Name'),
-          categoricalCol('species', desc.columns.species.categories, 'Species'),
-          categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type'),
-          categoricalCol('organ', desc.columns.organ.categories, 'Organ'),
-          categoricalCol('gender', desc.columns.gender.categories, 'Gender')
-        ];
-
-        var lineup = this.buildLineUp([], columns, idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), (d) => d._id);
-        var r = lineup.data.pushRanking();
-
-        lineup.data.push(r, columns[0]);
-
-        useDefaultLayout(lineup);
-
-        lineup.update();
-        this.initializedLineUp();
-        return lineup;
-      });
-  }
-
-  getItemName(count: number) {
-    return (count === 1) ? this.getParameter(ParameterFormIds.DATA_SOURCE).name.toLowerCase() : this.getParameter(ParameterFormIds.DATA_SOURCE).name.toLowerCase() + 's';
+  getItemName(count) {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
 }
+
+
 
 export function createExpressionTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
   return new RawDataTable(context, selection, parent, expression, options);

@@ -9,7 +9,7 @@ import {gene, ParameterFormIds} from './Common';
 import {INamedSet} from '../targid2/storage';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
-class GeneList2 extends ALineUpView2 {
+class GeneList extends ALineUpView2 {
 
   /**
    * Initialize LineUp view with named set
@@ -23,7 +23,7 @@ class GeneList2 extends ALineUpView2 {
   private paramForm:FormBuilder;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
-    super(context, parent, options);
+    super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
     this.dataSource = gene;
@@ -151,5 +151,5 @@ class GeneList2 extends ALineUpView2 {
 }
 
 export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new GeneList2(context, selection, parent, options);
+  return new GeneList(context, selection, parent, options);
 }

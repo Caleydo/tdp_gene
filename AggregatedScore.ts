@@ -40,7 +40,7 @@ class AggregatedScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
 
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
@@ -55,11 +55,7 @@ class AggregatedScore implements IScore<number> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = row.score;
-        });
-        return r;
+        return rows;
       });
   }
 }
@@ -87,19 +83,12 @@ class MutationFrequencyScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
         tumortype: this.parameter.tumor_type
-      })
-      .then((rows:any[]) => {
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
-        });
-        return r;
       });
   }
 }
@@ -129,7 +118,7 @@ class FrequencyScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -138,13 +127,6 @@ class FrequencyScore implements IScore<number> {
         tumortype: this.parameter.tumor_type,
         operator: this.parameter.comparison_operator,
         value: this.parameter.comparison_value
-      })
-      .then((rows:any[]) => {
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
-        });
-        return r;
       });
   }
 }
@@ -171,7 +153,7 @@ class SingleEntityScore implements IScore<any> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/single_entity_score` , {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -184,11 +166,7 @@ class SingleEntityScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = row.score;
-        });
-        return r;
+        return rows;
       });
   }
 }

@@ -24,7 +24,7 @@ class CellLineList extends ALineUpView2 {
   private paramForm:FormBuilder;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
-    super(context, parent, options);
+    super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
 

@@ -40,7 +40,7 @@ class InvertedAggregatedScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -53,11 +53,7 @@ class InvertedAggregatedScore implements IScore<number> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = row.score;
-        });
-        return r;
+        return rows;
       });
   }
 }
@@ -86,19 +82,12 @@ class InvertedMutationFrequencyScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
         biotype: this.parameter.bio_type
-      })
-      .then((rows:any[]) => {
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
-        });
-        return r;
       });
   }
 }
@@ -128,7 +117,7 @@ class InvertedFrequencyScore implements IScore<number> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:number }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -137,13 +126,6 @@ class InvertedFrequencyScore implements IScore<number> {
         biotype: this.parameter.bio_type,
         operator: this.parameter.comparison_operator,
         value: this.parameter.comparison_value
-      })
-      .then((rows:any[]) => {
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = this.countOnly ? row.count : row.count / row.total;
-        });
-        return r;
       });
   }
 }
@@ -172,7 +154,7 @@ class SingleGeneScore implements IScore<any> {
     };
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType, idMapper:(id:string) => number):Promise<{ [id:string]:any }> {
+  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/single_entity_score_inverted` , {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -184,11 +166,7 @@ class SingleGeneScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-        const r:{ [id:string]:number } = {};
-        rows.forEach((row) => {
-          r[idMapper(row.id)] = row.score;
-        });
-        return r;
+        return rows
       });
   }
 }
