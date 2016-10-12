@@ -10,9 +10,9 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene, convertLog2ToLinear
+  expression, copyNumber, mutation, gene, convertLog2ToLinear, convertCopyNumberClass
 } from './Common';
-import {IScore} from '../targid2/LineUpView';
+import {IScore, categoricalCol} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
 
@@ -142,7 +142,7 @@ class InvertedFrequencyScore implements IScore<number> {
   }
 }
 
-class SingleGeneScore implements IScore<any> {
+class InvertedSingleGeneScore implements IScore<any> {
   constructor(
     private parameter: {
       data_source: IDataSourceConfig,
@@ -158,8 +158,16 @@ class SingleGeneScore implements IScore<any> {
   }
 
   createDesc(): any {
+    if(this.parameter.data_subtype.type === 'cat') {
+      return categoricalCol(
+        null, // auto generate id from LineUp
+        this.parameter.data_subtype.categories,
+        `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`
+      );
+    }
+
     return {
-      type: (this.parameter.data_subtype.type === 'cat') ? 'string' : this.parameter.data_subtype.type,
+      type: this.parameter.data_subtype.type,
       label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
       domain: this.parameter.data_subtype.domain,
       missingValue: this.parameter.data_subtype.missingValue
@@ -178,6 +186,11 @@ class SingleGeneScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
+
+        if(this.parameter.data_subtype.id === 'copynumberclass') {
+          rows = convertCopyNumberClass(rows, 'score');
+        }
+
         return rows;
       });
   }
@@ -365,7 +378,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
       switch(data[ParameterFormIds.FILTER_BY]) {
         case 'single_entity':
           data.entity_value = data[ParameterFormIds.GENE_SYMBOL];
-          score = createSingleGeneScore(data);
+          score = createInvertedSingleGeneScore(data);
           break;
 
         default:
@@ -387,8 +400,8 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   });
 }
 
-function createSingleGeneScore(data):IScore<number> {
-  return new SingleGeneScore(data, data[ParameterFormIds.DATA_SOURCE]);
+function createInvertedSingleGeneScore(data):IScore<number> {
+  return new InvertedSingleGeneScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }
 
 function createInvertedAggregatedScore(data):IScore<number> {

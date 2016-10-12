@@ -321,3 +321,13 @@ export function convertLog2ToLinear (rows, field:string) {
     return row;
   });
 }
+
+export function convertCopyNumberClass(rows, field:string) {
+  //console.log('convert copy number class');
+  var mapping = {};
+  copyNumberCat.forEach((d) => mapping[d.value] = d.name);
+  return rows.map((row) => {
+    row[field] = mapping[row[field]];
+    return row;
+  });
+}

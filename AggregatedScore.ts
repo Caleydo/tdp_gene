@@ -10,9 +10,9 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, convertLog2ToLinear, cellline
+  expression, copyNumber, mutation, convertLog2ToLinear, cellline, convertCopyNumberClass
 } from './Common';
-import {IScore} from '../targid2/LineUpView';
+import {IScore, categoricalCol} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
 
@@ -157,8 +157,16 @@ class SingleEntityScore implements IScore<any> {
   }
 
   createDesc(): any {
+    if(this.parameter.data_subtype.type === 'cat') {
+      return categoricalCol(
+        null, // auto generate id from LineUp
+        this.parameter.data_subtype.categories,
+        `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`
+      );
+    }
+
     return {
-      type: (this.parameter.data_subtype.type === 'cat') ? 'string' : this.parameter.data_subtype.type,
+      type: this.parameter.data_subtype.type,
       label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
       domain: this.parameter.data_subtype.domain,
       missingValue: this.parameter.data_subtype.missingValue
@@ -178,6 +186,11 @@ class SingleEntityScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
+
+        if(this.parameter.data_subtype.id === 'copynumberclass') {
+          rows = convertCopyNumberClass(rows, 'score');
+        }
+
         return rows;
       });
   }
