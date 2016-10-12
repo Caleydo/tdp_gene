@@ -104,7 +104,7 @@ class RawDataTable extends ALineUpView2 {
 
     const columns = [
       stringCol('id', 'Name', true, 120),
-      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      //categoricalCol('species', desc.columns.species.categories, 'Species', true),
       categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type', true),
       categoricalCol('organ', desc.columns.organ.categories, 'Organ', true),
       categoricalCol('gender', desc.columns.gender.categories, 'Gender', true)
