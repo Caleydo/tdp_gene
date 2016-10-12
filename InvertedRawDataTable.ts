@@ -191,12 +191,7 @@ class InvertedRawDataTable extends ALineUpView2 {
     }
 
     if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
-      rows = rows
-        .filter((row) => row.score !== null)
-        .map((row) => {
-          row.score = row.score.toString();
-          return row;
-        });
+      rows = this.getParameter(ParameterFormIds.DATA_SUBTYPE).mapCategoryRows(rows, 'score');
     }
 
     return rows;

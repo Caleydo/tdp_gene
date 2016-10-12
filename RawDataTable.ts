@@ -10,9 +10,7 @@ import {
   ALineUpView2
 } from '../targid2/LineUpView';
 import {
-  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
-  copyNumberCat
-} from './Common';
+  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 class RawDataTable extends ALineUpView2 {
@@ -199,14 +197,8 @@ class RawDataTable extends ALineUpView2 {
         });
     }
 
-    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).id === 'copynumberclass') {
-      var mapping = {};
-      copyNumberCat.forEach((d) => mapping[d.value] = d.name);
-
-      rows = rows.map((row) => {
-        row.score = mapping[row.score];
-        return row;
-      });
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+      rows = this.getParameter(ParameterFormIds.DATA_SUBTYPE).mapCategoryRows(rows, 'score');
     }
 
     return rows;

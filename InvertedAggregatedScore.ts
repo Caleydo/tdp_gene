@@ -10,8 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene, convertLog2ToLinear, convertCopyNumberClass
-} from './Common';
+  expression, copyNumber, mutation, gene, convertLog2ToLinear} from './Common';
 import {IScore, categoricalCol} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
@@ -187,8 +186,8 @@ class InvertedSingleGeneScore implements IScore<any> {
           rows = convertLog2ToLinear(rows, 'score');
         }
 
-        if(this.parameter.data_subtype.id === 'copynumberclass') {
-          rows = convertCopyNumberClass(rows, 'score');
+        if(this.parameter.data_subtype.type === 'cat') {
+          rows = this.parameter.data_subtype.mapCategoryRows(rows, 'score');
         }
 
         return rows;
