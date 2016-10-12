@@ -25,7 +25,7 @@ class GeneEntryPointList extends AEntryPointList {
 
     // read species
     var species:string[] = gene.species.slice(0);
-    species.unshift('all');
+    //species.unshift('all');
 
     // convert species to namedset
     this.data = species.map((d) => {

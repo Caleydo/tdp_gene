@@ -64,7 +64,7 @@ export const cellline:ITumorTypeDataSourceConfig = {
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
   tumorTypesWithAll : [all_types].concat(celllinesTumorTypes),
-  species: ['human', 'mouse', 'rat']
+  species: ['human'] //['human', 'mouse', 'rat']
 };
 
 //const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain - Cerebellum', 'Brain - Cortex', 'Brain - Spinal cord (cervical c-1)',
@@ -214,7 +214,7 @@ export const gene:IBioTypeDataSourceConfig = {
   base: 'gene',
   bioTypes: geneBioTypes,
   bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
-  species: ['human', 'mouse', 'rat']
+  species: ['human'] //['human', 'mouse', 'rat']
 };
 
 export const dataSources = [cellline, tissue];
