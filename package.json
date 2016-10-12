@@ -294,6 +294,18 @@
         },
         {
           "type": "targidView",
+          "id": "proteinatlas_org",
+          "name": "The Human Protein Atlas",
+          "file": "ProxyView",
+          "factory": "create",
+          "category": "static",
+          "site": "//proteinatlas.org/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        },
+        {
+          "type": "targidView",
           "id": "cosmic",
           "name": "COSMIC",
           "file": "ProxyView",
@@ -318,14 +330,14 @@
         },
         {
           "type": "targidView",
-          "id": "proteinatlas_org",
-          "name": "The Human Protein Atlas",
+          "id": "shiny_cellline",
+          "name": "CN Cell Line Details",
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
-          "site": "//proteinatlas.org/{gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
+          "site": "///vie-bio-shiny.eu.boehringer.com:3838/copynumberpercellline/?celllinename{cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
           "selection": "multiple"
         }
       ]
