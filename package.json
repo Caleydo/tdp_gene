@@ -233,7 +233,7 @@
           "selection": "multiple"
         },
         {
-          "type": "targidView",
+          "type": "__targidView__bak",
           "id": "gene_card",
           "name": "GeneCards",
           "file": "ProxyView",
