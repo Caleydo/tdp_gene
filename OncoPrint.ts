@@ -9,6 +9,9 @@ import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormI
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
+const unknownMutationValue = mutationCat[mutationCat.length-1].value;
+const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;
+
 export class OncoPrint extends AView {
 
   private $table:d3.Selection<IView>;
@@ -67,7 +70,7 @@ export class OncoPrint extends AView {
     super.init();
     this.build();
     // load sample list with all available ids, then update the onco print
-    this.loadSampleList().then(this.update.bind(this));
+    this.loadSampleList().then(this.update.bind(this, false));
   }
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
@@ -202,7 +205,7 @@ export class OncoPrint extends AView {
       });
   }
 
-  private updateChartData($parent) {
+  private updateChartData($parent: d3.Selection<IDataFormat>) {
 
     const data:IDataFormat = $parent.datum();
     //console.log(data.geneName);
@@ -220,7 +223,6 @@ export class OncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
-      .attr('data-title', (d:any) => d.name)
       .style({
         width: this.cellWidth + this.cellPadding + 'px',
         height: this.cellHeight + this.cellPadding + 'px',
@@ -232,12 +234,13 @@ export class OncoPrint extends AView {
       });
 
     $cells
+      .attr('data-title', (d:any) => d.name)
       .style('background-color', (d:any) => this.color(d.cn))
       .style('border', (d:any) => '1px solid ' + this.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => this.colorMut(d.dna_mutated));
+      .style('background-color', (d:any) => this.colorMut(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
   }
@@ -256,11 +259,11 @@ export class OncoPrint extends AView {
           id: -1,
           name: sample,
           symbol: '',
-          cn: 'null', // unknown
+          cn: unknownCopyNumberValue, // unknown --> see Common.
           expr: 0,
-          dna_mutated: 'null' // unknown
+          dna_mutated: unknownMutationValue // unknown
         };
-        console.log('added sample', sample);
+        //console.log('added sample', sample);
       }
       return r;
     });

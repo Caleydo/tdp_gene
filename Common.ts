@@ -12,12 +12,14 @@ export const copyNumberCat = [
   //{value: 2, name: 'High level amplification', color: '#ca0020'},
   {value: 'null', name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
 ];
+//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
 
 export const mutationCat = [
   {value: 'true', name: 'Mutated', color: '#1BA64E'},
   {value: 'false', name: 'Non Mutated', color: '#dcdcdc'},
   {value: '', name: 'Unknown', color: 'transparent'}
 ];
+//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
 
 export const all_types = 'All Tumor Types';
 export const all_bio_types = 'All Bio Types';
