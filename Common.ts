@@ -272,7 +272,7 @@ export const copyNumber:IDataTypeConfig = {
   dataSubtypes: [
     { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: 0, constantDomain: true, useForAggregation: 'copynumberclass'}
+    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: undefined, constantDomain: true, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -282,10 +282,10 @@ export const mutation:IDataTypeConfig = {
   tableName: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
-    { id: 'aa_mutated', name: 'AA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: 0, constantDomain: true, useForAggregation: 'aa_mutated'},
-    { id: 'aamutation', name: 'AA Mutation', type: 'string', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: 0, constantDomain: true, useForAggregation: 'dna_mutated'},
-    { id: 'dnamutation', name: 'DNA Mutation', type: 'string', domain: [0, 1], missingValue: 0, constantDomain: true, useForAggregation: ''}
+    { id: 'aa_mutated', name: 'AA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: undefined, constantDomain: true, useForAggregation: 'aa_mutated'},
+    { id: 'aamutation', name: 'AA Mutation', type: 'string', domain: [0, 1], missingValue: undefined, constantDomain: true, useForAggregation: ''},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: undefined, constantDomain: true, useForAggregation: 'dna_mutated'},
+    { id: 'dnamutation', name: 'DNA Mutation', type: 'string', domain: [0, 1], missingValue: undefined, constantDomain: true, useForAggregation: '' }
   ]
 };
 
