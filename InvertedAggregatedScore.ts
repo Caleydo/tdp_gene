@@ -12,7 +12,7 @@ import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes
 } from './Common';
-import {IScore, categoricalCol} from '../targid2/LineUpView';
+import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
 import {createDesc} from './AggregatedScore';
