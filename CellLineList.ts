@@ -5,7 +5,7 @@
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection} from '../targid2/View';
 import {stringCol, categoricalCol, ALineUpView2} from '../targid2/LineUpView';
-import {chooseDataSource, ParameterFormIds} from './Common';
+import {chooseDataSource, ParameterFormIds, IDataSourceConfig} from './Common';
 import {INamedSet} from '../targid2/storage';
 import {FormBuilder, IFormSelectDesc, FormElementType} from '../targid2/FormBuilder';
 
@@ -23,12 +23,15 @@ class CellLineList extends ALineUpView2 {
    */
   private paramForm:FormBuilder;
 
+
+  protected dataSource:IDataSourceConfig;
+
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
 
-    this.dataSource = chooseDataSource(context.desc);
+    this.additionalScoreParameter = this.dataSource = chooseDataSource(context.desc);
     this.namedSet = options.namedSet;
   }
 

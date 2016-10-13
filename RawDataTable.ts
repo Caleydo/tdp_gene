@@ -80,7 +80,7 @@ class RawDataTable extends ALineUpView2 {
   }
 
   private updateDataSource() {
-    this.dataSource = this.paramForm.getElementById(ParameterFormIds.DATA_SOURCE).value.data;
+    this.additionalScoreParameter = this.paramForm.getElementById(ParameterFormIds.DATA_SOURCE).value.data;
   }
 
   getParameter(name: string): any {

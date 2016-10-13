@@ -11,7 +11,7 @@ import {
 } from '../targid2/LineUpView';
 import {
   all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
-  chooseDataSource, ParameterFormIds, convertLog2ToLinear} from './Common';
+  chooseDataSource, ParameterFormIds, convertLog2ToLinear, IDataSourceConfig} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 class InvertedRawDataTable extends ALineUpView2 {
@@ -22,11 +22,12 @@ class InvertedRawDataTable extends ALineUpView2 {
    * Parameter UI form
    */
   private paramForm:FormBuilder;
+  protected dataSource:IDataSourceConfig;
 
   constructor(context:IViewContext, selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
     super(context, selection, parent, options);
 
-    this.dataSource = chooseDataSource(context.desc);
+    this.additionalScoreParameter = this.dataSource = chooseDataSource(context.desc);
     this.dataType = dataType;
   }
 
