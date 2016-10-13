@@ -10,11 +10,40 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, convertLog2ToLinear, cellline} from './Common';
-import {IScore, categoricalCol} from '../targid2/LineUpView';
+  expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes} from './Common';
+import {IScore, categoricalCol, stringCol, numberCol2} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
 
+/**
+ * creates a lineup config out of a IDataSubtypeConfig
+ * @param type force a specific type
+ * @param label the column label
+ * @param subtype specific infos
+ * @return {any}
+ */
+export function createDesc(type: string, label: string, subtype: IDataSubtypeConfig): any {
+  switch(type) {
+      case dataSubtypes.cat:
+        return categoricalCol(
+          null, // auto generate id from LineUp
+          subtype.categories,
+          label
+        );
+      case dataSubtypes.string:
+        return stringCol(
+          null,
+          label
+        );
+      default:
+        return {
+          type: 'number',
+          label: label,
+          domain: subtype.domain,
+          missingValue: subtype.missingValue
+        };
+    }
+}
 
 class AggregatedScore implements IScore<number> {
   constructor(
@@ -31,12 +60,7 @@ class AggregatedScore implements IScore<number> {
   }
 
   createDesc() {
-    return {
-      type: this.parameter.data_subtype.type,
-      label: `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.tumor_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.tumor_type}`, this.parameter.data_subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -73,13 +97,11 @@ class MutationFrequencyScore implements IScore<number> {
 
   }
 
-  createDesc() {
-    return {
-      type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+  createDesc(): any {
+    const subtype = this.parameter.data_subtype;
+    const label = `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`;
+    //always a number
+    return createDesc(dataSubtypes.number, label, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -114,13 +136,10 @@ class FrequencyScore implements IScore<number> {
 
   }
 
-  createDesc() {
-    return {
-      type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+  createDesc(): any {
+    const subtype = this.parameter.data_subtype;
+    const label = `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`;
+    return createDesc(dataSubtypes.number, label, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -156,20 +175,8 @@ class SingleEntityScore implements IScore<any> {
   }
 
   createDesc(): any {
-    if(this.parameter.data_subtype.type === 'cat') {
-      return categoricalCol(
-        null, // auto generate id from LineUp
-        this.parameter.data_subtype.categories,
-        `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`
-      );
-    }
-
-    return {
-      type: this.parameter.data_subtype.type,
-      label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    const subtype = this.parameter.data_subtype;
+    return createDesc(subtype.type, `${subtype.name} of ${this.parameter.entity_value.text}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -186,7 +193,7 @@ class SingleEntityScore implements IScore<any> {
           rows = convertLog2ToLinear(rows, 'score');
         }
 
-        if(this.parameter.data_subtype.type === 'cat') {
+        if(this.parameter.data_subtype.type === dataSubtypes.cat) {
           rows = this.parameter.data_subtype.mapCategoryRows(rows, 'score');
         }
 
@@ -321,7 +328,7 @@ export function create(desc: IPluginDesc) {
           optionsFnc: (selection) => {
             var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if(selection[0].value === 'tumor_type') {
-              r = r.filter((d)=>d.type !== ('string'));
+              r = r.filter((d)=>d.type !== dataSubtypes.string); //no strings allowed
             }
             return r.map((ds) => {
               return {name: ds.name, value: ds.id, data: ds};

@@ -241,16 +241,30 @@ export interface IDataTypeConfig {
   dataSubtypes: IDataSubtypeConfig[];
 }
 
+/**
+ * list of possible types
+ */
+export const dataSubtypes = {
+  number: 'number',
+  string: 'string',
+  cat: 'cat'
+};
+
 export interface IDataSubtypeConfig {
   id: string;
   name: string;
   type: string;
-  domain?: number[];
+  useForAggregation: string;
+  //type = cat
   categories?: string[];
   mapCategoryRows?: (rows, field:string) => any[];
-  missingValue: number;
-  constantDomain: boolean;
-  useForAggregation: string;
+
+  //type = number
+  domain?: number[];
+  missingValue?: number;
+  constantDomain?: boolean;
+
+  //type = string
 }
 
 export const expression:IDataTypeConfig = {
@@ -259,8 +273,8 @@ export const expression:IDataTypeConfig = {
   tableName: 'expression',
   query: 'expression_score',
   dataSubtypes: [
-    { id: 'tpm', name: 'TPM', type: 'number', domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'tpm'},
-    { id: 'counts', name: 'Raw Counts', type: 'number', domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}
+    { id: 'tpm', name: 'TPM', type: dataSubtypes.number, domain: [-3, 3], missingValue: NaN, constantDomain: true, useForAggregation: 'tpm'},
+    { id: 'counts', name: 'Raw Counts', type: dataSubtypes.number, domain: [0, 10000], missingValue: NaN, constantDomain: true, useForAggregation: 'counts'}
   ]
 };
 
@@ -270,9 +284,9 @@ export const copyNumber:IDataTypeConfig = {
   tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'relativecopynumber', name: 'Relative Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
-    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: 'number', domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: 'cat', categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: undefined, constantDomain: true, useForAggregation: 'copynumberclass'}
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
+    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
+    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: undefined, constantDomain: true, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -282,10 +296,13 @@ export const mutation:IDataTypeConfig = {
   tableName: 'mutation',
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
-    { id: 'aa_mutated', name: 'AA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: undefined, constantDomain: true, useForAggregation: 'aa_mutated'},
-    { id: 'aamutation', name: 'AA Mutation', type: 'string', domain: [0, 1], missingValue: undefined, constantDomain: true, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: 'cat', categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, missingValue: undefined, constantDomain: true, useForAggregation: 'dna_mutated'},
-    { id: 'dnamutation', name: 'DNA Mutation', type: 'string', domain: [0, 1], missingValue: undefined, constantDomain: true, useForAggregation: '' }
+    //it is a cat by default but in the frequency case also a number?
+    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'aa_mutated'},
+    //just for single score:
+    { id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: ''},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'dna_mutated'},
+    //just for single score:
+    { id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '' }
   ]
 };
 

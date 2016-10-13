@@ -67,10 +67,7 @@ export class OncoPrint extends AView {
     super.init();
     this.build();
     // load sample list with all available ids, then update the onco print
-    this.loadSampleList()
-      .then(() => {
-        this.update();
-      });
+    this.loadSampleList().then(this.update.bind(this));
   }
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
@@ -93,7 +90,7 @@ export class OncoPrint extends AView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
-    this.loadSampleList().then(() => this.update(true));
+    this.loadSampleList().then(this.update.bind(this,true));
   }
 
   changeSelection(selection:ISelection) {

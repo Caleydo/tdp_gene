@@ -10,10 +10,12 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene, convertLog2ToLinear} from './Common';
+  expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes
+} from './Common';
 import {IScore, categoricalCol} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
+import {createDesc} from './AggregatedScore';
 
 
 class InvertedAggregatedScore implements IScore<number> {
@@ -31,12 +33,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   createDesc() {
-    return {
-      type: this.parameter.data_subtype.type,
-      label: `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.bio_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.bio_type}`, this.parameter.data_subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -73,12 +70,8 @@ class InvertedMutationFrequencyScore implements IScore<number> {
   }
 
   createDesc() {
-    return {
-      type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    const subtype = this.parameter.data_subtype;
+    return createDesc(dataSubtypes.number, `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -114,12 +107,8 @@ class InvertedFrequencyScore implements IScore<number> {
   }
 
   createDesc() {
-    return {
-      type: 'number',
-      label: `${this.parameter.data_subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    const subtype = this.parameter.data_subtype;
+    return createDesc(dataSubtypes.number, `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
@@ -157,20 +146,8 @@ class InvertedSingleGeneScore implements IScore<any> {
   }
 
   createDesc(): any {
-    if(this.parameter.data_subtype.type === 'cat') {
-      return categoricalCol(
-        null, // auto generate id from LineUp
-        this.parameter.data_subtype.categories,
-        `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`
-      );
-    }
-
-    return {
-      type: this.parameter.data_subtype.type,
-      label: `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`,
-      domain: this.parameter.data_subtype.domain,
-      missingValue: this.parameter.data_subtype.missingValue
-    };
+    const subtype = this.parameter.data_subtype;
+    return createDesc(subtype.type, `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
