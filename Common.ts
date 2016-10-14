@@ -310,8 +310,8 @@ export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
 // hast to work for all data sources (gene, tissue, cell line)
 export const availableSpecies = [
-  { name: 'Human', value: 'human' },
-  { name: 'Rat', value: 'rat' },
+  { name: 'Human', value: 'human' }//,
+  //{ name: 'Rat', value: 'rat' },
   //{ name: 'Mouse', value: 'mouse' }
 ];
 
