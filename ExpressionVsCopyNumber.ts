@@ -8,7 +8,7 @@ import tooltip = require('../caleydo_d3/tooltip');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
 import {Range} from '../caleydo_core/range';
-import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds} from './Common';
+import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -146,10 +146,12 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
               expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
               copynumber_subtype: that.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).id,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
+              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
+              species: getSelectedSpecies()
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\''
+              ensgs: '\''+name+'\'',
+              species: getSelectedSpecies()
             })
           ]);
         });

@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes
+  expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes, getSelectedSpecies
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
@@ -37,14 +37,18 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    const url = `/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
         biotype: this.parameter.bio_type,
-        agg: this.parameter.aggregation
-      })
+        agg: this.parameter.aggregation,
+        species: getSelectedSpecies()
+      };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows:any[]) => {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -75,12 +79,16 @@ class InvertedMutationFrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    const url = `/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
-        biotype: this.parameter.bio_type
-      })
+        biotype: this.parameter.bio_type,
+        species: getSelectedSpecies()
+      };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows:any[]) => {
         return rows.map((row) => {
           row.score = this.countOnly ? row.count : row.count / row.total;
@@ -112,15 +120,19 @@ class InvertedFrequencyScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`, {
+    const url = `/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
         data_subtype: this.parameter.data_subtype.useForAggregation,
         biotype: this.parameter.bio_type,
         operator: this.parameter.comparison_operator,
-        value: this.parameter.comparison_value
-      })
+        value: this.parameter.comparison_value,
+        species: getSelectedSpecies()
+      };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows:any[]) => {
         return rows.map((row) => {
           row.score = this.countOnly ? row.count : row.count / row.total;
@@ -151,13 +163,17 @@ class InvertedSingleGeneScore implements IScore<any> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/single_entity_score_inverted` , {
+    const url = `/targid/db/${this.dataSource.db}/single_entity_score_inverted`;
+    const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
         table_name: this.parameter.data_type.tableName,
         data_subtype: this.parameter.data_subtype.id,
-        entity_value: this.parameter.entity_value.id
-      })
+        entity_value: this.parameter.entity_value.id,
+        species: getSelectedSpecies()
+      };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows:any[]) => {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -221,6 +237,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
                 schema: gene.schema, // use `gene` explicitly as datasource
                 table_name: gene.tableName,
                 id_column: gene.entityName,
+                species: getSelectedSpecies(),
                 query_column: 'symbol',
                 query: params.term,
                 page: params.page

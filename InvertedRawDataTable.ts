@@ -11,7 +11,8 @@ import {
 } from '../targid2/LineUpView';
 import {
   all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
-  chooseDataSource, ParameterFormIds, convertLog2ToLinear} from './Common';
+  chooseDataSource, ParameterFormIds, convertLog2ToLinear, getSelectedSpecies
+} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 class InvertedRawDataTable extends ALineUpView2 {
@@ -122,14 +123,16 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const url = `/targid/db/${dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`;
     const param = {
       schema: dataSource.schema,
       entity_name: dataSource.entityName,
       table_name: this.dataType.tableName,
       data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-      biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
+      biotype: this.getParameter(ParameterFormIds.BIO_TYPE),
+      species: getSelectedSpecies()
     };
-    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`, param);
+    return ajax.getAPIJSON(url, param);
   }
 
   protected mapRows(rows:any[]) {

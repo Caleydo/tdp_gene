@@ -6,7 +6,7 @@
 import {AView, IViewContext, ISelection, IView} from '../targid2/View';
 import ajax = require('../caleydo_core/ajax');
 import {showErrorModalDialog} from '../targid2/Dialogs';
-import {IDataSourceConfig, gene} from './Common';
+import {IDataSourceConfig, gene, getSelectedSpecies} from './Common';
 
 
 export class InfoTable extends AView {
@@ -59,7 +59,8 @@ export class InfoTable extends AView {
           entities: '\''+names.join('\',\'')+'\'',
           schema: this.dataSource.schema,
           table_name: this.dataSource.tableName,
-          entity_name: this.dataSource.entityName
+          entity_name: this.dataSource.entityName,
+          species: getSelectedSpecies()
         });
       });
 

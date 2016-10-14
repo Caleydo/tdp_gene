@@ -2,6 +2,7 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
+import session = require('../caleydo_core/session');
 
 export const copyNumberCat = [
   {value: 2, name: 'Amplification', color: '#ca0020', border: 'transparent'},
@@ -365,4 +366,8 @@ export function convertMutationCat(rows, field:string) {
     row[field] = mapping[row[field]];
     return row;
   });
+}
+
+export function getSelectedSpecies() {
+  return session.retrieve(ParameterFormIds.SPECIES);
 }
