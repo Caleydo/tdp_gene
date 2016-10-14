@@ -108,7 +108,7 @@ class InvertedRawDataTable extends ALineUpView2 {
       stringCol('symbol', 'Symbol', true, 100),
       stringCol('id', 'Ensembl', true, 120),
       stringCol('chromosome', 'Chromosome', true, 150),
-      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      //categoricalCol('species', desc.columns.species.categories, 'Species', true),
       categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand', true),
       categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
       stringCol('seqregionstart', 'Seq Region Start', false),
