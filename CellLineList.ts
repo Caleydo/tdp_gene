@@ -2,6 +2,7 @@
  * Created by Samuel Gratzl on 29.01.2016.
  */
 
+import session = require('../caleydo_core/session');
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection} from '../targid2/View';
 import {stringCol, categoricalCol, ALineUpView2} from '../targid2/LineUpView';
@@ -128,7 +129,13 @@ class CellLineList extends ALineUpView2 {
     var filteredUrl = '';
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
-      param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
+      if(this.namedSet.subTypeFromSession) {
+        param[this.namedSet.subTypeKey] = session.retrieve(this.namedSet.subTypeKey);
+
+      } else {
+        param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
+      }
+
       filteredUrl = '_filtered';
     }
 

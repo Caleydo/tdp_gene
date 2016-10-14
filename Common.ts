@@ -34,7 +34,6 @@ export interface IDataSourceConfig {
   tableName: string;
   entityName: string;
   base: string;
-  species: string[];
   [key: string]: any;
 }
 
@@ -66,8 +65,7 @@ export const cellline:ITumorTypeDataSourceConfig = {
   entityName: 'celllinename',
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
-  tumorTypesWithAll : [all_types].concat(celllinesTumorTypes),
-  species: ['human'] //['human', 'mouse', 'rat']
+  tumorTypesWithAll : [all_types].concat(celllinesTumorTypes)
 };
 
 //const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain - Cerebellum', 'Brain - Cortex', 'Brain - Spinal cord (cervical c-1)',
@@ -167,8 +165,7 @@ export const tissue:ITumorTypeDataSourceConfig = {
   entityName: 'tissuename',
   base: 'tissue',
   tumorTypes: tissueTumorTypes,
-  tumorTypesWithAll : [all_types].concat(tissueTumorTypes),
-  species: ['human']
+  tumorTypesWithAll : [all_types].concat(tissueTumorTypes)
 };
 
 const geneBioTypes = [
@@ -216,8 +213,7 @@ export const gene:IBioTypeDataSourceConfig = {
   entityName: 'ensg',
   base: 'gene',
   bioTypes: geneBioTypes,
-  bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
-  species: ['human'] //['human', 'mouse', 'rat']
+  bioTypesWithAll : [all_bio_types].concat(geneBioTypes)
 };
 
 export const dataSources = [cellline, tissue];
@@ -311,7 +307,7 @@ export const mutation:IDataTypeConfig = {
 
 export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
-// TODO make this more flexible based on IDataSourceConfig.species
+// hast to work for all data sources (gene, tissue, cell line)
 export const availableSpecies = [
   { name: 'Human', value: 'human' },
   { name: 'Rat', value: 'rat' },
@@ -323,7 +319,7 @@ export const availableSpecies = [
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
  */
 export class ParameterFormIds {
-  static SPECIES = 'species';
+  static SPECIES = 'species'; // used as db field! be careful when renaming
   static DATA_SOURCE = 'data_source';
   static FILTER_BY = 'filter_by';
   static GENE_SYMBOL = 'gene_symbol';
