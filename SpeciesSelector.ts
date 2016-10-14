@@ -39,10 +39,11 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       session.store(this.sessionKey, selectedSpecies);
     }
 
-    const $label = $parent.selectAll('.species-group').data(availableSpecies);
-    const group = $label.enter()
+    const $group = $parent.selectAll('.species-group').data(availableSpecies);
+    const group = $group.enter()
       .append('div')
-      .classed('species-group', true);
+      .classed('species-group', true)
+      .classed('active', (d) => d.value === selectedSpecies);
 
     group.append('input')
       .attr('name', 'species')
@@ -51,6 +52,9 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
       .on('change', function(d) {
         session.store(that.sessionKey, d.value);
+
+        $group.classed('active', false);
+        d3.select(this.parentNode).classed('active', true);
       });
 
     group.append('label')

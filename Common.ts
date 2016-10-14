@@ -313,8 +313,8 @@ export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
 // TODO make this more flexible based on IDataSourceConfig.species
 export const availableSpecies = [
-  { name: 'Human', value: 'human' }//,
-  //{ name: 'Rat', value: 'rat' },
+  { name: 'Human', value: 'human' },
+  { name: 'Rat', value: 'rat' },
   //{ name: 'Mouse', value: 'mouse' }
 ];
 
