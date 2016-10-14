@@ -25,6 +25,7 @@ export const all_types = 'All Tumor Types';
 export const all_bio_types = 'All Bio Types';
 //select distinct tumortype from cellline where tumortype is not null
 
+
 export interface IDataSourceConfig {
   idType: string;
   name: string;
@@ -310,11 +311,19 @@ export const mutation:IDataTypeConfig = {
 
 export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
+// TODO make this more flexible based on IDataSourceConfig.species
+export const availableSpecies = [
+  { name: 'Human', value: 'human' }//,
+  //{ name: 'Rat', value: 'rat' },
+  //{ name: 'Mouse', value: 'mouse' }
+];
+
 /**
  * List of ids for parameter form elements
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
  */
 export class ParameterFormIds {
+  static SPECIES = 'species';
   static DATA_SOURCE = 'data_source';
   static FILTER_BY = 'filter_by';
   static GENE_SYMBOL = 'gene_symbol';
