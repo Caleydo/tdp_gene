@@ -2,6 +2,7 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 /// <reference path='../../tsd.d.ts' />
+/// <amd-dependency path='css!./style' />
 
 import ajax = require('../caleydo_core/ajax');
 import tooltip = require('../caleydo_d3/tooltip');

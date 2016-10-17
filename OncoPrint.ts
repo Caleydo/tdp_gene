@@ -2,6 +2,7 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 /// <reference path="../../tsd.d.ts" />
+/// <amd-dependency path='css!./style' />
 
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
