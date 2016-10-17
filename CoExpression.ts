@@ -5,7 +5,7 @@
 import ajax = require('../caleydo_core/ajax');
 import tooltip = require('../caleydo_d3/tooltip');
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
-import {all_types, dataSources, gene, expression, ParameterFormIds} from './Common';
+import {all_types, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -137,6 +137,7 @@ export class CoExpression extends ASmallMultipleView {
         const promise = Promise.resolve(
           ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
             ensgs: '\'' + genesEnsembl.join('\',\'') + '\'',
+            species: getSelectedSpecies()
           })
         );
 
@@ -181,13 +182,17 @@ export class CoExpression extends ASmallMultipleView {
   private loadRefGeneData() {
     this.refGene = this.paramForm.getElementById(ParameterFormIds.REFERENCE_GENE).value;
 
-    return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const param = {
         ensg: this.refGene.data.id,
         schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
         entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
         expression_subtype: this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
-      })
+        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE),
+        species: getSelectedSpecies()
+      };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows) => {
         this.refGeneExpression = this.filterZeroValues(rows);
       });
@@ -236,10 +241,12 @@ export class CoExpression extends ASmallMultipleView {
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
               expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
+              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
+              species: getSelectedSpecies()
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\''
+              ensgs: '\''+name+'\'',
+              species: getSelectedSpecies()
             })
           ]);
         });

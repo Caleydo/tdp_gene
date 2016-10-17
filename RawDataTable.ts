@@ -10,7 +10,9 @@ import {
   ALineUpView2, IScoreRow
 } from '../targid2/LineUpView';
 import {
-  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear} from './Common';
+  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
+  getSelectedSpecies
+} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 class RawDataTable extends ALineUpView2 {
@@ -118,14 +120,16 @@ class RawDataTable extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const url = `/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
     const param = {
       schema: dataSource.schema,
       entity_name: dataSource.entityName,
       table_name: this.dataType.tableName,
       data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-      tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
+      tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE),
+      species: getSelectedSpecies()
     };
-    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, param);
+    return ajax.getAPIJSON(url, param);
   }
 
   protected mapRows(rows:any[]) {
@@ -159,7 +163,8 @@ class RawDataTable extends ALineUpView2 {
     return this.resolveId(this.selection.idtype, id)
       .then((ensg) => {
         return ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
-            ensgs: `'${ensg}'`
+            ensgs: `'${ensg}'`,
+            species: getSelectedSpecies()
           });
       })
       .then((mapping) => {

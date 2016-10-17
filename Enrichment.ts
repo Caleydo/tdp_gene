@@ -7,7 +7,7 @@ import ajax = require('../caleydo_core/ajax');
 import idtypes = require('../caleydo_core/idtype');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from '../targid2/LineUpView';
-import {dataSources, all_types, copyNumberCat, ParameterFormIds} from './Common';
+import {dataSources, all_types, copyNumberCat, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -98,14 +98,17 @@ export class Enrichment extends ALineUpView {
     const promise = Promise.all([this.lineupPromise, this.resolveId(idtype, id, 'Ensembl')])
       .then((args) => {
         const gene_name = args[1];
-        return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+        const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+        const param = {
           ensg: gene_name,
           schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
           entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
           table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
           cn: this.getParameter(ParameterFormIds.ALTERATION_TYPE).value,
-          tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE)
-        });
+          tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE),
+          species: getSelectedSpecies()
+        };
+        return ajax.getAPIJSON(url, param);
       });
 
     // on error

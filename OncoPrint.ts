@@ -5,7 +5,7 @@
 
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
-import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds} from './Common';
+import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
@@ -130,12 +130,16 @@ export class OncoPrint extends AView {
   }
 
   private loadSampleList() {
-    return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print_sample_list${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-        schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-        entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-        table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
-      })
+    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print_sample_list${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const param = {
+      schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
+      entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
+      table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
+      tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE),
+      species: getSelectedSpecies()
+    };
+
+    return ajax.getAPIJSON(url, param)
       .then((rows) => {
         this.sampleList = rows.map((r) => r.id);
       });
@@ -170,10 +174,12 @@ export class OncoPrint extends AView {
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
               table_name: that.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE)
+              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
+              species: getSelectedSpecies()
             }),
             ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\''
+              ensgs: '\''+name+'\'',
+              species: getSelectedSpecies()
             })
           ]);
         });

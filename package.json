@@ -11,7 +11,13 @@
   "caleydo": {
     "plugins": {
       "web": [
-
+        {
+          "id": "targid_start_species",
+          "name": "Species Selector",
+          "type": "targidStartSpecies",
+          "file": "SpeciesSelector",
+          "factory": "createStartFactory"
+        },
         {
           "id": "bioinfodb_tissue_start",
           "name": "Tissues",

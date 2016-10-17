@@ -2,6 +2,7 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
+import session = require('../caleydo_core/session');
 
 export const copyNumberCat = [
   {value: 2, name: 'Amplification', color: '#ca0020', border: 'transparent'},
@@ -25,6 +26,7 @@ export const all_types = 'All Tumor Types';
 export const all_bio_types = 'All Bio Types';
 //select distinct tumortype from cellline where tumortype is not null
 
+
 export interface IDataSourceConfig {
   idType: string;
   name: string;
@@ -33,7 +35,6 @@ export interface IDataSourceConfig {
   tableName: string;
   entityName: string;
   base: string;
-  species: string[];
   [key: string]: any;
 }
 
@@ -65,8 +66,7 @@ export const cellline:ITumorTypeDataSourceConfig = {
   entityName: 'celllinename',
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
-  tumorTypesWithAll : [all_types].concat(celllinesTumorTypes),
-  species: ['human'] //['human', 'mouse', 'rat']
+  tumorTypesWithAll : [all_types].concat(celllinesTumorTypes)
 };
 
 //const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain - Cerebellum', 'Brain - Cortex', 'Brain - Spinal cord (cervical c-1)',
@@ -166,8 +166,7 @@ export const tissue:ITumorTypeDataSourceConfig = {
   entityName: 'tissuename',
   base: 'tissue',
   tumorTypes: tissueTumorTypes,
-  tumorTypesWithAll : [all_types].concat(tissueTumorTypes),
-  species: ['human']
+  tumorTypesWithAll : [all_types].concat(tissueTumorTypes)
 };
 
 const geneBioTypes = [
@@ -215,8 +214,7 @@ export const gene:IBioTypeDataSourceConfig = {
   entityName: 'ensg',
   base: 'gene',
   bioTypes: geneBioTypes,
-  bioTypesWithAll : [all_bio_types].concat(geneBioTypes),
-  species: ['human'] //['human', 'mouse', 'rat']
+  bioTypesWithAll : [all_bio_types].concat(geneBioTypes)
 };
 
 export const dataSources = [cellline, tissue];
@@ -310,11 +308,19 @@ export const mutation:IDataTypeConfig = {
 
 export const dataTypes:IDataTypeConfig[] = [expression, copyNumber, mutation];
 
+// hast to work for all data sources (gene, tissue, cell line)
+export const availableSpecies = [
+  { name: 'Human', value: 'human' }//,
+  //{ name: 'Rat', value: 'rat' },
+  //{ name: 'Mouse', value: 'mouse' }
+];
+
 /**
  * List of ids for parameter form elements
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
  */
 export class ParameterFormIds {
+  static SPECIES = 'species'; // used as db field! be careful when renaming
   static DATA_SOURCE = 'data_source';
   static FILTER_BY = 'filter_by';
   static GENE_SYMBOL = 'gene_symbol';
@@ -360,4 +366,8 @@ export function convertMutationCat(rows, field:string) {
     row[field] = mapping[row[field]];
     return row;
   });
+}
+
+export function getSelectedSpecies() {
+  return session.retrieve(ParameterFormIds.SPECIES);
 }

@@ -11,7 +11,8 @@ import {
 } from '../targid2/LineUpView';
 import {
   all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
-  chooseDataSource, ParameterFormIds, convertLog2ToLinear, IDataSourceConfig} from './Common';
+  chooseDataSource, ParameterFormIds, convertLog2ToLinear, getSelectedSpecies, IDataSourceConfig
+} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 class InvertedRawDataTable extends ALineUpView2 {
@@ -108,7 +109,7 @@ class InvertedRawDataTable extends ALineUpView2 {
       stringCol('symbol', 'Symbol', true, 100),
       stringCol('id', 'Ensembl', true, 120),
       stringCol('chromosome', 'Chromosome', true, 150),
-      categoricalCol('species', desc.columns.species.categories, 'Species', true),
+      //categoricalCol('species', desc.columns.species.categories, 'Species', true),
       categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand', true),
       categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
       stringCol('seqregionstart', 'Seq Region Start', false),
@@ -123,14 +124,16 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const url = `/targid/db/${dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`;
     const param = {
       schema: dataSource.schema,
       entity_name: dataSource.entityName,
       table_name: this.dataType.tableName,
       data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-      biotype: this.getParameter(ParameterFormIds.BIO_TYPE)
+      biotype: this.getParameter(ParameterFormIds.BIO_TYPE),
+      species: getSelectedSpecies()
     };
-    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`, param);
+    return ajax.getAPIJSON(url, param);
   }
 
   protected mapRows(rows:any[]) {
@@ -166,7 +169,6 @@ class InvertedRawDataTable extends ALineUpView2 {
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
       .then((name) => {
-        console.log(name);
         return name;
       });
   }

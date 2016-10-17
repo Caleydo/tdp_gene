@@ -4,7 +4,7 @@
 
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
-import {chooseDataSource} from './Common';
+import {chooseDataSource, ParameterFormIds} from './Common';
 import {INamedSet} from '../targid2/storage';
 
 
@@ -24,25 +24,19 @@ class CellLineEntryPointList extends AEntryPointList {
 
     // read species
     const dataSource = chooseDataSource(desc);
-
-    // read species
-    var species:string[] = dataSource.species.slice(0);
-    //species.unshift('all');
+    this.idType = dataSource.idType;
 
     // convert species to namedset
-    this.data = species.map((d) => {
-      return <INamedSet>{
-        name: d,
-        description: '',
-        idType: '',
-        ids: '',
-        subTypeKey: 'species',
-        subTypeValue: d,
-        creator: ''
-      };
+    this.data.unshift(<INamedSet>{
+      name: 'All',
+      description: '',
+      idType: '',
+      ids: '',
+      subTypeKey: ParameterFormIds.SPECIES,
+      subTypeValue: '',
+      subTypeFromSession: true,
+      creator: ''
     });
-
-    this.idType = dataSource.idType;
 
     this.build();
   }
