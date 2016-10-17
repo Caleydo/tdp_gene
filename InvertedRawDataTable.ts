@@ -168,7 +168,6 @@ class InvertedRawDataTable extends ALineUpView2 {
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
       .then((name) => {
-        console.log(name);
         return name;
       });
   }
