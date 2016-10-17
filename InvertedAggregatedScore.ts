@@ -33,7 +33,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   createDesc() {
-    createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.bio_type}`, this.parameter.data_subtype);
+    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.bio_type}`, this.parameter.data_subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
