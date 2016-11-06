@@ -2,7 +2,7 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {IPluginDesc} from '../caleydo_core/plugin';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
 import {INamedSet} from '../targid2/storage';
 import {ParameterFormIds} from './Common';

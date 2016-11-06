@@ -2,8 +2,8 @@
  * Created by Samuel Gratzl on 29.01.2016.
  */
 
-import session = require('../caleydo_core/session');
-import ajax = require('../caleydo_core/ajax');
+import * as session from 'phovea_core/src/session';
+import * as ajax from 'phovea_core/src/ajax';
 import {IViewContext, ISelection} from '../targid2/View';
 import {stringCol, categoricalCol, ALineUpView2} from '../targid2/LineUpView';
 import {chooseDataSource, ParameterFormIds, IDataSourceConfig} from './Common';

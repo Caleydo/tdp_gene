@@ -2,13 +2,13 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 /// <reference path='../../tsd.d.ts' />
-/// <amd-dependency path='css!./style' />
+import './style.scss';
 
-import ajax = require('../caleydo_core/ajax');
-import tooltip = require('../caleydo_d3/tooltip');
-import idtypes = require('../caleydo_core/idtype');
+import * as ajax from 'phovea_core/src/ajax';
+import * as tooltip from 'phovea_d3/src/tooltip';
+import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
-import {Range} from '../caleydo_core/range';
+import {Range} from 'phovea_core/src/range';
 import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';

@@ -2,8 +2,8 @@
  * Created by Holger Stitz on 12.08.2016.
  */
 
-import ajax = require('../caleydo_core/ajax');
-import tooltip = require('../caleydo_d3/tooltip');
+import * as ajax from 'phovea_core/src/ajax';
+import * as tooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
 import {all_types, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';

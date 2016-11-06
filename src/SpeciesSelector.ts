@@ -2,8 +2,8 @@
  * Created by Holger Stitz on 27.07.2016.
  */
 
-import session = require('../caleydo_core/session');
-import {IPluginDesc} from '../caleydo_core/plugin';
+import * as session from 'phovea_core/src/session';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IStartMenuSectionEntry} from '../targid2/StartMenu';
 import {Targid} from '../targid2/Targid';
 import {availableSpecies, ParameterFormIds} from './Common';

@@ -3,18 +3,18 @@
  */
 /// <reference path='../../tsd.d.ts' />
 
-import ajax = require('../caleydo_core/ajax');
-import ranges = require('../caleydo_core/range');
-import dialogs = require('../caleydo_bootstrap_fontawesome/dialogs');
-import {IPluginDesc} from '../caleydo_core/plugin';
-import idtypes = require('../caleydo_core/idtype');
+import * as ajax from 'phovea_core/src/ajax';
+import * as ranges from 'phovea_core/src/range';
+import * as dialogs from 'phovea_bootstrap_fontawesome/src/dialogs';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import * as idtypes from 'phovea_core/src/idtype';
 import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes, getSelectedSpecies
 } from './Common';
 import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
-import {api2absURL} from '../caleydo_core/ajax';
+import {api2absURL} from 'phovea_core/src/ajax';
 import {createDesc} from './AggregatedScore';
 
 

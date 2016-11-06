@@ -1,10 +1,10 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path="../../tsd.d.ts" />
-/// <amd-dependency path='css!./style' />
 
-import ajax = require('../caleydo_core/ajax');
+import './style.scss';
+
+import * as ajax from 'phovea_core/src/ajax';
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
 import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';

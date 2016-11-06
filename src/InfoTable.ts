@@ -4,7 +4,7 @@
 /// <reference path='../../tsd.d.ts' />
 
 import {AView, IViewContext, ISelection, IView} from '../targid2/View';
-import ajax = require('../caleydo_core/ajax');
+import * as ajax from 'phovea_core/src/ajax';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 import {IDataSourceConfig, gene, getSelectedSpecies} from './Common';
 

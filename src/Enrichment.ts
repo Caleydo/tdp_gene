@@ -1,10 +1,10 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path="../../tsd.d.ts" />
 
-import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
+
+import * as ajax from 'phovea_core/src/ajax';
+import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from '../targid2/LineUpView';
 import {dataSources, all_types, copyNumberCat, ParameterFormIds, getSelectedSpecies} from './Common';
