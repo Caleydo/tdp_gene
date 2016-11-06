@@ -1,7 +1,6 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 
 import * as ajax from 'phovea_core/src/ajax';
 import * as ranges from 'phovea_core/src/range';
@@ -12,10 +11,11 @@ import {
   all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes, getSelectedSpecies
 } from './Common';
-import {IScore} from '../targid2/LineUpView';
-import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
+import {IScore} from 'targid2/src/LineUpView';
+import {FormBuilder, FormElementType, IFormElementDesc} from 'targid2/src/FormBuilder';
 import {api2absURL} from 'phovea_core/src/ajax';
 import {createDesc} from './AggregatedScore';
+import {select} from 'd3';
 
 
 class InvertedAggregatedScore implements IScore<number> {
@@ -193,7 +193,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   return new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Score Column', 'Add Score Column');
 
-    const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
+    const form:FormBuilder = new FormBuilder(select(dialog.body));
     const formDesc:IFormElementDesc[] = [
       {
         type: FormElementType.SELECT,

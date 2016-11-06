@@ -1,19 +1,18 @@
 /**
  * Created by Marc Streit on 28.07.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection} from '../targid2/View';
+import {IViewContext, ISelection} from 'targid2/src/View';
 import {
   stringCol, numberCol2, categoricalCol,
   ALineUpView2, IScoreRow
-} from '../targid2/LineUpView';
+} from 'targid2/src/LineUpView';
 import {
   all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
   chooseDataSource, ParameterFormIds, convertLog2ToLinear, getSelectedSpecies, IDataSourceConfig
 } from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
 
 class InvertedRawDataTable extends ALineUpView2 {
 

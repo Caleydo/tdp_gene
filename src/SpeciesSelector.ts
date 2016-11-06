@@ -4,9 +4,10 @@
 
 import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IStartMenuSectionEntry} from '../targid2/StartMenu';
-import {Targid} from '../targid2/Targid';
+import {IStartMenuSectionEntry} from 'targid2/src/StartMenu';
+import {Targid} from 'targid2/src/Targid';
 import {availableSpecies, ParameterFormIds} from './Common';
+import * as d3 from 'd3';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
 

@@ -5,10 +5,11 @@
 import './style.scss';
 
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection, AView, IView} from '../targid2/View';
+import {IViewContext, ISelection, AView, IView} from 'targid2/src/View';
 import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import * as d3 from 'd3';
 
 const unknownMutationValue = mutationCat[mutationCat.length-1].value;
 const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;

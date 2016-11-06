@@ -4,11 +4,11 @@
 
 import * as session from 'phovea_core/src/session';
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection} from '../targid2/View';
-import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {ALineUpView2, stringCol, categoricalCol} from 'targid2/src/LineUpView';
 import {gene, ParameterFormIds, IDataSourceConfig} from './Common';
-import {INamedSet} from '../targid2/storage';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {INamedSet} from 'targid2/src/storage';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
 
 class GeneList extends ALineUpView2 {
 

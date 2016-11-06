@@ -3,12 +3,12 @@
  */
 
 import * as ajax from 'phovea_core/src/ajax';
-import * as tooltip from 'phovea_d3/src/tooltip';
-import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
+import bindTooltip from 'phovea_d3/src/tooltip';
+import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
 import {all_types, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
-
+import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import * as d3 from 'd3';
 
 export class CoExpression extends ASmallMultipleView {
 
@@ -399,7 +399,7 @@ export class CoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
-      .call(tooltip.bind((d:any) => d[2]));
+      .call(bindTooltip((d:any) => d[2]));
 
     marks.transition().attr({
       cx : (d) => this.x(d[0]),

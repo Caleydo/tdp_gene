@@ -1,17 +1,17 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 import './style.scss';
 
 import * as ajax from 'phovea_core/src/ajax';
-import * as tooltip from 'phovea_d3/src/tooltip';
+import bindTooltip from 'phovea_d3/src/tooltip';
 import * as idtypes from 'phovea_core/src/idtype';
-import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
+import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
 import {Range} from 'phovea_core/src/range';
 import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import * as d3 from 'd3';
 
 
 export class ExpressionVsCopyNumber extends ASmallMultipleView {
@@ -282,7 +282,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
         r.dim(0).setList((<any>[d.celllinename]));
         this.setItemSelection({idtype: idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), range: r});
       })
-      .call(tooltip.bind((d:any) => d.celllinename));
+      .call(bindTooltip((d:any) => d.celllinename));
 
     marks.transition().attr({
       cx: (d) => this.x(d.cn),

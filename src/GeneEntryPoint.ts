@@ -3,8 +3,8 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
-import {INamedSet} from '../targid2/storage';
+import {IEntryPointList, AEntryPointList} from 'targid2/src/StartMenu';
+import {INamedSet} from 'targid2/src/storage';
 import {ParameterFormIds} from './Common';
 
 /**

@@ -1,19 +1,18 @@
 /**
  * Created by Marc Streit on 26.07.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection} from '../targid2/View';
+import {IViewContext, ISelection} from 'targid2/src/View';
 import {
   stringCol, numberCol2, categoricalCol,
   ALineUpView2, IScoreRow
-} from '../targid2/LineUpView';
+} from 'targid2/src/LineUpView';
 import {
   dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
   getSelectedSpecies
 } from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
 
 class RawDataTable extends ALineUpView2 {
 
