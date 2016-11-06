@@ -1,355 +1,85 @@
 {
-  "name": "targid_common",
-  "version": "0.0.1",
-  "license" : "SEE LICENSE IN LICENSE",
-  "repository": "Caleydo/targid_common",
+  "main": "build/targid_common.js",
+  "files": [
+    "src",
+    "index.js",
+    "phovea.js",
+    "phovea_registry.js",
+    "build"
+  ],
+  "engines": {
+    "npm": ">= 3",
+    "node": ">= 6",
+    "iojs": ">= 3"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "lint": "tslint -c tslint.json src/**.ts tests/**.ts",
+    "docs": "typedoc --options typedoc.json src/**.ts",
+    "prebuild": "npm run test",
+    "pretest": "npm run compile",
+    "test": "karma start",
+    "posttest": "npm run lint",
+    "test:watch": "karma start --autoWatch=true --singleRun=false",
+    "build:dev": "webpack",
+    "build": "webpack --env prod",
+    "start": "webpack-dev-server --inline",
+    "start:hot": "webpack-dev-server --inline --hot",
+    "watch": "webpack --watch",
+    "release:major": "npm version major && npm publish && git push --follow-tags",
+    "release:minor": "npm version minor && npm publish && git push --follow-tags",
+    "release:patch": "npm version patch && npm publish && git push --follow-tags",
+    "predist": "npm run build",
+    "dist": "mkdirp dist && cd build && tar cvzf ../dist/targid_common.tar.gz *"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^2.5.35",
+    "awesome-typescript-loader": "^2.2.4",
+    "css-loader": "^0.25.0",
+    "extract-text-webpack-plugin": "^2.0.0-beta.4",
+    "file-loader": "^0.9.0",
+    "html-loader": "^0.4.4",
+    "imports-loader": "^0.6.5",
+    "jasmine": "^2.5.2",
+    "json-loader": "^0.5.4",
+    "karma": "^1.3.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-junit-reporter": "^1.1.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^1.8.0",
+    "mkdirp": "^0.5.1",
+    "node-sass": "^3.10.0",
+    "null-loader": "^0.1.1",
+    "raw-loader": "^0.5.1",
+    "sass-loader": "^4.0.2",
+    "style-loader": "^0.13.1",
+    "tslint": "^3.15.1",
+    "typedoc": "^0.5.1",
+    "typescript": "^2.0.6",
+    "url-loader": "^0.5.7",
+    "webpack": "^2.1.0-beta.25",
+    "webpack-dev-server": "^2.1.0-beta.10"
+  },
   "dependencies": {
+    "phovea_clue": "github:phovea/targid2"
   },
-  "peerDependencies": {
-    "targid2": "*"
+  "name": "targid_common",
+  "description": "",
+  "homepage": "https://phovea.caleydo.org",
+  "version": "0.0.1",
+  "author": {
+    "name": "The Caleydo Team",
+    "email": "contact@caleydo.org",
+    "url": "https://caleydo.org"
   },
-  "caleydo": {
-    "plugins": {
-      "web": [
-        {
-          "id": "targid_start_species",
-          "name": "Species Selector",
-          "type": "targidStartSpecies",
-          "file": "SpeciesSelector",
-          "factory": "createStartFactory"
-        },
-        {
-          "id": "bioinfodb_tissue_start",
-          "name": "Tissues",
-          "type": "targidStartEntryPoint",
-          "file": "CellLineEntryPoint",
-          "factory": "createStartFactory",
-          "viewId": "bioinfodb_tissue_start",
-          "idtype": "Tissue",
-          "selection": "none",
-          "sampleType": "Tissue"
-        },
-        {
-          "id": "bioinfodb_tissue_start",
-          "name": "Tissues",
-          "type": "targidView",
-          "file": "CellLineList",
-          "factory": "createStart",
-          "idtype": "Tissue",
-          "selection": "none",
-          "sampleType": "Tissue"
-        },
-        {
-          "id": "tissue_inverted_aggregated_score",
-          "name": "Score",
-          "type": "targidScore",
-          "file": "InvertedAggregatedScore",
-          "idtype": "Tissue",
-          "sampleType": "Tissue"
-        },
-
-        {
-          "id": "celllinedb_genes_start",
-          "name": "Genes",
-          "type": "targidStartEntryPoint",
-          "file": "GeneEntryPoint",
-          "factory": "createStartFactory",
-          "viewId": "celllinedb_start",
-          "idtype": "Ensembl",
-          "selection": "none"
-        },
-        {
-          "id": "celllinedb_start",
-          "name": "Genes",
-          "type": "targidView",
-          "file": "GeneList",
-          "factory": "createStart",
-          "idtype": "Ensembl",
-          "selection": "none"
-        },
-        {
-          "id": "celllinedb_cellline_start",
-          "name": "Cell Lines",
-          "type": "targidStartEntryPoint",
-          "file": "CellLineEntryPoint",
-          "factory": "createStartFactory",
-          "viewId": "celllinedb_cellline",
-          "idtype": "Cellline",
-          "selection": "none"
-        },
-        {
-          "id": "celllinedb_cellline",
-          "name": "Cell Lines",
-          "type": "targidView",
-          "file": "CellLineList",
-          "factory": "createStart",
-          "idtype": "Cellline",
-          "selection": "none"
-        },
-        {
-          "type": "__targidView__backup",
-          "id": "celllinedb_enrichment",
-          "name": "Enrichment",
-          "category": "dynamic",
-          "file": "Enrichment",
-          "idtype": "Ensembl",
-          "selection": "single",
-          "mockup": true
-        },
-        {
-          "type": "targidView",
-          "id": "celllinedb_expression_vs_copynumber",
-          "name": "Expression vs. Copy Number",
-          "category": "dynamic",
-          "file": "ExpressionVsCopyNumber",
-          "factory": "create",
-          "idtype": "Ensembl",
-          "selection": "small_multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "celllinedb_co_expression",
-          "name": "Co-Expression",
-          "category": "dynamic",
-          "file": "CoExpression",
-          "factory": "create",
-          "idtype": "Ensembl",
-          "selection": "small_multiple"
-        },
-        {
-          "id": "celllinedb_onco_print",
-          "name": "OncoPrint",
-          "type": "targidView",
-          "category": "dynamic",
-          "file": "OncoPrint",
-          "factory": "create",
-          "idtype": "Ensembl",
-          "selection": "some"
-        },
-        {
-          "id": "gene_aggregated_score",
-          "name": "Score",
-          "type": "targidScore",
-          "file": "AggregatedScore",
-          "idtype": "Ensembl"
-        },
-        {
-          "id": "expressiontable",
-          "name": "Expression",
-          "type": "targidView",
-          "file": "RawDataTable",
-          "factory": "createExpressionTable",
-          "idtype": "Ensembl",
-          "selection": "some"
-        },
-        {
-          "id": "copynumbertable",
-          "name": "Copy Number",
-          "type": "targidView",
-          "file": "RawDataTable",
-          "factory": "createCopyNumberTable",
-          "idtype": "Ensembl",
-          "selection": "some"
-        },
-        {
-          "id": "mutationtable",
-          "name": "Mutation",
-          "type": "targidView",
-          "file": "RawDataTable",
-          "factory": "createMutationTable",
-          "idtype": "Ensembl",
-          "selection": "some"
-        },
-        {
-          "id": "cellline_inverted_aggregated_score",
-          "name": "Score",
-          "type": "targidScore",
-          "file": "InvertedAggregatedScore",
-          "idtype": "Cellline"
-        },
-        {
-          "id": "celllline_inverted_expressiontable",
-          "name": "Expression",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createExpressionTable",
-          "idtype": "Cellline",
-          "selection": "some"
-        },
-        {
-          "id": "celllline_inverted_copynumbertable",
-          "name": "Copy Number",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createCopyNumberTable",
-          "idtype": "Cellline",
-          "selection": "some"
-        },
-        {
-          "id": "celllline_inverted_mutationtable",
-          "name": "Mutation",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createMutationTable",
-          "idtype": "Cellline",
-          "selection": "some"
-        },
-        {
-          "id": "tissue_inverted_expressiontable",
-          "name": "Expression",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createExpressionTable",
-          "idtype": "Tissue",
-          "sampleType": "Tissue",
-          "selection": "some"
-        },
-        {
-          "id": "tissue_inverted_copynumbertable",
-          "name": "Copy Number",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createCopyNumberTable",
-          "idtype": "Tissue",
-          "sampleType": "Tissue",
-          "selection": "some"
-        },
-        {
-          "id": "tissue_inverted_mutationtable",
-          "name": "Mutation",
-          "type": "targidView",
-          "file": "InvertedRawDataTable",
-          "factory": "createMutationTable",
-          "idtype": "Tissue",
-          "sampleType": "Tissue",
-          "selection": "some"
-        },
-
-
-        {
-          "type": "targidView",
-          "id": "ensembl_org",
-          "name": "Ensembl",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//sep2013.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
-          "selection": "multiple"
-        },
-        {
-          "type": "__targidView__bak",
-          "id": "gene_card",
-          "name": "GeneCards",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "cansar",
-          "name": "canSAR",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
-          "argument": "gene",
-          "idtype": "UniProt",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "uniprot",
-          "name": "UniProt",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//www.uniprot.org/uniprot/{gene}/",
-          "argument": "gene",
-          "idtype": "UniProt",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "targetvalidation",
-          "name": "Open Targets",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//targetvalidation.org/target/{gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "clip",
-          "name": "CLIP",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//vie-toolbox/clip/multiViewGene.php?ensg={gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "proteinatlas_org",
-          "name": "The Human Protein Atlas",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//proteinatlas.org/{gene}",
-          "argument": "gene",
-          "idtype": "Ensembl",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "cosmic",
-          "name": "COSMIC",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
-          "argument": "cellline",
-          "idtype": "Cellline",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "clip_cellline",
-          "name": "CLIP",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "///vie-toolbox/clip/multiViewCellline.php?celllinename={cellline}",
-          "argument": "cellline",
-          "idtype": "Cellline",
-          "selection": "multiple"
-        },
-        {
-          "type": "targidView",
-          "id": "shiny_cellline",
-          "name": "CN Cell Line Details",
-          "folder": "targid2",
-          "file": "ProxyView",
-          "category": "static",
-          "site": "///vie-bio-shiny.eu.boehringer.com:3838/copynumberpercellline/?celllinename{cellline}",
-          "argument": "cellline",
-          "idtype": "Cellline",
-          "selection": "multiple"
-        }
-      ]
-    }
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/phovea/targid_common/issues"
   },
-  "publishConfig": {
-    "registry": "http://registry.caleydo.org/"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phovea/targid_common.git"
   }
 }
