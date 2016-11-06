@@ -174,7 +174,7 @@ module.exports = function(registry) {
   'selection': 'some'
  });
 
-  registry.push('targidView', 'ensembl_org', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'ensembl_org', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'Ensembl',
   'folder': 'targid2',
   'category': 'static',
@@ -184,7 +184,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('__targidView__bak', 'gene_card', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('__targidView__bak', 'gene_card', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'GeneCards',
   'folder': 'targid2',
   'category': 'static',
@@ -194,7 +194,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'cansar', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'cansar', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'canSAR',
   'folder': 'targid2',
   'category': 'static',
@@ -204,7 +204,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'uniprot', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'uniprot', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'UniProt',
   'folder': 'targid2',
   'category': 'static',
@@ -214,7 +214,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'targetvalidation', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'targetvalidation', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'Open Targets',
   'folder': 'targid2',
   'category': 'static',
@@ -224,7 +224,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'clip', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'clip', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'CLIP',
   'folder': 'targid2',
   'category': 'static',
@@ -234,7 +234,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'proteinatlas_org', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'proteinatlas_org', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'The Human Protein Atlas',
   'folder': 'targid2',
   'category': 'static',
@@ -244,7 +244,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'cosmic', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'cosmic', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'COSMIC',
   'folder': 'targid2',
   'category': 'static',
@@ -254,7 +254,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'clip_cellline', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'clip_cellline', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'CLIP',
   'folder': 'targid2',
   'category': 'static',
@@ -264,7 +264,7 @@ module.exports = function(registry) {
   'selection': 'multiple'
  });
 
-  registry.push('targidView', 'shiny_cellline', function() { return System.import('./src/ProxyView'); }, {
+  registry.push('targidView', 'shiny_cellline', function() { return System.import('targid2/src/ProxyView'); }, {
   'name': 'CN Cell Line Details',
   'folder': 'targid2',
   'category': 'static',
