@@ -7,7 +7,7 @@ Installation
 ------------
 
 ```
-git clone https://github.com/phovea/targid_common.git
+git clone https://github.com/caleydo/targid_common.git
 cd targid_common
 npm install
 ```
@@ -38,7 +38,7 @@ This repository is part of **[Phovea](http://phovea.caleydo.org/)**, a platform 
 [phovea-url]: https://phovea.caleydo.org
 [npm-image]: https://badge.fury.io/js/targid_common.svg
 [npm-url]: https://npmjs.org/package/targid_common
-[travis-image]: https://travis-ci.org/phovea/targid_common.svg?branch=master
-[travis-url]: https://travis-ci.org/phovea/targid_common
-[daviddm-image]: https://david-dm.org/phovea/targid_common.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/phovea/targid_common
+[travis-image]: https://travis-ci.org/caleydo/targid_common.svg?branch=master
+[travis-url]: https://travis-ci.org/caleydo/targid_common
+[daviddm-image]: https://david-dm.org/caleydo/targid_common.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/caleydo/targid_common

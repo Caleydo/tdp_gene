@@ -3,7 +3,7 @@
     "type": "lib",
     "name": "targid_common",
     "author": "The Caleydo Team",
-    "githubAccount": "phovea",
+    "githubAccount": "caleydo",
     "modules": [
       "targid2"
     ],

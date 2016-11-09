@@ -60,7 +60,8 @@
     "typescript": "^2.0.6",
     "url-loader": "^0.5.7",
     "webpack": "^2.1.0-beta.25",
-    "webpack-dev-server": "^2.1.0-beta.10"
+    "webpack-dev-server": "^2.1.0-beta.10",
+    "extract-loader": "0.0.2"
   },
   "dependencies": {
     "phovea_clue": "github:phovea/targid2"
@@ -76,10 +77,10 @@
   },
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/phovea/targid_common/issues"
+    "url": "https://github.com/caleydo/targid_common/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/phovea/targid_common.git"
+    "url": "https://github.com/caleydo/targid_common.git"
   }
 }
