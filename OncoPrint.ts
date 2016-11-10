@@ -211,6 +211,13 @@ export class OncoPrint extends AView {
       });
   }
 
+  private static computeAlterationFrequency(rows: IDataFormatRow[]) {
+    const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
+    const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
+    const amplified = rows.reduce((p, r) => p + (isMutated(r) || isCopyNumberAltered(r) ? 1 : 0), 0);
+    return amplified / rows.length;
+  }
+
   private updateChartData($parent: d3.Selection<IDataFormat>) {
 
     const data:IDataFormat = $parent.datum();
@@ -218,8 +225,8 @@ export class OncoPrint extends AView {
     var rows = data.rows;
     rows = this.alignData(rows);
     rows = this.sortData(rows);
-    // count amplification/deletions and divide by total nmber of rows
-    data.alterationFreq = rows.filter((r) => ((<any>r.cn) !== null && (<any>r.cn) !== 0)).length / rows.length;
+    // count amplification/deletions and divide by total number of rows
+    data.alterationFreq = OncoPrint.computeAlterationFrequency(rows);
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
@@ -399,19 +406,21 @@ export class OncoPrint extends AView {
   */
 }
 
+interface IDataFormatRow {
+  id: string;
+  name: string;
+  symbol: string;
+  cn: number;
+  expr: number;
+  dna_mutated: boolean;
+}
+
 interface IDataFormat {
   id:number;
   geneName: string;
   ensg: string;
   alterationFreq: number;
-  rows: {
-    id: string,
-    name: string,
-    symbol: string,
-    cn: string,
-    expr: number,
-    dna_mutated: string
-  }[];
+  rows: IDataFormatRow[];
 }
 
 export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
