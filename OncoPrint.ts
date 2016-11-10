@@ -145,6 +145,32 @@ export class OncoPrint extends AView {
       });
   }
 
+  private loadRows(ensg: string) {
+    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
+    return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === all_types ? '_all' : ''}`, {
+      ensgs: '\'' + ensg + '\'',
+      schema: ds.schema,
+      entity_name: ds.entityName,
+      table_name: ds.tableName,
+      tumortype: tumorType,
+      species: getSelectedSpecies()
+    });
+  }
+
+  private loadFirstName(ensg: string) {
+    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    return ajax.getAPIJSON(`/targid/db/${ds.db}/gene_map_ensgs`, {
+      ensgs: '\'' + ensg + '\'',
+      species: getSelectedSpecies()
+    }).then((r) => r[0].symbol);
+  }
+
+  private logErrorAndMarkReady(error: any) {
+    console.error(error);
+    this.setBusy(false);
+  }
+
   private update(updateAll = false) {
     this.setBusy(true);
 
@@ -156,59 +182,41 @@ export class OncoPrint extends AView {
       return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: []};
     });
 
-    const $ids = this.$table.selectAll('tr.gene').data<IDataFormat>(<any>data, (d) => d.id.toString());
+    const $ids = this.$table.selectAll('tr.gene').data(data, (d) => d.id.toString());
     const $ids_enter = $ids.enter().append('tr').classed('gene', true);
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
-    enterOrUpdateAll.each(function(d) {
+    enterOrUpdateAll.each(function(d: IDataFormat, i: number) {
+      const $id = d3.select(this);
       const promise = that.resolveId(idtype, d.id, gene.idType)
-        .then((name) => {
+        .then((ensg: string) => {
+          d.ensg = ensg;
           return Promise.all([
-            d3.select(this),
-            name,
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-              ensgs: '\''+name+'\'',
-              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-              table_name: that.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
-              species: getSelectedSpecies()
-            }),
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\'',
-              species: getSelectedSpecies()
-            })
+            that.loadRows(ensg),
+            that.loadFirstName(ensg),
           ]);
         });
 
       // on error
       promise.catch(showErrorModalDialog)
-        .catch((error) => {
-          console.error(error);
-          that.setBusy(false);
-        });
+        .catch(that.logErrorAndMarkReady.bind(this));
 
       // on success
       promise.then((input) => {
-          d.geneName = input[3][0].symbol;
-          d.rows = input[2];
-          d.ensg = input[1];
-          const $id = input[0];
+        d.rows = input[0];
+        d.geneName = input[1];
 
-          //console.log('loaded data for', d);
-          that.updateChartData($id);
-          that.setBusy(false);
-        });
+        //console.log('loaded data for', d);
+        that.updateChartData(d, $id);
+        that.setBusy(false);
+      });
     });
 
 
-    $ids.exit().remove()
-      .each(function(d) {
-        that.setBusy(false);
-      });
+    $ids.exit().remove().each(() => this.setBusy(false));
   }
 
   private static computeAlterationFrequency(rows: IDataFormatRow[]) {
@@ -218,11 +226,10 @@ export class OncoPrint extends AView {
     return amplified / rows.length;
   }
 
-  private updateChartData($parent: d3.Selection<IDataFormat>) {
+  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
 
-    const data:IDataFormat = $parent.datum();
     //console.log(data.geneName);
-    var rows = data.rows;
+    var rows: IDataFormatRow[] = data.rows;
     rows = this.alignData(rows);
     rows = this.sortData(rows);
     // count amplification/deletions and divide by total number of rows
@@ -258,7 +265,7 @@ export class OncoPrint extends AView {
     $cells.exit().remove();
   }
 
-  private alignData(rows) {
+  private alignData(rows: IDataFormatRow[]) {
     // build hash map first for faster access
     var hash = {};
     rows.forEach((r) => hash[r.name] = r);
@@ -282,7 +289,10 @@ export class OncoPrint extends AView {
     });
   }
 
-  private sortData(rows) {
+  private sortData(rows: IDataFormatRow[]) {
+    // const compareCNV = (a: IDataFormatRow, b: IDataFormatRow) => {
+    //   return 0;
+    // };
     return rows;
     /*var sorted = rows2.slice(0, this.sampleListSortIndex);
     const toSort = rows2.slice(this.sampleListSortIndex, rows2.length);
