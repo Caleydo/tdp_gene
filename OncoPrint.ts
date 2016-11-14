@@ -222,8 +222,12 @@ export class OncoPrint extends AView {
   private static computeAlterationFrequency(rows: IDataFormatRow[]) {
     const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
     const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
-    const amplified = rows.reduce((p, r) => p + (isMutated(r) || isCopyNumberAltered(r) ? 1 : 0), 0);
-    return amplified / rows.length;
+    const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
+    // reduce and compute both
+    // amplified += 1 if isMutated or isCopyNumberAltered
+    // total += if hasData
+    const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
+    return amplified / total;
   }
 
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
