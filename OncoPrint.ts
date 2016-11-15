@@ -84,20 +84,6 @@ function compareCNV(a: number, b: number) {
   return 0;
 }
 
-function compareExpression(a: number, b: number) {
-  // order: bigger,smaller, NaN
-  if (a === b) {
-    return 0;
-  }
-  if (a === undefined || a === null || isNaN(a)) {
-    return FIRST_IS_NULL;
-  }
-  if (b === undefined || b === null || isNaN(b)) {
-    return -FIRST_IS_NULL;
-  }
-  return b - a;
-}
-
 function compareMutation(a: boolean, b: boolean) {
   // order: true, false, null
   if (a === b) {
