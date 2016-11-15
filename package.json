@@ -233,7 +233,7 @@
           "file": "ProxyView",
           "factory": "create",
           "category": "static",
-          "site": "//sep2013.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
+          "site": "//feb2014.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
           "argument": "gene",
           "idtype": "Ensembl",
           "selection": "multiple"
