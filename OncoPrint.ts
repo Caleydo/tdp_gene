@@ -113,17 +113,17 @@ function compareMutation(a: boolean, b: boolean) {
 }
 
 function sort(sampleList: string[], ...rows: IDataFormatRow[][]) {
-  const rowLookups : Map<string,IDataFormatRow>[] = rows.map((row) => {
-    const r = new Map<string,IDataFormatRow>();
-    row.forEach((d) => r.set(d.name, d));
+  const rowLookups : any[] = rows.map((row) => {
+    const r = {};
+    row.forEach((d) => r[d.name] = d);
     return r;
   });
   //sort such that missing values are in the end
   //hierarchy: cn, mut, expression
   function compare(a: string, b: string) {
     for (let row of rowLookups) {
-      let a_row: IDataFormatRow = row.get(a);
-      let b_row: IDataFormatRow = row.get(b);
+      let a_row: IDataFormatRow = row[a];
+      let b_row: IDataFormatRow = row[b];
       { // undefined
         if (a_row === b_row) { //e.g. both undefined
           continue;
@@ -404,13 +404,13 @@ export class OncoPrint extends AView {
 
   private sortCells(sortedSamples: string[]) {
     //name to index
-    const lookup = new Map<string, number>();
-    sortedSamples.forEach(lookup.set.bind(lookup));
+    const lookup : any= {};
+    sortedSamples.forEach((d,i) => lookup[d] = i);
 
     const $genes = this.$table.selectAll('tr.gene');
     $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
-      const a_i = lookup.get(a.name);
-      const b_i = lookup.get(b.name);
+      const a_i = lookup[a.name];
+      const b_i = lookup[b.name];
       // assume both exist
       return a_i - b_i;
     });
@@ -418,16 +418,16 @@ export class OncoPrint extends AView {
 
   private alignData(rows: IDataFormatRow[], samples: string[]) {
     // build hash map first for faster access
-    const hash = new Map<String,IDataFormatRow>();
-    rows.forEach((r) => hash.set(r.name, r));
+    const hash : any= {};
+    rows.forEach((r) => hash[r.name] = r);
 
     // align items --> fill missing values up to match sample list
     return samples.map((sample) => {
       // no data found --> add unknown sample
-      if (!hash.has(sample)) {
+      if (sample in hash) {
         return unknownSample(sample);
       }
-      return hash.get(sample);
+      return hash[sample];
     });
   }
 }
