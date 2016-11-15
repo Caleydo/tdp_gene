@@ -33,7 +33,8 @@ export class OncoPrint extends AView {
   private cellPadding = 2;
   private cellMutation = 8;
 
-  private sampleList = [];
+  private sampleList: string[] = [];
+  private sampleListPromise: Promise<string[]> = null;
   //private sampleListSortIndex = 0;
 
   private paramForm:FormBuilder;
@@ -130,22 +131,25 @@ export class OncoPrint extends AView {
   }
 
   private loadSampleList() {
-    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print_sample_list${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
+    const url = `/targid/db/${ds.db}/onco_print_sample_list${tumorType === all_types ? '_all' : ''}`;
     const param = {
-      schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-      entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-      table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
-      tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE),
+      schema: ds.schema,
+      entity_name: ds.entityName,
+      table_name: ds.tableName,
+      tumortype : tumorType,
       species: getSelectedSpecies()
     };
 
-    return ajax.getAPIJSON(url, param)
+    return this.sampleListPromise = ajax.getAPIJSON(url, param)
       .then((rows) => {
         this.sampleList = rows.map((r) => r.id);
+        return this.sampleList;
       });
   }
 
-  private loadRows(ensg: string) {
+  private loadRows(ensg: string): Promise<IDataFormatRow[]> {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
     return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === all_types ? '_all' : ''}`, {
@@ -158,7 +162,7 @@ export class OncoPrint extends AView {
     });
   }
 
-  private loadFirstName(ensg: string) {
+  private loadFirstName(ensg: string): Promise<string> {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return ajax.getAPIJSON(`/targid/db/${ds.db}/gene_map_ensgs`, {
       ensgs: '\'' + ensg + '\'',
@@ -194,9 +198,11 @@ export class OncoPrint extends AView {
       const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((ensg: string) => {
           d.ensg = ensg;
-          return Promise.all([
-            that.loadRows(ensg),
+          const loadedData = that.loadRows(ensg);
+          return Promise.all<any>([
+            loadedData,
             that.loadFirstName(ensg),
+            this.sampleListPromise
           ]);
         });
 
@@ -208,9 +214,10 @@ export class OncoPrint extends AView {
       promise.then((input) => {
         d.rows = input[0];
         d.geneName = input[1];
+        const sortedSamples = input[2];
 
         //console.log('loaded data for', d);
-        that.updateChartData(d, $id);
+        that.updateChartData(d, $id, sortedSamples);
         that.setBusy(false);
       });
     });
@@ -230,12 +237,23 @@ export class OncoPrint extends AView {
     return amplified / total;
   }
 
-  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
+  /**
+   * sorts the given samples according to the given information
+   * @param samples
+   * @param rows
+   * @return {string[]} the sorted samples
+   */
+  private static sort(samples: string[], rows: IDataFormatRow[]) {
+    // no sorting so far
+    return samples;
+  }
+
+  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
 
     //console.log(data.geneName);
     var rows: IDataFormatRow[] = data.rows;
-    rows = this.alignData(rows);
-    rows = this.sortData(rows);
+    rows = this.alignData(rows, samples);
+
     // count amplification/deletions and divide by total number of rows
     data.alterationFreq = OncoPrint.computeAlterationFrequency(rows);
 
@@ -269,13 +287,13 @@ export class OncoPrint extends AView {
     $cells.exit().remove();
   }
 
-  private alignData(rows: IDataFormatRow[]) {
+  private alignData(rows: IDataFormatRow[], samples: string[]) {
     // build hash map first for faster access
     var hash = {};
     rows.forEach((r) => hash[r.name] = r);
 
     // align items --> fill missing values up to match sample list
-    return this.sampleList.map((sample) => {
+    return samples.map((sample) => {
       var r = hash[sample];
       // no data found --> add unknown sample
       if (!r) {
