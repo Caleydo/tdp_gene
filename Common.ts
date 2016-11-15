@@ -315,6 +315,8 @@ export const availableSpecies = [
   //{ name: 'Mouse', value: 'mouse' }
 ];
 
+export const defaultSpecies = availableSpecies[0].value;
+
 /**
  * List of ids for parameter form elements
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
@@ -369,5 +371,5 @@ export function convertMutationCat(rows, field:string) {
 }
 
 export function getSelectedSpecies() {
-  return session.retrieve(ParameterFormIds.SPECIES);
+  return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
 }
