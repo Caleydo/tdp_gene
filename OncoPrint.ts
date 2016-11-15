@@ -27,6 +27,7 @@ interface IDataFormat {
   geneName: string;
   ensg: string;
   alterationFreq: number;
+  promise: Promise<IDataFormatRow[]>;
   rows: IDataFormatRow[];
 }
 
@@ -42,6 +43,9 @@ function unknownSample(sample: string) {
 
 
 function computeAlterationFrequency(rows: IDataFormatRow[]) {
+  if (rows.length === 0) {
+    return 0;
+  }
   const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
   const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
   const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
@@ -50,6 +54,101 @@ function computeAlterationFrequency(rows: IDataFormatRow[]) {
   // total += if hasData
   const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
   return amplified / total;
+}
+
+const FIRST_IS_NULL = -1;
+
+function compareCNV(a: number, b: number) {
+  // order: >0, <0, 0, NaN
+  if (a === b) {
+    return 0;
+  }
+  if (a === undefined || a === null || isNaN(a)) {
+    return FIRST_IS_NULL;
+  }
+  if (b === undefined || b === null || isNaN(b)) {
+    return -FIRST_IS_NULL;
+  }
+  if (a > 0) { // b is 0 or < 0
+    return -1;
+  }
+  if (b > 0) { // a is 0 or < 0
+    return 1;
+  }
+  if (a < 0) { // b is 0
+    return -1;
+  }
+  if (b < 0) { // a is 0
+    return 1;
+  }
+  return 0;
+}
+
+function compareExpression(a: number, b: number) {
+  // order: bigger,smaller, NaN
+  if (a === b) {
+    return 0;
+  }
+  if (a === undefined || a === null || isNaN(a)) {
+    return FIRST_IS_NULL;
+  }
+  if (b === undefined || b === null || isNaN(b)) {
+    return -FIRST_IS_NULL;
+  }
+  return b - a;
+}
+
+function compareMutation(a: boolean, b: boolean) {
+  // order: true, false, null
+  if (a === b) {
+    return 0;
+  }
+  if (a === undefined || a === null) {
+    return FIRST_IS_NULL;
+  }
+  if (b === undefined || b === null) {
+    return -FIRST_IS_NULL;
+  }
+  return a ? -1 : +1;
+}
+
+function sort(sampleList: string[], ...rows: IDataFormatRow[][]) {
+  const rowLookups : Map<string,IDataFormatRow>[] = rows.map((row) => {
+    const r = new Map<string,IDataFormatRow>();
+    row.forEach((d) => r.set(d.name, d));
+    return r;
+  });
+  //sort such that missing values are in the end
+  //hierarchy: cn, mut, expression
+  function compare(a: string, b: string) {
+    for (let row of rowLookups) {
+      let a_row: IDataFormatRow = row.get(a);
+      let b_row: IDataFormatRow = row.get(b);
+      { // undefined
+        if (a_row === b_row) { //e.g. both undefined
+          continue;
+        }
+        if (a_row === undefined || a_row === null) {
+          return FIRST_IS_NULL; //for a not defined -> bigger
+        }
+        if (b_row === undefined || b_row === null) {
+          return -FIRST_IS_NULL;
+        }
+      }
+      if (a_row.cn !== b_row.cn) {
+        return compareCNV(a_row.cn, b_row.cn);
+      }
+      if (a_row.dna_mutated !== b_row.dna_mutated) {
+        return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
+      }
+      if (a_row.expr !== b_row.expr) {
+        return compareExpression(a_row.expr, b_row.expr);
+      }
+    }
+    // fallback to the name
+    return a.localeCompare(b);
+  }
+  return sampleList.slice().sort(compare);
 }
 
 export class OncoPrint extends AView {
@@ -219,7 +318,7 @@ export class OncoPrint extends AView {
     const idtype = this.selection.idtype;
 
     const data:IDataFormat[] = ids.map((id) => {
-      return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: []};
+      return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null};
     });
 
     const $ids = this.$table.selectAll('tr.gene').data(data, (d) => d.id.toString());
@@ -230,6 +329,7 @@ export class OncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
+      console.log(d);
       const promise = this.resolveId(idtype, d.id, gene.idType)
         .then((ensg: string) => {
           d.ensg = ensg;
@@ -248,11 +348,12 @@ export class OncoPrint extends AView {
       promise.then((input) => {
         d.rows = input[0];
         d.geneName = input[1];
-        const sortedSamples = input[2];
+        const samples = input[2];
 
-        this.updateChartData(d, $id, sortedSamples);
+        this.updateChartData(d, $id, samples);
         this.setBusy(false);
       });
+      d.promise = promise;
     };
 
     enterOrUpdateAll.each(function(d: IDataFormat) {
@@ -299,6 +400,20 @@ export class OncoPrint extends AView {
       .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
+  }
+
+  private sortCells(sortedSamples: string[]) {
+    //name to index
+    const lookup = new Map<string, number>();
+    sortedSamples.forEach(lookup.set.bind(lookup));
+
+    const $genes = this.$table.selectAll('tr.gene');
+    $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
+      const a_i = lookup.get(a.name);
+      const b_i = lookup.get(b.name);
+      // assume both exist
+      return a_i - b_i;
+    });
   }
 
   private alignData(rows: IDataFormatRow[], samples: string[]) {
