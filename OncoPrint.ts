@@ -16,22 +16,24 @@ export class OncoPrint extends AView {
 
   private $table:d3.Selection<IView>;
 
-  private color = d3.scale.ordinal<string>()
-    .domain(copyNumberCat.map((d) => String(d.value)))
-    .range(copyNumberCat.map((d) => d.color));
+  private static STYLE = {
+    color: d3.scale.ordinal<string>()
+      .domain(copyNumberCat.map((d) => String(d.value)))
+      .range(copyNumberCat.map((d) => d.color)),
+    colorBorder: d3.scale.ordinal<string>()
+      .domain(copyNumberCat.map((d) => String(d.value)))
+      .range(copyNumberCat.map((d) => d.border)),
+    colorMut: d3.scale.ordinal<string>()
+      .domain(mutationCat.map((d) => d.value))
+      .range(mutationCat.map((d) => d.color)),
 
-  private colorBorder = d3.scale.ordinal<string>()
-    .domain(copyNumberCat.map((d) => String(d.value)))
-    .range(copyNumberCat.map((d) => d.border));
-
-  private colorMut = d3.scale.ordinal<string>()
-    .domain(mutationCat.map((d) => d.value))
-    .range(mutationCat.map((d) => d.color));
-
-  private cellHeight = 25;
-  private cellWidth = 7;
-  private cellPadding = 2;
-  private cellMutation = 8;
+    cell: {
+      height: 25,
+      width: 7,
+      padding: 2,
+      mutation: 8
+    }
+  };
 
   private sampleListPromise: Promise<string[]> = null;
 
@@ -197,7 +199,7 @@ export class OncoPrint extends AView {
           return Promise.all<any>([
             loadedData,
             that.loadFirstName(ensg),
-            this.sampleListPromise
+            that.sampleListPromise
           ]);
         });
 
@@ -233,7 +235,7 @@ export class OncoPrint extends AView {
   }
 
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
-
+    const style = OncoPrint.STYLE;
     //console.log(data.geneName);
     var rows: IDataFormatRow[] = data.rows;
     rows = this.alignData(rows, samples);
@@ -249,24 +251,24 @@ export class OncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
+      // TODO extract to CSS
       .style({
-        width: this.cellWidth + this.cellPadding + 'px',
-        height: this.cellHeight + this.cellPadding + 'px',
+        width: style.cell.width + style.cell.padding + 'px',
+        height: style.cell.height + style.cell.padding + 'px',
       })
       .append('div')
       .classed('mut', true)
-      .style({
-        height: this.cellMutation + 'px'
-      });
+      .style('height', style.cell.mutation + 'px');
 
     $cells
       .attr('data-title', (d:any) => d.name)
-      .style('background-color', (d:any) => this.color(d.cn))
-      .style('border', (d:any) => '1px solid ' + this.colorBorder(d.cn));
+      .style('background-color', (d:any) => style.color(d.cn))
+      // TODO extract to CSS except for border-color
+      .style('border', (d:any) => '1px solid ' + style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => this.colorMut(d.dna_mutated || unknownMutationValue));
+      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
   }
