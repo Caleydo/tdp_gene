@@ -9,8 +9,48 @@ import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormI
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
+
 const unknownMutationValue = mutationCat[mutationCat.length-1].value;
 const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;
+
+
+interface IDataFormatRow {
+  name: string;
+  symbol: string;
+  cn: number;
+  expr: number;
+  dna_mutated: boolean;
+}
+
+interface IDataFormat {
+  id:number;
+  geneName: string;
+  ensg: string;
+  alterationFreq: number;
+  rows: IDataFormatRow[];
+}
+
+function unknownSample(sample: string) {
+  return {
+    name: sample,
+    symbol: '',
+    cn: unknownCopyNumberValue, // unknown --> see Common.
+    expr: 0,
+    dna_mutated: unknownMutationValue // unknown
+  };
+}
+
+
+function computeAlterationFrequency(rows: IDataFormatRow[]) {
+  const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
+  const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
+  const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
+  // reduce and compute both
+  // amplified += 1 if isMutated or isCopyNumberAltered
+  // total += if hasData
+  const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
+  return amplified / total;
+}
 
 export class OncoPrint extends AView {
 
@@ -175,7 +215,6 @@ export class OncoPrint extends AView {
   private update(updateAll = false) {
     this.setBusy(true);
 
-    const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
@@ -190,22 +229,20 @@ export class OncoPrint extends AView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
-    enterOrUpdateAll.each(function(d: IDataFormat, i: number) {
-      const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, gene.idType)
+    const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
+      const promise = this.resolveId(idtype, d.id, gene.idType)
         .then((ensg: string) => {
           d.ensg = ensg;
-          const loadedData = that.loadRows(ensg);
           return Promise.all<any>([
-            loadedData,
-            that.loadFirstName(ensg),
-            that.sampleListPromise
+            this.loadRows(ensg),
+            this.loadFirstName(ensg),
+            this.sampleListPromise
           ]);
         });
 
       // on error
       promise.catch(showErrorModalDialog)
-        .catch(that.logErrorAndMarkReady.bind(this));
+        .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
       promise.then((input) => {
@@ -213,25 +250,16 @@ export class OncoPrint extends AView {
         d.geneName = input[1];
         const sortedSamples = input[2];
 
-        //console.log('loaded data for', d);
-        that.updateChartData(d, $id, sortedSamples);
-        that.setBusy(false);
+        this.updateChartData(d, $id, sortedSamples);
+        this.setBusy(false);
       });
+    };
+
+    enterOrUpdateAll.each(function(d: IDataFormat) {
+      renderRow(d3.select(this), d);
     });
 
-
     $ids.exit().remove().each(() => this.setBusy(false));
-  }
-
-  private static computeAlterationFrequency(rows: IDataFormatRow[]) {
-    const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
-    const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
-    const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
-    // reduce and compute both
-    // amplified += 1 if isMutated or isCopyNumberAltered
-    // total += if hasData
-    const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
-    return amplified / total;
   }
 
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
@@ -241,7 +269,7 @@ export class OncoPrint extends AView {
     rows = this.alignData(rows, samples);
 
     // count amplification/deletions and divide by total number of rows
-    data.alterationFreq = OncoPrint.computeAlterationFrequency(rows);
+    data.alterationFreq = computeAlterationFrequency(rows);
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
@@ -275,44 +303,18 @@ export class OncoPrint extends AView {
 
   private alignData(rows: IDataFormatRow[], samples: string[]) {
     // build hash map first for faster access
-    var hash = {};
-    rows.forEach((r) => hash[r.name] = r);
+    const hash = new Map<String,IDataFormatRow>();
+    rows.forEach((r) => hash.set(r.name, r));
 
     // align items --> fill missing values up to match sample list
     return samples.map((sample) => {
-      var r = hash[sample];
       // no data found --> add unknown sample
-      if (!r) {
-        r = {
-          id: -1,
-          name: sample,
-          symbol: '',
-          cn: unknownCopyNumberValue, // unknown --> see Common.
-          expr: 0,
-          dna_mutated: unknownMutationValue // unknown
-        };
-        //console.log('added sample', sample);
+      if (!hash.has(sample)) {
+        return unknownSample(sample);
       }
-      return r;
+      return hash.get(sample);
     });
   }
-}
-
-interface IDataFormatRow {
-  id: string;
-  name: string;
-  symbol: string;
-  cn: number;
-  expr: number;
-  dna_mutated: boolean;
-}
-
-interface IDataFormat {
-  id:number;
-  geneName: string;
-  ensg: string;
-  alterationFreq: number;
-  rows: IDataFormatRow[];
 }
 
 export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
