@@ -33,9 +33,7 @@ export class OncoPrint extends AView {
   private cellPadding = 2;
   private cellMutation = 8;
 
-  private sampleList: string[] = [];
   private sampleListPromise: Promise<string[]> = null;
-  //private sampleListSortIndex = 0;
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [
@@ -143,10 +141,7 @@ export class OncoPrint extends AView {
     };
 
     return this.sampleListPromise = ajax.getAPIJSON(url, param)
-      .then((rows) => {
-        this.sampleList = rows.map((r) => r.id);
-        return this.sampleList;
-      });
+      .then((rows) => rows.map((r) => r.id));
   }
 
   private loadRows(ensg: string): Promise<IDataFormatRow[]> {
@@ -237,17 +232,6 @@ export class OncoPrint extends AView {
     return amplified / total;
   }
 
-  /**
-   * sorts the given samples according to the given information
-   * @param samples
-   * @param rows
-   * @return {string[]} the sorted samples
-   */
-  private static sort(samples: string[], rows: IDataFormatRow[]) {
-    // no sorting so far
-    return samples;
-  }
-
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
 
     //console.log(data.geneName);
@@ -310,132 +294,6 @@ export class OncoPrint extends AView {
       return r;
     });
   }
-
-  private sortData(rows: IDataFormatRow[]) {
-    // const compareCNV = (a: IDataFormatRow, b: IDataFormatRow) => {
-    //   return 0;
-    // };
-    return rows;
-    /*var sorted = rows2.slice(0, this.sampleListSortIndex);
-    const toSort = rows2.slice(this.sampleListSortIndex, rows2.length);
-
-    const toSortDone = copyNumberVariations.map((cn) => cn.value) // get cn values
-      .map((cn) => toSort.filter((d) => d.cn === cn)) // filter rows for each cn value
-      .reduce((d1, d2) => d1.concat(d2), []); // flatten array to plain list
-
-    toSortDone.forEach((r) => {
-      // shift only amplification and deletions
-      if(r.cn !== null && r.cn !== 0) {
-        this.arrayMove(this.sampleList, this.sampleList.indexOf(r.name), this.sampleListSortIndex);
-        this.sampleListSortIndex++;
-      }
-    });
-
-    return sorted.concat(toSortDone);*/
-  }
-
-  /**
-   * Moves an element in the given array from an index to another index
-   * @param arr
-   * @param fromIndex
-   * @param toIndex
-   */
-  //private arrayMove(arr, fromIndex, toIndex) {
-  //  var element = arr[fromIndex];
-  //  arr.splice(fromIndex, 1);
-  //  arr.splice(toIndex, 0, element);
-  //}
-
-
-  //celllinename, max(cn) as cn, max(log2fpkm) as expr, max(dna_mutated) as dna_mutated
-  /*private updateChart2(rows: {id: string, name: string, cn: string, expr: number, dna_mutated: string, symbol: string}[]) {
-    // first: group the rows by different keys
-    const data2 = d3.nest()
-      .key((d:any) => d.symbol).sortKeys(d3.ascending)
-      .key((d:any) => d.id).sortKeys(d3.ascending)
-      .key((d:any) => d.cn).sortKeys((a:string, b:string) => {
-        //console.log(a, b, a == 0, b != 0);
-        // sort decending, but put everything with `0` to the end (e.g., [2, -2, 0])
-        return (parseInt(a, 10) === 0 && parseInt(b, 10) !== 0) ? 1 : -1;
-      })
-      .key((d:any) => d.dna_mutated).sortKeys(d3.descending)
-      .entries(rows);
-
-    // second: flatten the nested array structure
-    const flat = data2.map((d) => {
-      // symbol
-      return d.values.map((e) => {
-        // id
-        let values2 = e.values.map((f) => {
-          // cn
-          return f.values.map((g) => {
-            // dna_mutated
-            return g.values;
-
-          }).reduce((d1, d2) => d1.concat(d2), []);
-
-        }).reduce((d1, d2) => d1.concat(d2), []);
-
-        return {key: d.key, values: values2};
-      });
-
-    }).reduce((d1, d2) => d1.concat(d2), []);
-
-    // data binding
-    const marks = this.$node.selectAll('.gene').data(flat);
-
-    // enter
-    marks.enter()
-      .append('div').classed('gene', true)
-      .append('div').classed('geneLabel', true);
-
-    // update
-    //marks.style('transform', (d,i) => `translate(0px, ${i* (this.cellHeight + this.cellPadding)}px)`);
-    marks.select('.geneLabel').html((d:any) => `${d.values[0].symbol} <span>${d.values[0].id}</span>`);
-
-    const cells = marks.selectAll('.cell').data((d:any) => d.values);
-    cells.enter().append('div')
-      .classed('cell', true)
-      .attr('data-title', (d:any) => d.name)
-      .style({
-        width: this.cellWidth + this.cellPadding + 'px',
-        height: this.cellHeight + this.cellPadding + 'px',
-      })
-      .append('div')
-      .classed('mut', true)
-      .style({
-        height: this.cellMutation + 'px'
-      });
-
-    cells
-      .style('background-color', (d:any) => this.color(d.cn))
-      .style('border', (d:any) => '1px solid ' + this.cBorder(d.cn));
-      //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
-
-    cells.select('.mut')
-      .style('background-color', (d:any) => this.cMut(d.dna_mutated));
-
-    cells.exit().remove();
-
-    // exit
-    marks.exit().remove();
-  }*/
-
-  /*private update2() {
-    const idtype = this.selection.idtype;
-    this.setBusy(true);
-
-    return this.resolveIds(idtype, this.selection.range, gene.idType).then((names) => {
-      return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-        ensgs: '\''+names.join('\',\'')+'\'',
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
-      });
-    }).then((rows) => {
-      this.updateChart2(rows);
-      this.setBusy(false);
-    });
-  }
-  */
 }
 
 interface IDataFormatRow {
