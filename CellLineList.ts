@@ -130,7 +130,7 @@ class CellLineList extends ALineUpView2 {
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
       if(this.namedSet.subTypeFromSession) {
-        param[this.namedSet.subTypeKey] = session.retrieve(this.namedSet.subTypeKey);
+        param[this.namedSet.subTypeKey] = session.retrieve(this.namedSet.subTypeKey, this.namedSet.subTypeValue);
 
       } else {
         param[this.namedSet.subTypeKey] = this.namedSet.subTypeValue;

@@ -4,7 +4,7 @@
 
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
-import {chooseDataSource, ParameterFormIds} from './Common';
+import {chooseDataSource, ParameterFormIds, defaultSpecies} from './Common';
 import {INamedSet} from '../targid2/storage';
 
 
@@ -33,8 +33,8 @@ class CellLineEntryPointList extends AEntryPointList {
       idType: '',
       ids: '',
       subTypeKey: ParameterFormIds.SPECIES,
-      subTypeValue: '',
       subTypeFromSession: true,
+      subTypeValue: defaultSpecies,
       creator: ''
     });
 

@@ -5,7 +5,7 @@
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
 import {INamedSet} from '../targid2/storage';
-import {ParameterFormIds} from './Common';
+import {defaultSpecies, ParameterFormIds} from './Common';
 
 /**
  * Entry point list from all species and LineUp named sets (aka stored LineUp sessions)
@@ -30,8 +30,8 @@ class GeneEntryPointList extends AEntryPointList {
       idType: '',
       ids: '',
       subTypeKey: ParameterFormIds.SPECIES,
-      subTypeValue: '',
       subTypeFromSession: true,
+      subTypeValue: defaultSpecies,
       creator: ''
     });
 
