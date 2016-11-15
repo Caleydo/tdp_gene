@@ -56,7 +56,7 @@ function computeAlterationFrequency(rows: IDataFormatRow[]) {
   return amplified / total;
 }
 
-const FIRST_IS_NULL = -1;
+const FIRST_IS_NULL = 1; //null at the end
 
 function compareCNV(a: number, b: number) {
   // order: >0, <0, 0, NaN
@@ -112,7 +112,7 @@ function compareMutation(a: boolean, b: boolean) {
   return a ? -1 : +1;
 }
 
-function sort(sampleList: string[], ...rows: IDataFormatRow[][]) {
+function sort(sampleList: string[], rows: IDataFormatRow[][]) {
   const rowLookups : any[] = rows.map((row) => {
     const r = {};
     row.forEach((d) => r[d.name] = d);
@@ -141,9 +141,10 @@ function sort(sampleList: string[], ...rows: IDataFormatRow[][]) {
       if (a_row.dna_mutated !== b_row.dna_mutated) {
         return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
       }
-      if (a_row.expr !== b_row.expr) {
-        return compareExpression(a_row.expr, b_row.expr);
-      }
+      // ignore not encoded expression value
+      // if (a_row.expr !== b_row.expr) {
+      //  return compareExpression(a_row.expr, b_row.expr);
+      //}
     }
     // fallback to the name
     return a.localeCompare(b);
@@ -317,11 +318,20 @@ export class OncoPrint extends AView {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const data:IDataFormat[] = ids.map((id) => {
-      return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null};
-    });
+    const empty = (id) => ({id: id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});
+    // merge the old rows with the current selection
+    const merge = (ids: number[], old: IDataFormat[]) => {
+      if (old.length === 0) {
+        return ids.map(empty);
+      }
+      const lookup: any = {};
+      old.forEach((d) => lookup[d.id] = d);
+      return ids.map((id) => lookup[id] || empty(id));
+    };
 
-    const $ids = this.$table.selectAll('tr.gene').data(data, (d) => d.id.toString());
+    const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
+
+    const $ids = this.$table.selectAll('tr.gene').data(data, (d) => String(d.id));
     const $ids_enter = $ids.enter().append('tr').classed('gene', true);
 
     // decide whether to load data for newly added items
@@ -329,13 +339,12 @@ export class OncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
-      console.log(d);
-      const promise = this.resolveId(idtype, d.id, gene.idType)
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, gene.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
-            this.loadRows(ensg),
-            this.loadFirstName(ensg),
+            this.loadRows(ensg), // load always may have changed
+            d.geneName || this.loadFirstName(ensg),
             this.sampleListPromise
           ]);
         });
@@ -345,19 +354,27 @@ export class OncoPrint extends AView {
         .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
-      promise.then((input) => {
+      d.promise = promise.then((input) => {
         d.rows = input[0];
         d.geneName = input[1];
         const samples = input[2];
 
         this.updateChartData(d, $id, samples);
         this.setBusy(false);
+        return d.rows;
       });
-      d.promise = promise;
     };
 
     enterOrUpdateAll.each(function(d: IDataFormat) {
       renderRow(d3.select(this), d);
+    });
+
+    //assume that all data will have a promise
+    // wait for all data and then sort the things
+    Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
+      const samples : string[] = result.shift();
+      const sortedSamples = sort(samples, <IDataFormatRow[][]>result);
+      this.sortCells(sortedSamples);
     });
 
     $ids.exit().remove().each(() => this.setBusy(false));
@@ -424,7 +441,7 @@ export class OncoPrint extends AView {
     // align items --> fill missing values up to match sample list
     return samples.map((sample) => {
       // no data found --> add unknown sample
-      if (sample in hash) {
+      if (!(sample in hash)) {
         return unknownSample(sample);
       }
       return hash[sample];
