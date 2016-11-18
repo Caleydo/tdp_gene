@@ -9,32 +9,162 @@ import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormI
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
+
 const unknownMutationValue = mutationCat[mutationCat.length-1].value;
 const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;
+
+
+interface IDataFormatRow {
+  name: string;
+  symbol: string;
+  cn: number;
+  expr: number;
+  dna_mutated: boolean;
+}
+
+interface IDataFormat {
+  id:number;
+  geneName: string;
+  ensg: string;
+  alterationFreq: number;
+  promise: Promise<IDataFormatRow[]>;
+  rows: IDataFormatRow[];
+}
+
+function unknownSample(sample: string) {
+  return {
+    name: sample,
+    symbol: '',
+    cn: unknownCopyNumberValue, // unknown --> see Common.
+    expr: 0,
+    dna_mutated: unknownMutationValue // unknown
+  };
+}
+
+
+function computeAlterationFrequency(rows: IDataFormatRow[]) {
+  if (rows.length === 0) {
+    return 0;
+  }
+  const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
+  const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
+  const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
+  // reduce and compute both
+  // amplified += 1 if isMutated or isCopyNumberAltered
+  // total += if hasData
+  const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
+  return amplified / total;
+}
+
+const FIRST_IS_NULL = 1; //null at the end
+
+function compareCNV(a: number, b: number) {
+  // order: >0, <0, 0, NaN
+  if (a === b) {
+    return 0;
+  }
+  if (a === undefined || a === null || isNaN(a)) {
+    return FIRST_IS_NULL;
+  }
+  if (b === undefined || b === null || isNaN(b)) {
+    return -FIRST_IS_NULL;
+  }
+  if (a > 0) { // b is 0 or < 0
+    return -1;
+  }
+  if (b > 0) { // a is 0 or < 0
+    return 1;
+  }
+  if (a < 0) { // b is 0
+    return -1;
+  }
+  if (b < 0) { // a is 0
+    return 1;
+  }
+  return 0;
+}
+
+function compareMutation(a: boolean, b: boolean) {
+  // order: true, false, null
+  if (a === b) {
+    return 0;
+  }
+  if (a === undefined || a === null) {
+    return FIRST_IS_NULL;
+  }
+  if (b === undefined || b === null) {
+    return -FIRST_IS_NULL;
+  }
+  return a ? -1 : +1;
+}
+
+function sort(sampleList: string[], rows: IDataFormatRow[][]) {
+  const rowLookups : any[] = rows.map((row) => {
+    const r = {};
+    row.forEach((d) => r[d.name] = d);
+    return r;
+  });
+  //sort such that missing values are in the end
+  //hierarchy: cn, mut, expression
+  function compare(a: string, b: string) {
+    for (let row of rowLookups) {
+      let a_row: IDataFormatRow = row[a];
+      let b_row: IDataFormatRow = row[b];
+      { // undefined
+        if (a_row === b_row) { //e.g. both undefined
+          continue;
+        }
+        if (a_row === undefined || a_row === null) {
+          return FIRST_IS_NULL; //for a not defined -> bigger
+        }
+        if (b_row === undefined || b_row === null) {
+          return -FIRST_IS_NULL;
+        }
+      }
+      if (a_row.cn !== b_row.cn) {
+        return compareCNV(a_row.cn, b_row.cn);
+      }
+      if (a_row.dna_mutated !== b_row.dna_mutated) {
+        return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
+      }
+      // ignore not encoded expression value
+      // if (a_row.expr !== b_row.expr) {
+      //  return compareExpression(a_row.expr, b_row.expr);
+      //}
+    }
+    // fallback to the name
+    return a.localeCompare(b);
+  }
+  return sampleList.slice().sort(compare);
+}
 
 export class OncoPrint extends AView {
 
   private $table:d3.Selection<IView>;
 
-  private color = d3.scale.ordinal<string>()
-    .domain(copyNumberCat.map((d) => String(d.value)))
-    .range(copyNumberCat.map((d) => d.color));
+  private static STYLE = {
+    color: d3.scale.ordinal<string>()
+      .domain(copyNumberCat.map((d) => String(d.value)))
+      .range(copyNumberCat.map((d) => d.color)),
+    colorBorder: d3.scale.ordinal<string>()
+      .domain(copyNumberCat.map((d) => String(d.value)))
+      .range(copyNumberCat.map((d) => d.border)),
+    colorMut: d3.scale.ordinal<string>()
+      .domain(mutationCat.map((d) => d.value))
+      .range(mutationCat.map((d) => d.color)),
+    colorMutBorder: d3.scale.ordinal<string>()
+      .domain(mutationCat.map((d) => String(d.value)))
+      .range(mutationCat.map((d) => d.border)),
 
-  private colorBorder = d3.scale.ordinal<string>()
-    .domain(copyNumberCat.map((d) => String(d.value)))
-    .range(copyNumberCat.map((d) => d.border));
+    cell: {
+      height: 25,
+      width: 7,
+      padding: 2,
+      mutation: 8
+    }
+  };
 
-  private colorMut = d3.scale.ordinal<string>()
-    .domain(mutationCat.map((d) => d.value))
-    .range(mutationCat.map((d) => d.color));
-
-  private cellHeight = 25;
-  private cellWidth = 7;
-  private cellPadding = 2;
-  private cellMutation = 8;
-
-  private sampleList = [];
-  //private sampleListSortIndex = 0;
+  private sampleListPromise: Promise<string[]> = null;
 
   private paramForm:FormBuilder;
   private paramDesc:IFormSelectDesc[] = [
@@ -110,42 +240,46 @@ export class OncoPrint extends AView {
       .append('table')
       .append('tbody');
 
-    const $legend = this.$node.append('ul').classed('legend', true);
+    const $legend = this.$node.append('div').classed('legend', true);
 
-    $legend.append('li').classed('title', true).text('Genetic Alteration:');
+    const $cnLegend = $legend.append('ul');
+    $cnLegend.append('li').classed('title', true).text('Copy Number');
 
     copyNumberCat.forEach((d) => {
-      let $li = $legend.append('li').classed('cnv', true);
+      let $li = $cnLegend.append('li').classed('cnv', true);
       $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
       $li.append('span').text(d.name);
     });
 
+    const $mutLegend = $legend.append('ul');
+    $mutLegend.append('li').classed('title', true).text('Mutation');
+
     mutationCat
       //.filter((d) => d.value !=='f')
       .forEach((d) => {
-        let $li = $legend.append('li').classed('mut', true);
-        $li.append('span').style('background-color', d.color);
+        let $li = $mutLegend.append('li').classed('mut', true);
+        $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
         $li.append('span').text(d.name);
       });
   }
 
   private loadSampleList() {
-    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print_sample_list${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
+    const url = `/targid/db/${ds.db}/onco_print_sample_list${tumorType === all_types ? '_all' : ''}`;
     const param = {
-      schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-      entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-      table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
-      tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE),
+      schema: ds.schema,
+      entity_name: ds.entityName,
+      table_name: ds.tableName,
+      tumortype : tumorType,
       species: getSelectedSpecies()
     };
 
-    return ajax.getAPIJSON(url, param)
-      .then((rows) => {
-        this.sampleList = rows.map((r) => r.id);
-      });
+    return this.sampleListPromise = ajax.getAPIJSON(url, param)
+      .then((rows) => rows.map((r) => r.id));
   }
 
-  private loadRows(ensg: string) {
+  private loadRows(ensg: string): Promise<IDataFormatRow[]> {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
     return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === all_types ? '_all' : ''}`, {
@@ -158,7 +292,7 @@ export class OncoPrint extends AView {
     });
   }
 
-  private loadFirstName(ensg: string) {
+  private loadFirstName(ensg: string): Promise<string> {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return ajax.getAPIJSON(`/targid/db/${ds.db}/gene_map_ensgs`, {
       ensgs: '\'' + ensg + '\'',
@@ -174,70 +308,79 @@ export class OncoPrint extends AView {
   private update(updateAll = false) {
     this.setBusy(true);
 
-    const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const data:IDataFormat[] = ids.map((id) => {
-      return {id: id, geneName: '', ensg: '', alterationFreq: 0, rows: []};
-    });
+    const empty = (id) => ({id: id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});
+    // merge the old rows with the current selection
+    const merge = (ids: number[], old: IDataFormat[]) => {
+      if (old.length === 0) {
+        return ids.map(empty);
+      }
+      const lookup: any = {};
+      old.forEach((d) => lookup[d.id] = d);
+      return ids.map((id) => lookup[id] || empty(id));
+    };
 
-    const $ids = this.$table.selectAll('tr.gene').data(data, (d) => d.id.toString());
+    const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
+
+    const $ids = this.$table.selectAll('tr.gene').data(data, (d) => String(d.id));
     const $ids_enter = $ids.enter().append('tr').classed('gene', true);
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
 
-    enterOrUpdateAll.each(function(d: IDataFormat, i: number) {
-      const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, gene.idType)
+    const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, gene.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
-          return Promise.all([
-            that.loadRows(ensg),
-            that.loadFirstName(ensg),
+          return Promise.all<any>([
+            this.loadRows(ensg), // load always may have changed
+            d.geneName || this.loadFirstName(ensg),
+            this.sampleListPromise
           ]);
         });
 
       // on error
       promise.catch(showErrorModalDialog)
-        .catch(that.logErrorAndMarkReady.bind(this));
+        .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
-      promise.then((input) => {
+      d.promise = promise.then((input) => {
         d.rows = input[0];
         d.geneName = input[1];
+        const samples = input[2];
 
-        //console.log('loaded data for', d);
-        that.updateChartData(d, $id);
-        that.setBusy(false);
+        this.updateChartData(d, $id, samples);
+        this.setBusy(false);
+        return d.rows;
       });
+    };
+
+    enterOrUpdateAll.each(function(d: IDataFormat) {
+      renderRow(d3.select(this), d);
     });
 
+    //assume that all data will have a promise
+    // wait for all data and then sort the things
+    Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
+      const samples : string[] = result.shift();
+      const sortedSamples = sort(samples, <IDataFormatRow[][]>result);
+      this.sortCells(sortedSamples);
+    });
 
     $ids.exit().remove().each(() => this.setBusy(false));
   }
 
-  private static computeAlterationFrequency(rows: IDataFormatRow[]) {
-    const isMutated = (r: IDataFormatRow) => r.dna_mutated === true;
-    const isCopyNumberAltered = (r: IDataFormatRow) => r.cn !== null && r.cn !== 0;
-    const hasData = (r: IDataFormatRow) => r.dna_mutated !== null || r.cn !== null;
-    // reduce and compute both
-    // amplified += 1 if isMutated or isCopyNumberAltered
-    // total += if hasData
-    const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
-    return amplified / total;
-  }
-
-  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
-
+  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
+    const style = OncoPrint.STYLE;
     //console.log(data.geneName);
     var rows: IDataFormatRow[] = data.rows;
-    rows = this.alignData(rows);
-    rows = this.sortData(rows);
+    rows = this.alignData(rows, samples);
+
     // count amplification/deletions and divide by total number of rows
-    data.alterationFreq = OncoPrint.computeAlterationFrequency(rows);
+    data.alterationFreq = computeAlterationFrequency(rows);
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
@@ -247,194 +390,57 @@ export class OncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
+      // TODO extract to CSS
       .style({
-        width: this.cellWidth + this.cellPadding + 'px',
-        height: this.cellHeight + this.cellPadding + 'px',
+        width: style.cell.width + style.cell.padding + 'px',
+        height: style.cell.height + style.cell.padding + 'px',
       })
       .append('div')
       .classed('mut', true)
-      .style({
-        height: this.cellMutation + 'px'
-      });
+      .style('height', style.cell.mutation + 'px');
 
     $cells
       .attr('data-title', (d:any) => d.name)
-      .style('background-color', (d:any) => this.color(d.cn))
-      .style('border', (d:any) => '1px solid ' + this.colorBorder(d.cn));
+      .style('background-color', (d:any) => style.color(d.cn))
+      // TODO extract to CSS except for border-color
+      .style('border', (d:any) => '1px solid ' + style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => this.colorMut(d.dna_mutated || unknownMutationValue));
+      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue))
+      .style('border', (d:any) => '1px solid ' + style.colorMutBorder(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
   }
 
-  private alignData(rows: IDataFormatRow[]) {
+  private sortCells(sortedSamples: string[]) {
+    //name to index
+    const lookup : any= {};
+    sortedSamples.forEach((d,i) => lookup[d] = i);
+
+    const $genes = this.$table.selectAll('tr.gene');
+    $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
+      const a_i = lookup[a.name];
+      const b_i = lookup[b.name];
+      // assume both exist
+      return a_i - b_i;
+    });
+  }
+
+  private alignData(rows: IDataFormatRow[], samples: string[]) {
     // build hash map first for faster access
-    var hash = {};
+    const hash : any= {};
     rows.forEach((r) => hash[r.name] = r);
 
     // align items --> fill missing values up to match sample list
-    return this.sampleList.map((sample) => {
-      var r = hash[sample];
+    return samples.map((sample) => {
       // no data found --> add unknown sample
-      if (!r) {
-        r = {
-          id: -1,
-          name: sample,
-          symbol: '',
-          cn: unknownCopyNumberValue, // unknown --> see Common.
-          expr: 0,
-          dna_mutated: unknownMutationValue // unknown
-        };
-        //console.log('added sample', sample);
+      if (!(sample in hash)) {
+        return unknownSample(sample);
       }
-      return r;
+      return hash[sample];
     });
   }
-
-  private sortData(rows: IDataFormatRow[]) {
-    // const compareCNV = (a: IDataFormatRow, b: IDataFormatRow) => {
-    //   return 0;
-    // };
-    return rows;
-    /*var sorted = rows2.slice(0, this.sampleListSortIndex);
-    const toSort = rows2.slice(this.sampleListSortIndex, rows2.length);
-
-    const toSortDone = copyNumberVariations.map((cn) => cn.value) // get cn values
-      .map((cn) => toSort.filter((d) => d.cn === cn)) // filter rows for each cn value
-      .reduce((d1, d2) => d1.concat(d2), []); // flatten array to plain list
-
-    toSortDone.forEach((r) => {
-      // shift only amplification and deletions
-      if(r.cn !== null && r.cn !== 0) {
-        this.arrayMove(this.sampleList, this.sampleList.indexOf(r.name), this.sampleListSortIndex);
-        this.sampleListSortIndex++;
-      }
-    });
-
-    return sorted.concat(toSortDone);*/
-  }
-
-  /**
-   * Moves an element in the given array from an index to another index
-   * @param arr
-   * @param fromIndex
-   * @param toIndex
-   */
-  //private arrayMove(arr, fromIndex, toIndex) {
-  //  var element = arr[fromIndex];
-  //  arr.splice(fromIndex, 1);
-  //  arr.splice(toIndex, 0, element);
-  //}
-
-
-  //celllinename, max(cn) as cn, max(log2fpkm) as expr, max(dna_mutated) as dna_mutated
-  /*private updateChart2(rows: {id: string, name: string, cn: string, expr: number, dna_mutated: string, symbol: string}[]) {
-    // first: group the rows by different keys
-    const data2 = d3.nest()
-      .key((d:any) => d.symbol).sortKeys(d3.ascending)
-      .key((d:any) => d.id).sortKeys(d3.ascending)
-      .key((d:any) => d.cn).sortKeys((a:string, b:string) => {
-        //console.log(a, b, a == 0, b != 0);
-        // sort decending, but put everything with `0` to the end (e.g., [2, -2, 0])
-        return (parseInt(a, 10) === 0 && parseInt(b, 10) !== 0) ? 1 : -1;
-      })
-      .key((d:any) => d.dna_mutated).sortKeys(d3.descending)
-      .entries(rows);
-
-    // second: flatten the nested array structure
-    const flat = data2.map((d) => {
-      // symbol
-      return d.values.map((e) => {
-        // id
-        let values2 = e.values.map((f) => {
-          // cn
-          return f.values.map((g) => {
-            // dna_mutated
-            return g.values;
-
-          }).reduce((d1, d2) => d1.concat(d2), []);
-
-        }).reduce((d1, d2) => d1.concat(d2), []);
-
-        return {key: d.key, values: values2};
-      });
-
-    }).reduce((d1, d2) => d1.concat(d2), []);
-
-    // data binding
-    const marks = this.$node.selectAll('.gene').data(flat);
-
-    // enter
-    marks.enter()
-      .append('div').classed('gene', true)
-      .append('div').classed('geneLabel', true);
-
-    // update
-    //marks.style('transform', (d,i) => `translate(0px, ${i* (this.cellHeight + this.cellPadding)}px)`);
-    marks.select('.geneLabel').html((d:any) => `${d.values[0].symbol} <span>${d.values[0].id}</span>`);
-
-    const cells = marks.selectAll('.cell').data((d:any) => d.values);
-    cells.enter().append('div')
-      .classed('cell', true)
-      .attr('data-title', (d:any) => d.name)
-      .style({
-        width: this.cellWidth + this.cellPadding + 'px',
-        height: this.cellHeight + this.cellPadding + 'px',
-      })
-      .append('div')
-      .classed('mut', true)
-      .style({
-        height: this.cellMutation + 'px'
-      });
-
-    cells
-      .style('background-color', (d:any) => this.color(d.cn))
-      .style('border', (d:any) => '1px solid ' + this.cBorder(d.cn));
-      //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
-
-    cells.select('.mut')
-      .style('background-color', (d:any) => this.cMut(d.dna_mutated));
-
-    cells.exit().remove();
-
-    // exit
-    marks.exit().remove();
-  }*/
-
-  /*private update2() {
-    const idtype = this.selection.idtype;
-    this.setBusy(true);
-
-    return this.resolveIds(idtype, this.selection.range, gene.idType).then((names) => {
-      return ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/onco_print${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
-        ensgs: '\''+names.join('\',\'')+'\'',
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE)
-      });
-    }).then((rows) => {
-      this.updateChart2(rows);
-      this.setBusy(false);
-    });
-  }
-  */
-}
-
-interface IDataFormatRow {
-  id: string;
-  name: string;
-  symbol: string;
-  cn: number;
-  expr: number;
-  dna_mutated: boolean;
-}
-
-interface IDataFormat {
-  id:number;
-  geneName: string;
-  ensg: string;
-  alterationFreq: number;
-  rows: IDataFormatRow[];
 }
 
 export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
