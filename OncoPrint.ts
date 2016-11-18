@@ -152,6 +152,9 @@ export class OncoPrint extends AView {
     colorMut: d3.scale.ordinal<string>()
       .domain(mutationCat.map((d) => d.value))
       .range(mutationCat.map((d) => d.color)),
+    colorMutBorder: d3.scale.ordinal<string>()
+      .domain(mutationCat.map((d) => String(d.value)))
+      .range(mutationCat.map((d) => d.border)),
 
     cell: {
       height: 25,
@@ -237,21 +240,25 @@ export class OncoPrint extends AView {
       .append('table')
       .append('tbody');
 
-    const $legend = this.$node.append('ul').classed('legend', true);
+    const $legend = this.$node.append('div').classed('legend', true);
 
-    $legend.append('li').classed('title', true).text('Genetic Alteration:');
+    const $cnLegend = $legend.append('ul');
+    $cnLegend.append('li').classed('title', true).text('Copy Number');
 
     copyNumberCat.forEach((d) => {
-      let $li = $legend.append('li').classed('cnv', true);
+      let $li = $cnLegend.append('li').classed('cnv', true);
       $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
       $li.append('span').text(d.name);
     });
 
+    const $mutLegend = $legend.append('ul');
+    $mutLegend.append('li').classed('title', true).text('Mutation');
+
     mutationCat
       //.filter((d) => d.value !=='f')
       .forEach((d) => {
-        let $li = $legend.append('li').classed('mut', true);
-        $li.append('span').style('background-color', d.color);
+        let $li = $mutLegend.append('li').classed('mut', true);
+        $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
         $li.append('span').text(d.name);
       });
   }
@@ -400,7 +407,8 @@ export class OncoPrint extends AView {
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue));
+      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue))
+      .style('border', (d:any) => '1px solid ' + style.colorMutBorder(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
   }
