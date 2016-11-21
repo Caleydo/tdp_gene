@@ -372,6 +372,7 @@ export function create(desc: IPluginDesc) {
             } else {
               r = [
                 {name: 'Average', value: 'avg', data: 'avg'},
+                {name: 'Median', value: 'median', data: 'median'},
                 {name: 'Min', value: 'min', data: 'min'},
                 {name: 'Max', value: 'max', data: 'max'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
