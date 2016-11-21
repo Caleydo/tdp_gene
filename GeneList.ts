@@ -6,7 +6,7 @@ import session = require('../caleydo_core/session');
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection} from '../targid2/View';
 import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
-import {gene, ParameterFormIds} from './Common';
+import {gene, ParameterFormIds, IDataSourceConfig} from './Common';
 import {INamedSet} from '../targid2/storage';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
@@ -23,11 +23,13 @@ class GeneList extends ALineUpView2 {
    */
   private paramForm:FormBuilder;
 
+  protected dataSource:IDataSourceConfig;
+
   constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
-    this.dataSource = gene;
+    this.additionalScoreParameter = this.dataSource = gene;
     this.namedSet = options.namedSet;
   }
 
