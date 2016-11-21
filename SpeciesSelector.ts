@@ -6,7 +6,7 @@ import session = require('../caleydo_core/session');
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {IStartMenuSectionEntry} from '../targid2/StartMenu';
 import {Targid} from '../targid2/Targid';
-import {availableSpecies, ParameterFormIds} from './Common';
+import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
 
@@ -32,7 +32,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
     $parent.html(''); // remove loading element or previous data
 
-    const selectedSpecies = session.retrieve(this.sessionKey, availableSpecies[0].value);
+    const selectedSpecies = session.retrieve(this.sessionKey, defaultSpecies);
 
     // store default option, if not available
     if(session.has(this.sessionKey) === false) {

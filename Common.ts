@@ -5,8 +5,8 @@
 import session = require('../caleydo_core/session');
 
 export const copyNumberCat = [
-  {value: 2, name: 'Amplification', color: '#ca0020', border: 'transparent'},
-  {value: -2, name: 'Homozygous deletion', color: '#0571b0', border: 'transparent'},
+  {value: 2, name: 'Amplification', color: '#efb3bc', border: 'transparent'},
+  {value: -2, name: 'Homozygous Deletion', color: '#92c5de', border: 'transparent'},
   //{value: -1, name: 'Heterozygous deletion', color: '#92c5de'},
   {value: 0, name: 'NORMAL', color: '#dcdcdc', border: 'transparent'},
   //{value: 1, name: 'Low level amplification', color: '#f4a582'},
@@ -16,9 +16,9 @@ export const copyNumberCat = [
 //NOTE: last one has to be the unknown case, as used in OncoPrint.ts
 
 export const mutationCat = [
-  {value: 'true', name: 'Mutated', color: '#1BA64E'},
-  {value: 'false', name: 'Non Mutated', color: '#dcdcdc'},
-  {value: '', name: 'Unknown', color: 'transparent'}
+  {value: 'true', name: 'Mutated', color: '#1BA64E', border: 'transparent'},
+  {value: 'false', name: 'Non Mutated', color: '#aaa', border: 'transparent'},
+  {value: '', name: 'Unknown', color: 'transparent', border: '#999'}
 ];
 //NOTE: last one has to be the unknown case, as used in OncoPrint.ts
 
@@ -315,6 +315,8 @@ export const availableSpecies = [
   //{ name: 'Mouse', value: 'mouse' }
 ];
 
+export const defaultSpecies = availableSpecies[0].value;
+
 /**
  * List of ids for parameter form elements
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
@@ -369,5 +371,5 @@ export function convertMutationCat(rows, field:string) {
 }
 
 export function getSelectedSpecies() {
-  return session.retrieve(ParameterFormIds.SPECIES);
+  return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
 }
