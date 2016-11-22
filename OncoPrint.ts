@@ -6,13 +6,9 @@
 
 import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, AView, IView} from '../targid2/View';
-import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies} from './Common';
+import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 import {showErrorModalDialog} from '../targid2/Dialogs';
-
-
-const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
-const unknownCopyNumberValue: any = copyNumberCat[copyNumberCat.length-1].value;
 
 
 interface IDataFormatRow {
