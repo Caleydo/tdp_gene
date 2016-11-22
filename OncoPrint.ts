@@ -130,11 +130,11 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
           return -FIRST_IS_NULL;
         }
       }
-      //first condition can be false positive, null vs 'null'
-      if (a_row.cn !== b_row.cn && (isMissingCNV(a_row.cn) !== isMissingCNV(b_row.cn))) {
+      //first condition can be false positive, null vs 'null', so if both are missing don't compare
+      if (a_row.cn !== b_row.cn && !(isMissingCNV(a_row.cn) && isMissingCNV(b_row.cn))) {
         return compareCNV(a_row.cn, b_row.cn);
       }
-      if (a_row.dna_mutated !== b_row.dna_mutated && (isMissingMutation(a_row.dna_mutated) !== isMissingMutation(b_row.dna_mutated))) {
+      if (a_row.dna_mutated !== b_row.dna_mutated && !(isMissingMutation(a_row.dna_mutated) && isMissingMutation(b_row.dna_mutated))) {
         return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
       }
       // ignore not encoded expression value
@@ -397,7 +397,7 @@ export class OncoPrint extends AView {
       .classed('mut', true);
 
     $cells
-      .attr('data-title', (d:any) => d.name)
+      .attr('data-title', (d:any) => d.name) //JSON.stringify(d))
       .style('background-color', (d:any) => style.color(d.cn))
       .style('border-color', (d:any) => style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
