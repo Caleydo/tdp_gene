@@ -254,7 +254,7 @@ export class OncoPrint extends AView {
     });
 
     const $mutLegend = $legend.append('ul');
-    $mutLegend.append('li').classed('title', true).text('Mutation');
+    $mutLegend.append('li').classed('title', true).text('Mutation (on DNA level)');
 
     mutationCat
       //.filter((d) => d.value !=='f')
