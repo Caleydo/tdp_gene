@@ -28,7 +28,8 @@ interface IDataFormat {
   geneName: string;
   ensg: string;
   alterationFreq: number;
-  promise: Promise<IDataFormatRow[]>;
+  //with loaded rows
+  promise: Promise<IDataFormat>;
   rows: IDataFormatRow[];
 }
 
@@ -146,6 +147,12 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
     return a.localeCompare(b);
   }
   return sampleList.slice().sort(compare);
+}
+
+function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
+  const a_f = a && a.alterationFreq !== undefined ? a.alterationFreq : 0;
+  const b_f = b && b.alterationFreq !== undefined ? b.alterationFreq : 0;
+  return b_f - a_f;
 }
 
 export class OncoPrint extends AView {
@@ -357,7 +364,7 @@ export class OncoPrint extends AView {
 
         this.updateChartData(d, $id, samples);
         this.setBusy(false);
-        return d.rows;
+        return d;
       });
     };
 
@@ -369,7 +376,9 @@ export class OncoPrint extends AView {
     // wait for all data and then sort the things
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
       const samples : string[] = result.shift();
-      const sortedSamples = sort(samples, <IDataFormatRow[][]>result);
+      const rows =<IDataFormat[]>result;
+      rows.sort(byAlterationFrequency);
+      const sortedSamples = sort(samples, rows.map((r) => r.rows));
       this.sortCells(sortedSamples);
     });
 
@@ -421,6 +430,7 @@ export class OncoPrint extends AView {
       // assume both exist
       return a_i - b_i;
     });
+    $genes.sort(byAlterationFrequency);
   }
 
   private alignData(rows: IDataFormatRow[], samples: string[]) {
