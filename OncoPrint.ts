@@ -11,8 +11,8 @@ import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuil
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
 
-const unknownMutationValue = mutationCat[mutationCat.length-1].value;
-const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;
+const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
+const unknownCopyNumberValue: any = copyNumberCat[copyNumberCat.length-1].value;
 
 
 interface IDataFormatRow {
@@ -32,7 +32,7 @@ interface IDataFormat {
   rows: IDataFormatRow[];
 }
 
-function unknownSample(sample: string) {
+function unknownSample(sample: string): IDataFormatRow {
   return {
     name: sample,
     symbol: '',
@@ -156,14 +156,7 @@ export class OncoPrint extends AView {
       .range(mutationCat.map((d) => d.color)),
     colorMutBorder: d3.scale.ordinal<string>()
       .domain(mutationCat.map((d) => String(d.value)))
-      .range(mutationCat.map((d) => d.border)),
-
-    cell: {
-      height: 25,
-      width: 7,
-      padding: 2,
-      mutation: 8
-    }
+      .range(mutationCat.map((d) => d.border))
   };
 
   private sampleListPromise: Promise<string[]> = null;
@@ -392,25 +385,19 @@ export class OncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
-      // TODO extract to CSS
-      .style({
-        width: style.cell.width + style.cell.padding + 'px',
-        height: style.cell.height + style.cell.padding + 'px',
-      })
       .append('div')
-      .classed('mut', true)
-      .style('height', style.cell.mutation + 'px');
+      .classed('mut', true);
 
     $cells
-      .attr('data-title', (d:any) => d.name)
+      .attr('data-title', (d:any) => JSON.stringify(d))
       .style('background-color', (d:any) => style.color(d.cn))
       // TODO extract to CSS except for border-color
-      .style('border', (d:any) => '1px solid ' + style.colorBorder(d.cn));
+      .style('border-color', (d:any) => style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
       .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue))
-      .style('border', (d:any) => '1px solid ' + style.colorMutBorder(d.dna_mutated || unknownMutationValue));
+      .style('border-color', (d:any) => style.colorMutBorder(d.dna_mutated || unknownMutationValue));
 
     $cells.exit().remove();
   }
