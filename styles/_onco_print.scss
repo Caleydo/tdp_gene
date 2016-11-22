@@ -1,3 +1,8 @@
+$oncoprint_cell_height: 25px;
+$oncoprint_cell_width: 7px;
+$oncoprint_cell_padding: 2px;
+$oncoprint_cell_mutation: 8px;
+
 .oncoPrint {
   display: flex;
   flex-direction: column;
@@ -92,8 +97,14 @@
       justify-content: center;
       margin: 2px;
 
+      border: 1px solid transparent;
+      width: $oncoprint_cell_width + $oncoprint_cell_padding;
+      height: $oncoprint_cell_height + $oncoprint_cell_padding;
+
       .mut {
         width: 80%;
+        border: 1px solid transparent;
+        height: $oncoprint_cell_mutation;
       }
 
       &:after{

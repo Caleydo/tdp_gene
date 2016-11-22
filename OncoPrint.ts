@@ -11,8 +11,8 @@ import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuil
 import {showErrorModalDialog} from '../targid2/Dialogs';
 
 
-const unknownMutationValue = mutationCat[mutationCat.length-1].value;
-const unknownCopyNumberValue = copyNumberCat[copyNumberCat.length-1].value;
+const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
+const unknownCopyNumberValue: any = copyNumberCat[copyNumberCat.length-1].value;
 
 
 interface IDataFormatRow {
@@ -28,11 +28,12 @@ interface IDataFormat {
   geneName: string;
   ensg: string;
   alterationFreq: number;
-  promise: Promise<IDataFormatRow[]>;
+  //with loaded rows
+  promise: Promise<IDataFormat>;
   rows: IDataFormatRow[];
 }
 
-function unknownSample(sample: string) {
+function unknownSample(sample: string): IDataFormatRow {
   return {
     name: sample,
     symbol: '',
@@ -42,14 +43,21 @@ function unknownSample(sample: string) {
   };
 }
 
+function isMissingMutation(v : boolean) {
+  return v === null || v === unknownMutationValue;
+}
+
+function isMissingCNV(v : number) {
+  return v === null || v === unknownCopyNumberValue;
+}
 
 function computeAlterationFrequency(rows: IDataFormatRow[]) {
   if (rows.length === 0) {
     return 0;
   }
-  const isMutated = (r: IDataFormatRow) => ((<any>r).dna_mutated !== null || (<any>r).dna_mutated !== unknownMutationValue) && r.dna_mutated === true;
-  const isCopyNumberAltered = (r: IDataFormatRow) => (r.cn !== null && r.cn !== unknownCopyNumberValue) && r.cn !== 0;
-  const hasData = (r: IDataFormatRow) => (r.dna_mutated !== null && (<any>r).dna_mutated !== unknownMutationValue) || (r.cn !== null && r.cn !== unknownCopyNumberValue);
+  const isMutated = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) && r.dna_mutated === true;
+  const isCopyNumberAltered = (r: IDataFormatRow) => !isMissingCNV(r.cn) && r.cn !== 0;
+  const hasData = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) || !isMissingCNV(r.cn);
   // reduce and compute both
   // amplified += 1 if isMutated or isCopyNumberAltered
   // total += if hasData
@@ -123,10 +131,11 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
           return -FIRST_IS_NULL;
         }
       }
-      if (a_row.cn !== b_row.cn) {
+      //first condition can be false positive, null vs 'null', so if both are missing don't compare
+      if (a_row.cn !== b_row.cn && !(isMissingCNV(a_row.cn) && isMissingCNV(b_row.cn))) {
         return compareCNV(a_row.cn, b_row.cn);
       }
-      if (a_row.dna_mutated !== b_row.dna_mutated) {
+      if (a_row.dna_mutated !== b_row.dna_mutated && !(isMissingMutation(a_row.dna_mutated) && isMissingMutation(b_row.dna_mutated))) {
         return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
       }
       // ignore not encoded expression value
@@ -138,6 +147,12 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
     return a.localeCompare(b);
   }
   return sampleList.slice().sort(compare);
+}
+
+function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
+  const a_f = a && a.alterationFreq !== undefined ? a.alterationFreq : 0;
+  const b_f = b && b.alterationFreq !== undefined ? b.alterationFreq : 0;
+  return b_f - a_f;
 }
 
 export class OncoPrint extends AView {
@@ -156,14 +171,7 @@ export class OncoPrint extends AView {
       .range(mutationCat.map((d) => d.color)),
     colorMutBorder: d3.scale.ordinal<string>()
       .domain(mutationCat.map((d) => String(d.value)))
-      .range(mutationCat.map((d) => d.border)),
-
-    cell: {
-      height: 25,
-      width: 7,
-      padding: 2,
-      mutation: 8
-    }
+      .range(mutationCat.map((d) => d.border))
   };
 
   private sampleListPromise: Promise<string[]> = null;
@@ -356,7 +364,7 @@ export class OncoPrint extends AView {
 
         this.updateChartData(d, $id, samples);
         this.setBusy(false);
-        return d.rows;
+        return d;
       });
     };
 
@@ -368,7 +376,9 @@ export class OncoPrint extends AView {
     // wait for all data and then sort the things
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
       const samples : string[] = result.shift();
-      const sortedSamples = sort(samples, <IDataFormatRow[][]>result);
+      const rows =<IDataFormat[]>result;
+      rows.sort(byAlterationFrequency);
+      const sortedSamples = sort(samples, rows.map((r) => r.rows));
       this.sortCells(sortedSamples);
     });
 
@@ -392,25 +402,18 @@ export class OncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
-      // TODO extract to CSS
-      .style({
-        width: style.cell.width + style.cell.padding + 'px',
-        height: style.cell.height + style.cell.padding + 'px',
-      })
       .append('div')
-      .classed('mut', true)
-      .style('height', style.cell.mutation + 'px');
+      .classed('mut', true);
 
     $cells
-      .attr('data-title', (d:any) => d.name)
+      .attr('data-title', (d:any) => d.name) //JSON.stringify(d))
       .style('background-color', (d:any) => style.color(d.cn))
-      // TODO extract to CSS except for border-color
-      .style('border', (d:any) => '1px solid ' + style.colorBorder(d.cn));
+      .style('border-color', (d:any) => style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue))
-      .style('border', (d:any) => '1px solid ' + style.colorMutBorder(d.dna_mutated || unknownMutationValue));
+      .style('background-color', (d:any) => style.colorMut(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)))
+      .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)));
 
     $cells.exit().remove();
   }
@@ -427,6 +430,7 @@ export class OncoPrint extends AView {
       // assume both exist
       return a_i - b_i;
     });
+    $genes.sort(byAlterationFrequency);
   }
 
   private alignData(rows: IDataFormatRow[], samples: string[]) {
