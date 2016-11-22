@@ -42,14 +42,21 @@ function unknownSample(sample: string): IDataFormatRow {
   };
 }
 
+function isMissingMutation(v : boolean) {
+  return v === null || v === unknownMutationValue;
+}
+
+function isMissingCNV(v : number) {
+  return v === null || v === unknownCopyNumberValue;
+}
 
 function computeAlterationFrequency(rows: IDataFormatRow[]) {
   if (rows.length === 0) {
     return 0;
   }
-  const isMutated = (r: IDataFormatRow) => ((<any>r).dna_mutated !== null || (<any>r).dna_mutated !== unknownMutationValue) && r.dna_mutated === true;
-  const isCopyNumberAltered = (r: IDataFormatRow) => (r.cn !== null && r.cn !== unknownCopyNumberValue) && r.cn !== 0;
-  const hasData = (r: IDataFormatRow) => (r.dna_mutated !== null && (<any>r).dna_mutated !== unknownMutationValue) || (r.cn !== null && r.cn !== unknownCopyNumberValue);
+  const isMutated = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) && r.dna_mutated === true;
+  const isCopyNumberAltered = (r: IDataFormatRow) => !isMissingCNV(r.cn) && r.cn !== 0;
+  const hasData = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) || !isMissingCNV(r.cn);
   // reduce and compute both
   // amplified += 1 if isMutated or isCopyNumberAltered
   // total += if hasData
@@ -123,10 +130,11 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
           return -FIRST_IS_NULL;
         }
       }
-      if (a_row.cn !== b_row.cn) {
+      //first condition can be false positive, null vs 'null'
+      if (a_row.cn !== b_row.cn && (isMissingCNV(a_row.cn) !== isMissingCNV(b_row.cn))) {
         return compareCNV(a_row.cn, b_row.cn);
       }
-      if (a_row.dna_mutated !== b_row.dna_mutated) {
+      if (a_row.dna_mutated !== b_row.dna_mutated && (isMissingMutation(a_row.dna_mutated) !== isMissingMutation(b_row.dna_mutated))) {
         return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
       }
       // ignore not encoded expression value
@@ -391,13 +399,12 @@ export class OncoPrint extends AView {
     $cells
       .attr('data-title', (d:any) => JSON.stringify(d))
       .style('background-color', (d:any) => style.color(d.cn))
-      // TODO extract to CSS except for border-color
       .style('border-color', (d:any) => style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => style.colorMut(d.dna_mutated || unknownMutationValue))
-      .style('border-color', (d:any) => style.colorMutBorder(d.dna_mutated || unknownMutationValue));
+      .style('background-color', (d:any) => style.colorMut(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)))
+      .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)));
 
     $cells.exit().remove();
   }
