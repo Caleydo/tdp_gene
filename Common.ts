@@ -13,14 +13,14 @@ export const copyNumberCat = [
   //{value: 2, name: 'High level amplification', color: '#ca0020'},
   {value: 'null', name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
 ];
-//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
+export const unknownCopyNumberValue: any = copyNumberCat[copyNumberCat.length-1].value;
 
 export const mutationCat = [
   {value: 'true', name: 'Mutated', color: '#1BA64E', border: 'transparent'},
   {value: 'false', name: 'Non Mutated', color: '#aaa', border: 'transparent'},
-  {value: '', name: 'Unknown', color: 'transparent', border: '#999'}
+  {value: 'null', name: 'Unknown', color: 'transparent', border: '#999'}
 ];
-//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
+export const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
 
 export const all_types = 'All Tumor Types';
 export const all_bio_types = 'All Bio Types';
@@ -255,16 +255,15 @@ export interface IDataSubtypeConfig {
   name: string;
   type: string;
   useForAggregation: string;
-  //type = cat
-  categories?: string[];
-  mapCategoryRows?: (rows, field:string) => any[];
 
-  //type = number
+  //type: 'cat';
+  categories?: {label: string, name: string, color: string}[];
+  missingCategory?: string;
+
+  //type: 'number';
   domain?: number[];
   missingValue?: number;
   constantDomain?: boolean;
-
-  //type = string
 }
 
 export const expression:IDataTypeConfig = {
@@ -286,7 +285,7 @@ export const copyNumber:IDataTypeConfig = {
   dataSubtypes: [
     { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: undefined, constantDomain: true, useForAggregation: 'copynumberclass'}
+    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -297,10 +296,10 @@ export const mutation:IDataTypeConfig = {
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
     //it is a cat by default but in the frequency case also a number?
-    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'aa_mutated'},
+    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), missingCategory: unknownMutationValue, useForAggregation: 'aa_mutated'},
     //just for single score:
     { id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'dna_mutated'},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), missingCategory: unknownMutationValue, useForAggregation: 'dna_mutated'},
     //just for single score:
     { id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '' }
   ]
@@ -350,24 +349,8 @@ export function convertLog2ToLinear (rows, field:string) {
   });
 }
 
-export function convertCopyNumberClass(rows, field:string) {
-  //console.log('convert copy number class');
-  var mapping = {};
-  copyNumberCat.forEach((d) => mapping[d.value] = d.name);
-  return rows.map((row) => {
-    row[field] = mapping[row[field]];
-    return row;
-  });
-}
-
-export function convertMutationCat(rows, field:string) {
-  //console.log('convert copy number class');
-  var mapping = {};
-  mutationCat.forEach((d) => mapping[d.value] = d.name);
-  return rows.map((row) => {
-    row[field] = mapping[row[field]];
-    return row;
-  });
+function toLineUpCategories(arr: {name: string, value: any, color: string}[]) {
+  return arr.map((a) => ({label: a.name, name: String(a.value), color: a.color}));
 }
 
 export function getSelectedSpecies() {

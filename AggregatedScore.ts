@@ -12,7 +12,7 @@ import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies
 } from './Common';
-import {IScore, categoricalCol, stringCol} from '../targid2/LineUpView';
+import {IScore} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
 import {api2absURL} from '../caleydo_core/ajax';
 
@@ -26,16 +26,17 @@ import {api2absURL} from '../caleydo_core/ajax';
 export function createDesc(type: string, label: string, subtype: IDataSubtypeConfig): any {
   switch(type) {
       case dataSubtypes.cat:
-        return categoricalCol(
-          null, // auto generate id from LineUp
-          subtype.categories,
-          label
-        );
+        return {
+          type: 'categorical',
+          label: label,
+          categories: subtype.categories,
+          missingValue: subtype.missingCategory
+        };
       case dataSubtypes.string:
-        return stringCol(
-          null,
-          label
-        );
+        return {
+          type: 'string',
+          label: label
+        };
       default:
         return {
           type: 'number',
@@ -208,11 +209,6 @@ class SingleEntityScore implements IScore<any> {
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
         }
-
-        if(this.parameter.data_subtype.type === dataSubtypes.cat) {
-          rows = this.parameter.data_subtype.mapCategoryRows(rows, 'score');
-        }
-
         return rows;
       });
   }

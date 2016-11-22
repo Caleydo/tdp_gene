@@ -179,10 +179,6 @@ class InvertedSingleGeneScore implements IScore<any> {
           rows = convertLog2ToLinear(rows, 'score');
         }
 
-        if(this.parameter.data_subtype.type === 'cat') {
-          rows = this.parameter.data_subtype.mapCategoryRows(rows, 'score');
-        }
-
         return rows;
       });
   }
