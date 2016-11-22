@@ -397,7 +397,7 @@ export class OncoPrint extends AView {
       .classed('mut', true);
 
     $cells
-      .attr('data-title', (d:any) => JSON.stringify(d))
+      .attr('data-title', (d:any) => d.name)
       .style('background-color', (d:any) => style.color(d.cn))
       .style('border-color', (d:any) => style.colorBorder(d.cn));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
