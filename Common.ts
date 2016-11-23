@@ -328,6 +328,7 @@ export class ParameterFormIds {
   static CELLLINE_NAME = 'cellline_name';
   static TISSUE_NAME = 'tissue_name';
   static TUMOR_TYPE = 'tumor_type';
+  static TISSUE_PANEL_NAME = 'tissue_panel_name';
   static ALTERATION_TYPE = 'alteration_type';
   static DATA_TYPE = 'data_type';
   static DATA_SUBTYPE = 'data_subtype';
