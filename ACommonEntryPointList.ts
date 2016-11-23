@@ -1,20 +1,82 @@
 /**
- * Created by Samuel Gratzl on 29.01.2016.
+ * Created by Holger Stitz on 10.08.2016.
  */
 
-import session = require('../caleydo_core/session');
-import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
-import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
-import {gene, ParameterFormIds, IDataSourceConfig} from './Common';
+import {IPluginDesc} from '../caleydo_core/plugin';
+import {AEntryPointList} from '../targid2/StartMenu';
+import {ParameterFormIds, defaultSpecies, IDataSourceConfig, chooseDataSource} from './Common';
 import {INamedSet, ENamedSetType} from '../targid2/storage';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {getAPIJSON} from '../caleydo_core/ajax';
+import * as session from '../caleydo_core/session';
+import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
+import {ALineUpView2} from '../targid2/LineUpView';
+import {FormBuilder, IFormSelectDesc, FormElementType} from '../targid2/FormBuilder';
 
-export interface IGeneListOptions extends IAViewOptions {
+export abstract class ACommonEntryPointList extends AEntryPointList {
+
+  /**
+   * Set the idType and the default data and build the list
+   * @param parent
+   * @param desc
+   * @param options
+   */
+  constructor(protected parent: HTMLElement, public desc: IPluginDesc, private dataSource: IDataSourceConfig, protected options: any) {
+    super(parent, desc, options);
+
+    this.idType = dataSource.idType;
+
+
+    // convert species to namedset
+    this.data.unshift(<INamedSet>{
+      name: 'All',
+      type: ENamedSetType.CUSTOM,
+      subTypeKey: ParameterFormIds.SPECIES,
+      subTypeFromSession: true,
+      subTypeValue: defaultSpecies,
+
+      description: '',
+      idType: '',
+      ids: '',
+      creator: ''
+    });
+
+    this.build();
+  }
+
+  private static panel2NamedSet({id, description}: {id: string, description: string}): INamedSet {
+    return {
+      type: ENamedSetType.PANEL,
+      id: id,
+      name: id,
+      description: description,
+
+      subTypeKey: ParameterFormIds.SPECIES,
+      subTypeFromSession: true,
+      subTypeValue: defaultSpecies,
+      idType: '',
+      ids: '',
+      creator: ''
+    }
+  }
+
+  protected loadPanels(): Promise<INamedSet[]> {
+    const baseURL = `/targid/db/${this.dataSource.db}/${this.dataSource.base}_panel`;
+    return getAPIJSON(baseURL).then((panels: {id: string, description: string}[]) => {
+      return panels.map(ACommonEntryPointList.panel2NamedSet);
+    });
+  }
+
+  protected getNamedSets(): Promise<INamedSet[]> {
+    return Promise.all([super.getNamedSets(), this.loadPanels()]).then((sets: INamedSet[][]) => [].concat(...sets));
+  }
+}
+
+
+export interface IACommonListOptions extends IAViewOptions {
   namedSet: INamedSet;
 }
 
-class GeneList extends ALineUpView2 {
+export abstract class ACommonList extends ALineUpView2 {
 
   /**
    * Initialize LineUp view with named set
@@ -27,13 +89,11 @@ class GeneList extends ALineUpView2 {
    */
   private paramForm:FormBuilder;
 
-  protected dataSource:IDataSourceConfig;
-
-  constructor(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions) {
+  constructor(context:IViewContext, selection: ISelection, parent:Element, private dataSource: IDataSourceConfig, options: IACommonListOptions) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
-    this.additionalScoreParameter = this.dataSource = gene;
+    this.additionalScoreParameter = dataSource;
     this.namedSet = options.namedSet;
   }
 
@@ -51,27 +111,7 @@ class GeneList extends ALineUpView2 {
             return {name: ds.name, value: ds.name, data: ds};
           })
         }
-      }/*,
-      {
-        type: FormElementType.SELECT,
-        label: 'Data Subtype',
-        id: ParameterFormIds.DATA_SUBTYPE,
-        options: {
-          optionsData: expression.dataSubtypes.map((ds) => {
-            return {name: ds.name, value: ds.id, data: ds};
-          })
-        }
-      },
-      {
-        type: FormElementType.SELECT,
-        label: 'Tumor Type',
-        id: ParameterFormIds.TUMOR_TYPE,
-        dependsOn: [ParameterFormIds.DATA_SOURCE],
-        options: {
-          optionsFnc: (selection) => selection[0].data.bioTypesWithAll,
-          optionsData: []
-        }
-      }*/
+      }
     ];
 
     // map FormElement change function to provenance graph onChange function
@@ -108,22 +148,15 @@ class GeneList extends ALineUpView2 {
 
   protected loadColumnDesc() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
+    return getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
   }
+
+  protected abstract defineColumns(desc: any) : any[];
 
   protected initColumns(desc) {
     super.initColumns(desc);
 
-    const columns = [
-      stringCol('symbol', 'Symbol', true, 100),
-      stringCol('id', 'Ensembl', true, 120),
-      stringCol('chromosome', 'Chromosome', true, 150),
-      //categoricalCol('species', desc.columns.species.categories, 'Species', true),
-      categoricalCol('strand', [{ label: 'reverse strand', name:String(-1)}, { label: 'forward strand', name:String(1)}], 'Strand', true),
-      categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
-      stringCol('seqregionstart', 'Seq Region Start', false),
-      stringCol('seqregionend', 'Seq Region End', false)
-    ];
+    const columns = this.defineColumns(desc);
 
     this.build([], columns);
     return columns;
@@ -147,16 +180,11 @@ class GeneList extends ALineUpView2 {
     }
 
     const baseURL = `/targid/db/${dataSource.db}/${dataSource.base}${filteredUrl}${namedSetIdUrl}`;
-    return ajax.getAPIJSON(baseURL, param);
+    return getAPIJSON(baseURL, param);
   }
 
   getItemName(count) {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
-
-}
-
-export function createStart(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions) {
-  return new GeneList(context, selection, parent, options);
 }

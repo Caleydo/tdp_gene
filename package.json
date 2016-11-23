@@ -33,7 +33,7 @@
           "id": "bioinfodb_tissue_start",
           "name": "Tissues",
           "type": "targidView",
-          "file": "CellLineList",
+          "file": "CellLineEntryPoint",
           "factory": "createStart",
           "idtype": "Tissue",
           "selection": "none",
@@ -62,7 +62,7 @@
           "id": "celllinedb_start",
           "name": "Genes",
           "type": "targidView",
-          "file": "GeneList",
+          "file": "GeneEntryPoint",
           "factory": "createStart",
           "idtype": "Ensembl",
           "selection": "none"
@@ -81,7 +81,7 @@
           "id": "celllinedb_cellline",
           "name": "Cell Lines",
           "type": "targidView",
-          "file": "CellLineList",
+          "file": "CellLineEntryPoint",
           "factory": "createStart",
           "idtype": "Cellline",
           "selection": "none"
