@@ -164,8 +164,23 @@ export abstract class ACommonList extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const namedSetIdUrl = (this.namedSet.type === ENamedSetType.NAMEDSET) ? `/namedset/${this.namedSet.id}` : '';
-    const param = {};
+    var predefinedUrl: string;
+    const param: any = {};
+
+    switch(this.namedSet.type) {
+      case ENamedSetType.NAMEDSET:
+        predefinedUrl = `/namedset/${this.namedSet.id}`;
+        break;
+      case ENamedSetType.PANEL:
+        predefinedUrl = '_panel';
+        param.panel = this.namedSet.id;
+        break;
+      default:
+        predefinedUrl = '';
+        break;
+    }
+
+    // add filtered options
     var filteredUrl = '';
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
@@ -179,7 +194,7 @@ export abstract class ACommonList extends ALineUpView2 {
       filteredUrl = '_filtered';
     }
 
-    const baseURL = `/targid/db/${dataSource.db}/${dataSource.base}${filteredUrl}${namedSetIdUrl}`;
+    const baseURL = `/targid/db/${dataSource.db}/${dataSource.base}${filteredUrl}${predefinedUrl}`;
     return getAPIJSON(baseURL, param);
   }
 
