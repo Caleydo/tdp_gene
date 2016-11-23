@@ -7,11 +7,11 @@ import ajax = require('../caleydo_core/ajax');
 import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
 import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
 import {gene, ParameterFormIds, IDataSourceConfig} from './Common';
-import {INamedSet} from '../targid2/storage';
+import {INamedSet, ENamedSetType} from '../targid2/storage';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
 
 export interface IGeneListOptions extends IAViewOptions {
-  namedSet?: INamedSet;
+  namedSet: INamedSet;
 }
 
 class GeneList extends ALineUpView2 {
@@ -29,7 +29,7 @@ class GeneList extends ALineUpView2 {
 
   protected dataSource:IDataSourceConfig;
 
-  constructor(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions = {}) {
+  constructor(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
@@ -131,7 +131,7 @@ class GeneList extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const namedSetIdUrl = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+    const namedSetIdUrl = (this.namedSet.type === ENamedSetType.NAMEDSET) ? `/namedset/${this.namedSet.id}` : '';
     const param = {};
     var filteredUrl = '';
 
@@ -157,6 +157,6 @@ class GeneList extends ALineUpView2 {
 
 }
 
-export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?: IGeneListOptions) {
+export function createStart(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions) {
   return new GeneList(context, selection, parent, options);
 }

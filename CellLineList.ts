@@ -4,12 +4,16 @@
 
 import session = require('../caleydo_core/session');
 import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection} from '../targid2/View';
+import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
 import {stringCol, categoricalCol, ALineUpView2} from '../targid2/LineUpView';
 import {chooseDataSource, ParameterFormIds, IDataSourceConfig} from './Common';
-import {INamedSet} from '../targid2/storage';
+import {INamedSet, ENamedSetType} from '../targid2/storage';
 import {FormBuilder, IFormSelectDesc, FormElementType} from '../targid2/FormBuilder';
 
+
+export interface ICellLineListOptions extends IAViewOptions {
+  namedSet: INamedSet;
+}
 
 class CellLineList extends ALineUpView2 {
 
@@ -27,7 +31,7 @@ class CellLineList extends ALineUpView2 {
 
   protected dataSource:IDataSourceConfig;
 
-  constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
+  constructor(context:IViewContext, selection: ISelection, parent:Element, options: ICellLineListOptions) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
@@ -127,7 +131,7 @@ class CellLineList extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const namedSetIdUrl = (this.namedSet.id) ? `/namedset/${this.namedSet.id}` : '';
+    const namedSetIdUrl = (this.namedSet.type === ENamedSetType.NAMEDSET) ? `/namedset/${this.namedSet.id}` : '';
     const param = {};
     var filteredUrl = '';
 
@@ -153,7 +157,7 @@ class CellLineList extends ALineUpView2 {
 
 }
 
-export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?) {
+export function createStart(context:IViewContext, selection: ISelection, parent:Element, options: ICellLineListOptions) {
   return new CellLineList(context, selection, parent, options);
 }
 

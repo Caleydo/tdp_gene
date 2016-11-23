@@ -3,14 +3,13 @@
  */
 
 import {IPluginDesc} from '../caleydo_core/plugin';
-import {IEntryPointList, AEntryPointList} from '../targid2/StartMenu';
-import {INamedSet} from '../targid2/storage';
-import {defaultSpecies, ParameterFormIds} from './Common';
+import {IEntryPointList} from '../targid2/StartMenu';
+import APanelAbleEntryPointList from './APanelAbleEntryPoint';
 
 /**
  * Entry point list from all species and LineUp named sets (aka stored LineUp sessions)
  */
-class GeneEntryPointList extends AEntryPointList {
+class GeneEntryPointList extends APanelAbleEntryPointList {
 
   /**
    * Set the idType and the default data and build the list
@@ -19,23 +18,7 @@ class GeneEntryPointList extends AEntryPointList {
    * @param options
    */
   constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected options:any) {
-    super(parent, desc, options);
-
-    this.idType = 'Ensembl';
-
-    // convert species to namedset
-    this.data.unshift(<INamedSet>{
-      name: 'All',
-      description: '',
-      idType: '',
-      ids: '',
-      subTypeKey: ParameterFormIds.SPECIES,
-      subTypeFromSession: true,
-      subTypeValue: defaultSpecies,
-      creator: ''
-    });
-
-    this.build();
+    super(parent, desc, 'Ensembl', options);
   }
 }
 
