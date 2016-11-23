@@ -10,7 +10,7 @@ import {IPluginDesc} from '../caleydo_core/plugin';
 import idtypes = require('../caleydo_core/idtype');
 import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
-  expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies
+  expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies, tissue
 } from './Common';
 import {IScore, categoricalCol, stringCol} from '../targid2/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
@@ -46,38 +46,53 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
     }
 }
 
+interface IAggregatedScoreParameter {
+  data_source: IDataSourceConfig;
+  data_type: IDataTypeConfig;
+  data_subtype: IDataSubtypeConfig;
+  aggregation: string;
+
+  filter_by: string; //tumor_type vs panel
+  tumor_type?: string;
+  tissue_panel_name?: string;
+}
+
 class AggregatedScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      data_source: IDataSourceConfig,
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      tumor_type:string,
-      aggregation: string
-    },
-    private dataSource: IDataSourceConfig
-  ) {
+  constructor(private parameter: IAggregatedScoreParameter, private dataSource: IDataSourceConfig) {
 
   }
 
   createDesc() {
-    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.tumor_type}`, this.parameter.data_subtype);
+    const subset = this.parameter.filter_by === 'tissue_panel' ? this.parameter.tissue_panel_name : this.parameter.tumor_type;
+    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/aggregated_score${this.parameter.tumor_type===all_types ? '_all' : ''}`;
-    const param = {
-        schema: this.dataSource.schema,
-        entity_name: this.dataSource.entityName,
-        table_name: this.parameter.data_type.tableName,
-        data_subtype: this.parameter.data_subtype.useForAggregation,
-        tumortype: this.parameter.tumor_type,
-        agg: this.parameter.aggregation,
-        species: getSelectedSpecies()
-      };
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const param: any = {
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
+      agg: this.parameter.aggregation
+    };
+
+    var url = `/targid/db/${this.dataSource.db}/aggregated_score`;
+    switch (this.parameter.filter_by) {
+      case 'tissue_panel':
+        url += '_panel';
+        param.panel = this.parameter.tissue_panel_name;
+        break;
+      default:
+        param.species = getSelectedSpecies();
+        if (this.parameter.tumor_type === all_types) {
+          url += '_all';
+        } else {
+          param.tumortype = this.parameter.tumor_type;
+        }
+    }
 
     return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
+      .then((rows: any[]) => {
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -218,9 +233,15 @@ class SingleEntityScore implements IScore<any> {
   }
 }
 
+function listTissuePanels(): Promise<{id: string}[]> {
+  const ds = tissue;
+  const baseURL = `/targid/db/${ds.db}/${ds.base}_panel`;
+  return ajax.getAPIJSON(baseURL);
+}
+
 export function create(desc: IPluginDesc) {
   // resolve promise when closing or submitting the modal dialog
-  return new Promise((resolve) => {
+  return listTissuePanels().then((tissuePanels: {id: string}[]) => new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Score Column', 'Add Score Column');
 
     const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
@@ -250,7 +271,8 @@ export function create(desc: IPluginDesc) {
               ];
             }
             return [
-              {name: 'Tumor Type', value:'tumor_type', data:'tumor_type'},
+              {name: 'Tumor Type', value: 'tumor_type', data: 'tumor_type'},
+              {name: 'Panel', value: 'tissue_panel', data: 'tissue_panel'},
               {name: `Single ${selection[0].data.name}`, value: `single_tissue`, data: `single_tissue`}
             ];
           },
@@ -322,6 +344,17 @@ export function create(desc: IPluginDesc) {
         options: {
           optionsFnc: (selection) => selection[1].data.tumorTypesWithAll,
           optionsData: [],
+        },
+        useSession: true
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Panel Name',
+        id: ParameterFormIds.TISSUE_PANEL_NAME,
+        dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_SOURCE],
+        showIf: (dependantValues) => (dependantValues[0].value === 'tissue_panel'),
+        options: {
+          optionsData: tissuePanels.map((p) => ({name: p.id, value: p.id, data: p.id}))
         },
         useSession: true
       },
@@ -448,7 +481,7 @@ export function create(desc: IPluginDesc) {
     });
 
     dialog.show();
-  });
+  }));
 }
 
 function createSingleEntityScore(data):IScore<number> {
