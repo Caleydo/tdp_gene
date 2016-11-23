@@ -4,11 +4,15 @@
 
 import session = require('../caleydo_core/session');
 import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection} from '../targid2/View';
+import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
 import {ALineUpView2, stringCol, categoricalCol} from '../targid2/LineUpView';
 import {gene, ParameterFormIds, IDataSourceConfig} from './Common';
 import {INamedSet} from '../targid2/storage';
 import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+
+export interface IGeneListOptions extends IAViewOptions {
+  namedSet?: INamedSet;
+}
 
 class GeneList extends ALineUpView2 {
 
@@ -25,7 +29,7 @@ class GeneList extends ALineUpView2 {
 
   protected dataSource:IDataSourceConfig;
 
-  constructor(context:IViewContext, selection: ISelection, parent:Element, options?) {
+  constructor(context:IViewContext, selection: ISelection, parent:Element, options: IGeneListOptions = {}) {
     super(context, selection, parent, options);
 
     //this.idAccessor = (d) => d._id;
@@ -115,7 +119,7 @@ class GeneList extends ALineUpView2 {
       stringCol('id', 'Ensembl', true, 120),
       stringCol('chromosome', 'Chromosome', true, 150),
       //categoricalCol('species', desc.columns.species.categories, 'Species', true),
-      categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand', true),
+      categoricalCol('strand', [{ label: 'reverse strand', name:String(-1)}, { label: 'forward strand', name:String(1)}], 'Strand', true),
       categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
       stringCol('seqregionstart', 'Seq Region Start', false),
       stringCol('seqregionend', 'Seq Region End', false)
@@ -146,12 +150,6 @@ class GeneList extends ALineUpView2 {
     return ajax.getAPIJSON(baseURL, param);
   }
 
-  protected mapRows(rows:any[]) {
-    rows = super.mapRows(rows);
-    rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
-    return rows;
-  }
-
   getItemName(count) {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
@@ -159,6 +157,6 @@ class GeneList extends ALineUpView2 {
 
 }
 
-export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?) {
+export function createStart(context:IViewContext, selection: ISelection, parent:Element, options?: IGeneListOptions) {
   return new GeneList(context, selection, parent, options);
 }
