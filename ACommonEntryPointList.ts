@@ -4,7 +4,7 @@
 
 import {IPluginDesc} from '../caleydo_core/plugin';
 import {AEntryPointList} from '../targid2/StartMenu';
-import {ParameterFormIds, defaultSpecies, IDataSourceConfig, chooseDataSource} from './Common';
+import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
 import {INamedSet, ENamedSetType} from '../targid2/storage';
 import {getAPIJSON} from '../caleydo_core/ajax';
 import * as session from '../caleydo_core/session';
@@ -56,7 +56,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       idType: '',
       ids: '',
       creator: ''
-    }
+    };
   }
 
   protected loadPanels(): Promise<INamedSet[]> {
