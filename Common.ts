@@ -258,6 +258,7 @@ export interface IDataSubtypeConfig {
 
   //type: 'cat';
   categories?: {label: string, name: string, color: string}[];
+  mapCategoryRows?: (rows, field:string) => any[];
   missingCategory?: string;
 
   //type: 'number';
@@ -285,7 +286,7 @@ export const copyNumber:IDataTypeConfig = {
   dataSubtypes: [
     { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
+    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), mapCategoryRows: convertCopyNumberClass, missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -296,10 +297,10 @@ export const mutation:IDataTypeConfig = {
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
     //it is a cat by default but in the frequency case also a number?
-    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), missingCategory: unknownMutationValue, useForAggregation: 'aa_mutated'},
+    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'aa_mutated'},
     //just for single score:
     { id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), missingCategory: unknownMutationValue, useForAggregation: 'dna_mutated'},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'dna_mutated'},
     //just for single score:
     { id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '' }
   ]
@@ -356,4 +357,25 @@ function toLineUpCategories(arr: {name: string, value: any, color: string}[]) {
 
 export function getSelectedSpecies() {
   return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
+}
+
+
+export function convertCopyNumberClass(rows, field:string) {
+  //console.log('convert copy number class');
+  let mapping = {};
+  copyNumberCat.forEach((d) => mapping[d.value] = d.name);
+  return rows.map((row) => {
+    row[field] = mapping[row[field]];
+    return row;
+  });
+}
+
+export function convertMutationCat(rows, field:string) {
+  //console.log('convert copy number class');
+  let mapping = {};
+  mutationCat.forEach((d) => mapping[d.value] = d.name);
+  return rows.map((row) => {
+    row[field] = mapping[row[field]];
+    return row;
+  });
 }
