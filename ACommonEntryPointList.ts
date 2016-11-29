@@ -67,7 +67,12 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   }
 
   protected getNamedSets(): Promise<INamedSet[]> {
-    return Promise.all([super.getNamedSets(), this.loadPanels()]).then((sets: INamedSet[][]) => [].concat(...sets));
+    return Promise.all([super.getNamedSets(), this.loadPanels()])
+      .then((sets: INamedSet[][]) => {
+        // filter namedsets by username
+        sets[0] = sets[0].filter((d) => d.creator === session.retrieve('username'));
+        return [].concat(...sets);
+      });
   }
 }
 
