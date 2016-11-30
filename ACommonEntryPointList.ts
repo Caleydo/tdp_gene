@@ -67,7 +67,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   }
 
   protected getNamedSets(): Promise<INamedSet[]> {
-    return Promise.all([super.getNamedSets(), this.loadPanels()])
+    return Promise.all([this.loadPanels(), super.getNamedSets()])
       .then((sets: INamedSet[][]) => [].concat(...sets));
   }
 }
