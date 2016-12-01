@@ -4,7 +4,7 @@
 
 import session = require('../caleydo_core/session');
 import {IPluginDesc} from '../caleydo_core/plugin';
-import {IStartMenuSectionEntry} from '../targid2/StartMenu';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList} from '../targid2/StartMenu';
 import {Targid} from '../targid2/Targid';
 import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
 
@@ -14,6 +14,10 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   //private format = d3.time.format.utc('%Y-%m-%d %H:%M');
 
   private sessionKey = ParameterFormIds.SPECIES;
+
+  private entryPointId = 'targidStartEntryPoint';
+
+  private entryPointLists:IEntryPointList[] = [];
 
   /**
    * Set the idType and the default data and build the list
@@ -26,11 +30,23 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     this.build();
   }
 
-  private build() {
-    const that = this;
-    const $parent = d3.select(this.parent);
+  public getEntryPointLists() {
+    return this.entryPointLists;
+  }
 
+
+  private build() {
+    const $parent = d3.select(this.parent);
     $parent.html(''); // remove loading element or previous data
+
+    this.buildSpeciesSelection($parent);
+    this.buildEntryPointList($parent);
+  }
+
+  private buildSpeciesSelection($parent) {
+    const that = this;
+
+    const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
     const selectedSpecies = session.retrieve(this.sessionKey, defaultSpecies);
 
@@ -39,7 +55,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       session.store(this.sessionKey, selectedSpecies);
     }
 
-    const $group = $parent.selectAll('.species-group').data(availableSpecies);
+    const $group = $speciesSelection.selectAll('.species-group').data(availableSpecies);
     const group = $group.enter()
       .append('div')
       .classed('species-group', true)
@@ -62,6 +78,41 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .attr('data-title', (d:any) => d.name.charAt(0).toUpperCase() + d.name.slice(1))
       .html(`<i class="fa fa-male fa-fw fa-3x" aria-hidden="true"></i>`);
 
+  }
+
+  private buildEntryPointList($parent) {
+    const that = this;
+
+    const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
+
+    // get start views for entry points and sort them by name ASC
+    const views = findViewCreators(this.entryPointId).sort((a,b) => {
+      let x = a.name.toLowerCase();
+      let y = b.name.toLowerCase();
+      return x === y ? 0 : (x < y ? -1 : 1);
+    });
+
+    const $items = $entryPoints.selectAll('.item').data(views);
+    const $enter = $items.enter().append('div').classed('item', true);
+
+    $enter.append('div').classed('header', true).text((d) => d.name);
+
+    // append initial loading icon --> must be removed by each entry point individually
+    $enter.append('div').classed('body', true)
+      .html(`
+        <div class="loading">
+          <i class="fa fa-spinner fa-pulse fa-fw"></i>
+          <span class="sr-only">Loading...</span>
+        </div>
+      `);
+
+    $enter.selectAll('div.body')
+      .each(function(entryPointDesc:any) {
+        entryPointDesc.build(this, {targid: that.targid})
+          .then((entryPoint) => {
+            that.entryPointLists.push(<IEntryPointList>entryPoint);
+          });
+      });
   }
 }
 
