@@ -16,7 +16,7 @@ interface IDataFormatRow {
   symbol: string;
   cn: number;
   expr: number;
-  dna_mutated: boolean;
+  aa_mutated: boolean;
 }
 
 interface IDataFormat {
@@ -35,7 +35,7 @@ function unknownSample(sample: string): IDataFormatRow {
     symbol: '',
     cn: unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
-    dna_mutated: unknownMutationValue // unknown
+    aa_mutated: unknownMutationValue // unknown
   };
 }
 
@@ -51,9 +51,9 @@ function computeAlterationFrequency(rows: IDataFormatRow[]) {
   if (rows.length === 0) {
     return 0;
   }
-  const isMutated = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) && r.dna_mutated === true;
+  const isMutated = (r: IDataFormatRow) => !isMissingMutation(r.aa_mutated) && r.aa_mutated === true;
   const isCopyNumberAltered = (r: IDataFormatRow) => !isMissingCNV(r.cn) && r.cn !== 0;
-  const hasData = (r: IDataFormatRow) => !isMissingMutation(r.dna_mutated) || !isMissingCNV(r.cn);
+  const hasData = (r: IDataFormatRow) => !isMissingMutation(r.aa_mutated) || !isMissingCNV(r.cn);
   // reduce and compute both
   // amplified += 1 if isMutated or isCopyNumberAltered
   // total += if hasData
@@ -131,8 +131,8 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
       if (a_row.cn !== b_row.cn && !(isMissingCNV(a_row.cn) && isMissingCNV(b_row.cn))) {
         return compareCNV(a_row.cn, b_row.cn);
       }
-      if (a_row.dna_mutated !== b_row.dna_mutated && !(isMissingMutation(a_row.dna_mutated) && isMissingMutation(b_row.dna_mutated))) {
-        return compareMutation(a_row.dna_mutated, b_row.dna_mutated);
+      if (a_row.aa_mutated !== b_row.aa_mutated && !(isMissingMutation(a_row.aa_mutated) && isMissingMutation(b_row.aa_mutated))) {
+        return compareMutation(a_row.aa_mutated, b_row.aa_mutated);
       }
       // ignore not encoded expression value
       // if (a_row.expr !== b_row.expr) {
@@ -258,7 +258,7 @@ export class OncoPrint extends AView {
     });
 
     const $mutLegend = $legend.append('ul');
-    $mutLegend.append('li').classed('title', true).text('Mutation (on DNA level)');
+    $mutLegend.append('li').classed('title', true).text('Mutation');
 
     mutationCat
       //.filter((d) => d.value !=='f')
@@ -408,8 +408,8 @@ export class OncoPrint extends AView {
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => style.colorMut(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)))
-      .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.dna_mutated) ? unknownMutationValue : d.dna_mutated)));
+      .style('background-color', (d:any) => style.colorMut(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)))
+      .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)));
 
     $cells.exit().remove();
   }
