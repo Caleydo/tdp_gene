@@ -11,7 +11,7 @@ import {gene, getSelectedSpecies} from './Common';
 /**
  * helper view for proxying an existing external website
  */
-export class CommonProxyView extends ProxyView {
+export class GeneProxyView extends ProxyView {
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
     super(context, selection, parent, options, plugin);
@@ -43,5 +43,5 @@ export class CommonProxyView extends ProxyView {
 }
 
 export function create(context:IViewContext, selection: ISelection, parent:Element, options, plugin: IPluginDesc) {
-  return new CommonProxyView(context, selection, parent, options, plugin);
+  return new GeneProxyView(context, selection, parent, options, plugin);
 }
