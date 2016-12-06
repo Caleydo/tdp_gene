@@ -16,6 +16,16 @@ export class CommonProxyView extends ProxyView {
   }
 
 
+  /**
+   * Override to filter names by specific rules
+   * @param names
+   * @returns {string[]}
+   */
+  protected filterSelectedNames(names:string[]):string[] {
+      //FIXME HACK for UnitProt
+      //filter 'AO*' UnitPort IDs that are not valid for external canSAR database
+      return names.filter(d => d.indexOf('A0') !== 0);
+  }
 
 }
 
