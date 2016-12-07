@@ -17,14 +17,16 @@ export class GeneProxyView extends ProxyView {
     super(context, selection, parent, options, plugin);
   }
 
-  protected getSelectionDropDownLabels(names:string[]):Promise<string[]> {
+  protected getSelectionDropDownLabels(names:string[]):Promise<{id:string, label:string}[]> {
     return ajax.getAPIJSON(`/targid/db/${gene.db}/gene_map_ensgs`, {
         ensgs: `'${names.join('\',\'')}'`,
         species: getSelectedSpecies()
       })
       .then((mapping) => {
         // resolve ensg to gene name
-        return mapping.map((d, i) => `${d.symbol} (${names[i]})`);
+        return mapping.map((d) => {
+          return {id: d.id, label: `${d.symbol} (${d.id})`};
+        });
       });
   }
 
