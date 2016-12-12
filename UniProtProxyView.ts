@@ -34,7 +34,7 @@ export class UniProtProxyView extends GeneProxyView {
       },
       {
         type: FormElementType.SELECT,
-        label: 'UniProt',
+        label: 'UniProt IDs for Selected Gene',
         id: UniProtProxyView.SELECTED_UNIPROT_ITEM,
         options: {
           optionsData: [],
@@ -94,6 +94,10 @@ export class UniProtProxyView extends GeneProxyView {
   }
 
   private getUniProtSelectData(uniProtIds) {
+    if(uniProtIds === null) {
+      return Promise.resolve([]);
+    }
+
     return Promise.resolve(uniProtIds.map((d:string) => {
       return {value: d, name: d, data: d};
     }));
