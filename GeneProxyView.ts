@@ -17,7 +17,11 @@ export class GeneProxyView extends ProxyView {
     super(context, selection, parent, options, plugin);
   }
 
-  protected getSelectionDropDownLabels(names:string[]):Promise<{value:string, name:string, data:any}[]> {
+  protected getSelectionSelectData(names:string[]):Promise<{value:string, name:string, data:any}[]> {
+    if(names === null) {
+      return Promise.resolve([]);
+    }
+
     return ajax.getAPIJSON(`/targid/db/${gene.db}/gene_map_ensgs`, {
         ensgs: `'${names.join('\',\'')}'`,
         species: getSelectedSpecies()
