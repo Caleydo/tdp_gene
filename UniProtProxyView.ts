@@ -19,6 +19,19 @@ export class UniProtProxyView extends GeneProxyView {
     super(context, selection, parent, options, plugin);
   }
 
+  init() {
+    super.init();
+
+    this.$node.classed('proxy_view', true);
+
+    // update the selection first, then update the proxy view
+    this.updateSelectedItemSelect()
+      .then(() => this.updateUniProtSelect())
+      .then(() => {
+        this.updateProxyView();
+      });
+  }
+
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
     this.paramForm = new FormBuilder($parent);
 
@@ -30,7 +43,7 @@ export class UniProtProxyView extends GeneProxyView {
         options: {
           optionsData: [],
         },
-        useSession: false
+        useSession: true
       },
       {
         type: FormElementType.SELECT,
@@ -39,7 +52,7 @@ export class UniProtProxyView extends GeneProxyView {
         options: {
           optionsData: [],
         },
-        useSession: false
+        useSession: true
       }
     ];
 
@@ -59,7 +72,8 @@ export class UniProtProxyView extends GeneProxyView {
         .then(() => {
           this.updateProxyView();
         });
-    } else {
+
+    } else if(name === UniProtProxyView.SELECTED_UNIPROT_ITEM) {
       this.updateProxyView();
     }
   }
@@ -68,14 +82,14 @@ export class UniProtProxyView extends GeneProxyView {
     this.selection = selection;
 
     // update the selection first, then update the proxy view
-    this.updateSelectedItemSelect(selection)
-      .then(() => this.updateUniProtSelect())
+    this.updateSelectedItemSelect(true) // true = force use last selection
+      .then(() => this.updateUniProtSelect(true)) // true = force use last selection
       .then(() => {
         this.updateProxyView();
       });
   }
 
-  private updateUniProtSelect() {
+  private updateUniProtSelect(forceUseLastSelection = false) {
     return this.resolveIdToNames(this.selection.idtype, this.getParameter(ProxyView.SELECTED_ITEM)._id, this.options.idtype)
       .then((uniProtIds:string[][]) => {
         // use uniProtIds[0] since we passed only one selected _id
@@ -86,10 +100,19 @@ export class UniProtProxyView extends GeneProxyView {
         const data = args[1];
         const selectedItemSelect = this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM);
 
+        // backup entry and restore the selectedIndex by value afterwards again,
+        // because the position of the selected element might change
+        const bak = selectedItemSelect.value || data[(<IFormSelectElement>selectedItemSelect).getSelectedIndex()];
         (<IFormSelectElement>selectedItemSelect).updateOptionElements(data);
 
         // select last item from incoming `selection.range`
-        selectedItemSelect.value = data.filter((d) => d.value === uniProtIds[uniProtIds.length-1])[0];
+        if(forceUseLastSelection) {
+          selectedItemSelect.value = data.filter((d) => d.value === uniProtIds[uniProtIds.length-1])[0];
+
+        // otherwise try to restore the backup
+        } else if(bak !== null) {
+          selectedItemSelect.value = bak;
+        }
       });
   }
 
