@@ -17,7 +17,7 @@ export class GeneProxyView extends ProxyView {
     super(context, selection, parent, options, plugin);
   }
 
-  protected getSelectionDropDownLabels(names:string[]):Promise<{id:string, label:string}[]> {
+  protected getSelectionDropDownLabels(names:string[]):Promise<{value:string, name:string, data:any}[]> {
     return ajax.getAPIJSON(`/targid/db/${gene.db}/gene_map_ensgs`, {
         ensgs: `'${names.join('\',\'')}'`,
         species: getSelectedSpecies()
@@ -25,7 +25,11 @@ export class GeneProxyView extends ProxyView {
       .then((mapping) => {
         // resolve ensg to gene name
         return mapping.map((d) => {
-          return {id: d.id, label: `${d.symbol} (${d.id})`};
+          return {
+              value: d.id,
+              name: (d.symbol) ? `${d.symbol} (${d.id})` : d.id,
+              data: d
+            };
         });
       });
   }
