@@ -27,6 +27,9 @@ export class UniProtProxyView extends GeneProxyView {
     // update the selection first, then update the proxy view
     this.updateSelectedItemSelect()
       .then(() => this.updateUniProtSelect())
+      .catch(() => {
+        this.updateProxyView();
+      })
       .then(() => {
         this.updateProxyView();
       });
@@ -69,6 +72,9 @@ export class UniProtProxyView extends GeneProxyView {
 
     if(name === ProxyView.SELECTED_ITEM) {
       this.updateUniProtSelect()
+        .catch(() => {
+          this.updateProxyView();
+        })
         .then(() => {
           this.updateProxyView();
         });
@@ -84,26 +90,41 @@ export class UniProtProxyView extends GeneProxyView {
     // update the selection first, then update the proxy view
     this.updateSelectedItemSelect(true) // true = force use last selection
       .then(() => this.updateUniProtSelect(true)) // true = force use last selection
+      .catch(() => {
+        this.updateProxyView();
+      })
       .then(() => {
         this.updateProxyView();
       });
   }
 
   private updateUniProtSelect(forceUseLastSelection = false) {
+    const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM));
+
     return this.resolveIdToNames(this.selection.idtype, this.getParameter(ProxyView.SELECTED_ITEM)._id, this.options.idtype)
       .then((uniProtIds:string[][]) => {
         // use uniProtIds[0] since we passed only one selected _id
-        return Promise.all<any>([uniProtIds[0], this.getUniProtSelectData(uniProtIds[0])]);
+        if(uniProtIds[0] === null) {
+          return Promise.reject('Empty list of UniProt IDs');
+        } else {
+          return Promise.all<any>([uniProtIds[0], this.getUniProtSelectData(uniProtIds[0])]);
+        }
+      })
+      .catch((reject) => {
+        selectedItemSelect.setVisible(false);
+        selectedItemSelect.updateOptionElements([]);
+        return Promise.reject(reject);
       })
       .then((args) => {
         const uniProtIds = args[0]; // use names to get the last selected element
         const data = args[1];
-        const selectedItemSelect = this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM);
+
+        selectedItemSelect.setVisible(true);
 
         // backup entry and restore the selectedIndex by value afterwards again,
         // because the position of the selected element might change
         const bak = selectedItemSelect.value || data[(<IFormSelectElement>selectedItemSelect).getSelectedIndex()];
-        (<IFormSelectElement>selectedItemSelect).updateOptionElements(data);
+        selectedItemSelect.updateOptionElements(data);
 
         // select last item from incoming `selection.range`
         if(forceUseLastSelection) {
