@@ -77,6 +77,7 @@ class AggregatedScore implements IScore<number> {
       agg: this.parameter.aggregation
     };
 
+
     var url = `/targid/db/${this.dataSource.db}/aggregated_score`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
@@ -94,6 +95,7 @@ class AggregatedScore implements IScore<number> {
 
     return ajax.getAPIJSON(url, param)
       .then((rows: any[]) => {
+        alert('hi')
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -102,6 +104,55 @@ class AggregatedScore implements IScore<number> {
       });
   }
 }
+
+class BoxScore implements IScore<number> {
+  constructor(private parameter: IAggregatedScoreParameter, private dataSource: IDataSourceConfig) {
+
+  }
+
+  createDesc() {
+    const subset = this.parameter.filter_by === 'tissue_panel' ? this.parameter.tissue_panel_name : this.parameter.tumor_type;
+    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
+  }
+
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const param: any = {
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
+      agg: this.parameter.aggregation
+    };
+
+    var url = `/targid/db/${this.dataSource.db}/boxplot`;
+    switch (this.parameter.filter_by) {
+      case 'tissue_panel':
+        url += '_panel';
+        param.panel = this.parameter.tissue_panel_name;
+        break;
+      default:
+        param.species = getSelectedSpecies();
+        if (this.parameter.tumor_type === all_types) {
+          url += '_all';
+        } else {
+          param.tumortype = this.parameter.tumor_type;
+        }
+    }
+
+    return ajax.getAPIJSON(url, param)
+      .then((rows: any[]) => {
+        // convert log2 to linear scale
+        console.log(rows)
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
+        return rows;
+      });
+  }
+}
+
+
+
 
 class MutationFrequencyScore implements IScore<number> {
   constructor(
@@ -405,7 +456,8 @@ export function create(desc: IPluginDesc) {
                 {name: 'Min', value: 'min', data: 'min'},
                 {name: 'Max', value: 'max', data: 'max'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'Count', value: 'count', data: 'count'}
+                {name: 'Count', value: 'count', data: 'count'},
+                {name: 'Boxplot', value: 'boxplot', data: 'boxplot'}
               ];
             }
             return r;
@@ -486,8 +538,16 @@ function createSingleEntityScore(data):IScore<number> {
 
 function createAggregatedScore(data):IScore<number> {
   var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+console.log(score)
 
-  if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
+  if (data[ParameterFormIds.AGGREGATION]==='boxplot') {
+
+    score  = new BoxScore(data, data[ParameterFormIds.DATA_SOURCE])
+
+    console.log(score)
+  }
+
+    if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
 
     // boolean to indicate that the resulting score does not need to be divided by the total count
     var countOnly = false;
@@ -504,6 +564,7 @@ function createAggregatedScore(data):IScore<number> {
         break;
     }
   }
+
 
   return score;
 }
