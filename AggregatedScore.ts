@@ -157,7 +157,7 @@ class BoxScore implements IScore<number> {
             score: d
           };
         });
-        console.log(rows);
+
         return rows;
       });
   }
