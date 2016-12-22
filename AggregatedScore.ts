@@ -37,6 +37,12 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
           type: 'string',
           label: label
         };
+      case dataSubtypes.boxplot:
+        return {
+          type: 'boxplotcustom',
+          label: label,
+          domain:[1,200]
+        };
       default:
         return {
           type: 'number',
@@ -112,7 +118,7 @@ class BoxScore implements IScore<number> {
 
   createDesc() {
     const subset = this.parameter.filter_by === 'tissue_panel' ? this.parameter.tissue_panel_name : this.parameter.tumor_type;
-    return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
+    return createDesc(dataSubtypes.boxplot, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
   }
 
   compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
@@ -124,7 +130,7 @@ class BoxScore implements IScore<number> {
       agg: this.parameter.aggregation
     };
 
-    var url = `/targid/db/${this.dataSource.db}/boxplot`;
+    var url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
         url += '_panel';
@@ -142,10 +148,16 @@ class BoxScore implements IScore<number> {
     return ajax.getAPIJSON(url, param)
       .then((rows: any[]) => {
         // convert log2 to linear scale
-        console.log(rows)
-        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-          rows = convertLog2ToLinear(rows, 'score');
-        }
+        //if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+        //  rows = convertLog2ToLinear(rows, 'score');
+        //}
+        rows = rows.map((d) => {
+          return {
+            id: d.id,
+            score: d
+          };
+        });
+        console.log(rows);
         return rows;
       });
   }
@@ -538,13 +550,10 @@ function createSingleEntityScore(data):IScore<number> {
 
 function createAggregatedScore(data):IScore<number> {
   var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
-console.log(score)
 
   if (data[ParameterFormIds.AGGREGATION]==='boxplot') {
 
     score  = new BoxScore(data, data[ParameterFormIds.DATA_SOURCE])
-
-    console.log(score)
   }
 
     if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
