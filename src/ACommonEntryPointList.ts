@@ -2,15 +2,15 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {IPluginDesc} from '../caleydo_core/plugin';
-import {AEntryPointList} from '../targid2/StartMenu';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {AEntryPointList} from 'targid2/src/StartMenu';
 import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
-import {INamedSet, ENamedSetType} from '../targid2/storage';
-import {getAPIJSON} from '../caleydo_core/ajax';
-import * as session from '../caleydo_core/session';
-import {IViewContext, ISelection, IAViewOptions} from '../targid2/View';
-import {ALineUpView2} from '../targid2/LineUpView';
-import {FormBuilder, IFormSelectDesc, FormElementType} from '../targid2/FormBuilder';
+import {INamedSet, ENamedSetType} from 'targid2/src/storage';
+import {getAPIJSON} from 'phovea_core/src/ajax';
+import * as session from 'phovea_core/src/session';
+import {IViewContext, ISelection, IAViewOptions} from 'targid2/src/View';
+import {ALineUpView2} from 'targid2/src/LineUpView';
+import {FormBuilder, IFormSelectDesc, FormElementType} from 'targid2/src/FormBuilder';
 
 export abstract class ACommonEntryPointList extends AEntryPointList {
 

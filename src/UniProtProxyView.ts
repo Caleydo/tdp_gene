@@ -2,11 +2,11 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 
-import {IViewContext, ISelection} from '../targid2/View';
-import {IPluginDesc} from '../caleydo_core/plugin';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import {GeneProxyView} from './GeneProxyView';
-import {ProxyView} from '../targid2/ProxyView';
-import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from '../targid2/FormBuilder';
+import {ProxyView} from 'targid2/src/ProxyView';
+import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'targid2/src/FormBuilder';
 
 /**
  * helper view for proxying an existing external website

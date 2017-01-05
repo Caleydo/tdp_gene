@@ -2,12 +2,12 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {IPluginDesc} from '../caleydo_core/plugin';
-import {IEntryPointList} from '../targid2/StartMenu';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {IEntryPointList} from 'targid2/src/StartMenu';
 import {chooseDataSource} from './Common';
 import {ACommonEntryPointList, IACommonListOptions, ACommonList} from './ACommonEntryPointList';
-import {IViewContext, ISelection} from '../targid2/View';
-import {stringCol, categoricalCol} from '../targid2/LineUpView';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {stringCol, categoricalCol} from 'targid2/src/LineUpView';
 
 
 /**

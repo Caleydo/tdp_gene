@@ -4,7 +4,7 @@
 
 import * as ajax from 'phovea_core/src/ajax';
 import * as ranges from 'phovea_core/src/range';
-import * as dialogs from 'phovea_bootstrap_fontawesome/src/dialogs';
+import * as dialogs from 'phovea_ui/src/dialogs';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import * as idtypes from 'phovea_core/src/idtype';
 import {
