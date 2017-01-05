@@ -179,10 +179,6 @@ class InvertedSingleGeneScore implements IScore<any> {
           rows = convertLog2ToLinear(rows, 'score');
         }
 
-        if(this.parameter.data_subtype.type === 'cat') {
-          rows = this.parameter.data_subtype.mapCategoryRows(rows, 'score');
-        }
-
         return rows;
       });
   }
@@ -321,6 +317,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
                 {name: 'Count', value: 'count', data: 'count'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Average', value: 'avg', data: 'avg'},
+                {name: 'Median', value: 'median', data: 'median'},
                 {name: 'Min', value: 'min', data: 'min'},
                 {name: 'Max', value: 'max', data: 'max'}
               ];

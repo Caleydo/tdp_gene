@@ -1,3 +1,8 @@
+$oncoprint_cell_height: 25px;
+$oncoprint_cell_width: 7px;
+$oncoprint_cell_padding: 2px;
+$oncoprint_cell_mutation: 8px;
+
 .oncoPrint {
   display: flex;
   flex-direction: column;
@@ -8,13 +13,17 @@
     order: 1; // place at the bottom of gene list
 
     display: flex;
-    justify-content: space-between;
 
     list-style: none;
     padding: 0;
     margin: 0;
-    margin-top: 20px;
+    margin-top: 10px;
     padding-top: 20px;
+
+    ul {
+      margin: 0 40px 0 0;
+      padding: 0;
+    }
 
     .title {
       font-weight: 500;
@@ -23,6 +32,7 @@
     li {
       display: flex;
       align-items: center;
+      margin-bottom: 3px;
     }
 
     li > span:first-child {
@@ -41,7 +51,7 @@
     margin-left: 10em; // === .geneLabel width
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 50px; // space for gene tooltip on hover
+    padding-bottom: 10px; // space for gene tooltip on hover
   }
 
   td, th {
@@ -87,8 +97,14 @@
       justify-content: center;
       margin: 2px;
 
+      border: 1px solid transparent;
+      width: $oncoprint_cell_width + $oncoprint_cell_padding;
+      height: $oncoprint_cell_height + $oncoprint_cell_padding;
+
       .mut {
-        width: 100%;
+        width: 80%;
+        border: 1px solid transparent;
+        height: $oncoprint_cell_mutation;
       }
 
       &:after{
@@ -136,6 +152,37 @@
       &:hover:before{
         visibility: visible;
         opacity: 1;
+      }
+    }
+
+    // last row --> tooltip on top
+    &:last-child:not(:first-child) .cell {
+      &:after {
+        top: -35px;
+        bottom: auto;
+      }
+
+      &:before {
+        bottom: auto;
+        top: -8px;
+        border-width: 8.7px 5px 0 5px;
+        border-color: rgba(0,0,0,1) transparent transparent transparent;
+      }
+    }
+
+    // only row --> tooltip to right
+    &:last-child:first-child .cell {
+      &:after {
+        bottom: -3px;
+        left: 15px;
+      }
+
+      &:before {
+        z-index: 1;
+        bottom: 30%;
+        left: 7px;
+        border-width: 5px 8.7px 5px 0;
+        border-color: transparent rgba(0,0,0,1) transparent transparent;
       }
     }
   }

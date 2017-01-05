@@ -5,22 +5,22 @@
 import * as session from 'phovea_core/src/session';
 
 export const copyNumberCat = [
-  {value: 2, name: 'Amplification', color: '#ca0020', border: 'transparent'},
-  {value: -2, name: 'Homozygous deletion', color: '#0571b0', border: 'transparent'},
+  {value: 2, name: 'Amplification', color: '#efb3bc', border: 'transparent'},
+  {value: -2, name: 'Deep Deletion', color: '#92c5de', border: 'transparent'},
   //{value: -1, name: 'Heterozygous deletion', color: '#92c5de'},
   {value: 0, name: 'NORMAL', color: '#dcdcdc', border: 'transparent'},
   //{value: 1, name: 'Low level amplification', color: '#f4a582'},
   //{value: 2, name: 'High level amplification', color: '#ca0020'},
   {value: 'null', name: 'Unknown', color: '#FCFCFC', border: '#dcdcdc'}
 ];
-//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
+export const unknownCopyNumberValue: any = copyNumberCat[copyNumberCat.length-1].value;
 
 export const mutationCat = [
-  {value: 'true', name: 'Mutated', color: '#1BA64E'},
-  {value: 'false', name: 'Non Mutated', color: '#dcdcdc'},
-  {value: '', name: 'Unknown', color: 'transparent'}
+  {value: 'true', name: 'Mutated', color: '#1BA64E', border: 'transparent'},
+  {value: 'false', name: 'Non Mutated', color: '#aaa', border: 'transparent'},
+  {value: 'null', name: 'Unknown', color: 'transparent', border: '#999'}
 ];
-//NOTE: last one has to be the unknown case, as used in OncoPrint.ts
+export const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
 
 export const all_types = 'All Tumor Types';
 export const all_bio_types = 'All Bio Types';
@@ -255,16 +255,16 @@ export interface IDataSubtypeConfig {
   name: string;
   type: string;
   useForAggregation: string;
-  //type = cat
-  categories?: string[];
-  mapCategoryRows?: (rows, field:string) => any[];
 
-  //type = number
+  //type: 'cat';
+  categories?: {label: string, name: string, color: string}[];
+  mapCategoryRows?: (rows, field:string) => any[];
+  missingCategory?: string;
+
+  //type: 'number';
   domain?: number[];
   missingValue?: number;
   constantDomain?: boolean;
-
-  //type = string
 }
 
 export const expression:IDataTypeConfig = {
@@ -286,7 +286,7 @@ export const copyNumber:IDataTypeConfig = {
   dataSubtypes: [
     { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: copyNumberCat.map((d) => d.name), mapCategoryRows: convertCopyNumberClass, missingValue: undefined, constantDomain: true, useForAggregation: 'copynumberclass'}
+    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), mapCategoryRows: convertCopyNumberClass, missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -297,10 +297,10 @@ export const mutation:IDataTypeConfig = {
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
     //it is a cat by default but in the frequency case also a number?
-    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'aa_mutated'},
+    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'aa_mutated'},
     //just for single score:
     { id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: mutationCat.map((d) => d.name), mapCategoryRows: convertMutationCat, domain: [0,1], useForAggregation: 'dna_mutated'},
+    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'dna_mutated'},
     //just for single score:
     { id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '' }
   ]
@@ -315,6 +315,8 @@ export const availableSpecies = [
   //{ name: 'Mouse', value: 'mouse' }
 ];
 
+export const defaultSpecies = availableSpecies[0].value;
+
 /**
  * List of ids for parameter form elements
  * Reuse this ids and activate the `useSession` option for form elements to have the same selectedIndex between different views
@@ -327,6 +329,7 @@ export class ParameterFormIds {
   static CELLLINE_NAME = 'cellline_name';
   static TISSUE_NAME = 'tissue_name';
   static TUMOR_TYPE = 'tumor_type';
+  static TISSUE_PANEL_NAME = 'tissue_panel_name';
   static ALTERATION_TYPE = 'alteration_type';
   static DATA_TYPE = 'data_type';
   static DATA_SUBTYPE = 'data_subtype';
@@ -348,9 +351,18 @@ export function convertLog2ToLinear (rows, field:string) {
   });
 }
 
+function toLineUpCategories(arr: {name: string, value: any, color: string}[]) {
+  return arr.map((a) => ({label: a.name, name: String(a.value), color: a.color}));
+}
+
+export function getSelectedSpecies() {
+  return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
+}
+
+
 export function convertCopyNumberClass(rows, field:string) {
   //console.log('convert copy number class');
-  var mapping = {};
+  let mapping = {};
   copyNumberCat.forEach((d) => mapping[d.value] = d.name);
   return rows.map((row) => {
     row[field] = mapping[row[field]];
@@ -360,14 +372,10 @@ export function convertCopyNumberClass(rows, field:string) {
 
 export function convertMutationCat(rows, field:string) {
   //console.log('convert copy number class');
-  var mapping = {};
+  let mapping = {};
   mutationCat.forEach((d) => mapping[d.value] = d.name);
   return rows.map((row) => {
     row[field] = mapping[row[field]];
     return row;
   });
-}
-
-export function getSelectedSpecies() {
-  return session.retrieve(ParameterFormIds.SPECIES);
 }

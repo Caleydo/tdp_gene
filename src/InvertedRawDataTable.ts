@@ -109,7 +109,7 @@ class InvertedRawDataTable extends ALineUpView2 {
       stringCol('id', 'Ensembl', true, 120),
       stringCol('chromosome', 'Chromosome', true, 150),
       //categoricalCol('species', desc.columns.species.categories, 'Species', true),
-      categoricalCol('strand_cat', ['reverse strand', 'forward strand'], 'Strand', true),
+      categoricalCol('strand', [{ label: 'reverse strand', name:String(-1)}, { label: 'forward strand', name:String(1)}], 'Strand', true),
       categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
       stringCol('seqregionstart', 'Seq Region Start', false),
       stringCol('seqregionend', 'Seq Region End', false)
@@ -137,7 +137,6 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   protected mapRows(rows:any[]) {
     rows = super.mapRows(rows);
-    rows.forEach((r) => r.strand_cat = r.strand === -1 ? 'reverse strand' : 'forward strand');
     return rows;
   }
 
