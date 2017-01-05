@@ -4,9 +4,7 @@
     "name": "targid_common",
     "author": "The Caleydo Team",
     "githubAccount": "caleydo",
-    "modules": [
-      "targid2"
-    ],
+    "modules": [],
     "extensions": [
       {
         "type": "targidStartSpecies",
@@ -410,9 +408,7 @@
     "sextensions": [],
     "libraries": [],
     "unknown": {
-      "requirements": [],
-      "debianPackages": [],
-      "redhatPackages": []
+      "requirements": []
     },
     "libraryAliases": {},
     "libraryExternals": [],
