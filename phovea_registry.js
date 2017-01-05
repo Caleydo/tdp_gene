@@ -10,6 +10,6 @@ import {register} from 'phovea_core/src/plugin';
  * build a registry by registering all phovea modules
  */
 //other modules
-
+import 'targid2/phovea_registry.js';
 //self
 register('targid_common',require('./phovea.js'));

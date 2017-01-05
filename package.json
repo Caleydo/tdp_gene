@@ -64,7 +64,7 @@
     "extract-loader": "0.0.2"
   },
   "dependencies": {
-    "phovea_clue": "github:phovea/targid2"
+    "targid2": "github:Caleydo/targid2#master"
   },
   "name": "targid_common",
   "description": "",

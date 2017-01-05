@@ -4,7 +4,9 @@
     "name": "targid_common",
     "author": "The Caleydo Team",
     "githubAccount": "caleydo",
-    "modules": [],
+    "modules": [
+      "targid2"
+    ],
     "extensions": [
       {
         "type": "targidStartSpecies",
