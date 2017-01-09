@@ -39,9 +39,10 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
       };
     case dataSubtypes.boxplot:
       return {
-        type: 'boxplotcustom',
+        type: 'boxplot',
         label: label,
-        domain: [1, 100]
+        domain: [1, 40],
+        sort: 'min'
       };
     default:
       return {
@@ -101,7 +102,7 @@ class AggregatedScore implements IScore<number> {
 
     return ajax.getAPIJSON(url, param)
       .then((rows: any[]) => {
-        alert('hi')
+
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -429,7 +430,7 @@ export function create(desc: IPluginDesc) {
           optionsFnc: (selection) => {
             var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if (selection[0].value === 'tumor_type') {
-              r = r.filter((d)=>d.type !== dataSubtypes.string); //no strings allowed
+              r = r.filter((d) => d.type !== dataSubtypes.string); //no strings allowed
             }
             return r.map((ds) => {
               return {name: ds.name, value: ds.id, data: ds};
@@ -521,7 +522,6 @@ export function create(desc: IPluginDesc) {
           score = createAggregatedScore(data);
       }
 
-      //console.log(score, data);
 
       dialog.hide();
       resolve(score);
