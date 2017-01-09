@@ -412,6 +412,10 @@ export class OncoPrint extends AView {
       .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)));
 
     $cells.exit().remove();
+
+    if(rows.length === 0) {
+      $parent.append('td').classed('cell', true);
+    }
   }
 
   private sortCells(sortedSamples: string[]) {
