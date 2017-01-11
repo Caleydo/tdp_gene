@@ -38,6 +38,7 @@ module.exports = function (registry) {
   }, {
     'name': 'Tissues',
     'factory': 'createStartFactory',
+    'viewId': 'bioinfodb_tissue_start',
     "idtype": "Tissue",
     "selection": "none",
     "sampleType": "Tissue"
