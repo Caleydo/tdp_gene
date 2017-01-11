@@ -85,7 +85,7 @@ class AggregatedScore implements IScore<number> {
     };
 
 
-    var url = `/targid/db/${this.dataSource.db}/aggregated_score`;
+    let url = `/targid/db/${this.dataSource.db}/aggregated_score`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
         url += '_panel';
@@ -131,7 +131,7 @@ class BoxScore implements IScore<number> {
       agg: this.parameter.aggregation
     };
 
-    var url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
+    let url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
         url += '_panel';
@@ -428,7 +428,7 @@ export function create(desc: IPluginDesc) {
         dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
         options: {
           optionsFnc: (selection) => {
-            var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
+            let r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if (selection[0].value === 'tumor_type') {
               r = r.filter((d) => d.type !== dataSubtypes.string); //no strings allowed
             }
@@ -448,7 +448,7 @@ export function create(desc: IPluginDesc) {
         showIf: (dependantValues) => (dependantValues[0].value === 'tumor_type'),
         options: {
           optionsFnc: (selection) => {
-            var r = [];
+            let r = [];
             if (selection[1].data === mutation) {
               r = [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
@@ -505,7 +505,7 @@ export function create(desc: IPluginDesc) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score: IScore<number>;
+      let score: IScore<number>;
 
       switch (data[ParameterFormIds.FILTER_BY]) {
         case 'single_cellline':
@@ -541,7 +541,7 @@ function createSingleEntityScore(data): IScore<number> {
 }
 
 function createAggregatedScore(data): IScore<number> {
-  var score: IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+  let score: IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 
   if (data[ParameterFormIds.AGGREGATION] === 'boxplot') {
 
@@ -551,7 +551,7 @@ function createAggregatedScore(data): IScore<number> {
   if (data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
 
     // boolean to indicate that the resulting score does not need to be divided by the total count
-    var countOnly = false;
+    let countOnly = false;
     if (data[ParameterFormIds.AGGREGATION] === 'count') {
       countOnly = true;
     }
