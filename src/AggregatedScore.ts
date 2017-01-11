@@ -11,8 +11,9 @@ import {
   all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies, tissue
 } from './Common';
-import {IScore, categoricalCol, stringCol} from 'targid2/src/LineUpView';
+import {IScore} from 'targid2/src/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from 'targid2/src/FormBuilder';
+import {IBoxPlotData} from 'lineupjs/src/model/BoxPlotColumn';
 import {api2absURL} from 'phovea_core/src/ajax';
 import {select} from 'd3';
 
@@ -30,25 +31,36 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
         type: 'categorical',
         label: label,
         categories: subtype.categories,
-        missingValue: subtype.missingCategory
+        missingValue: subtype.missingCategory,
+        lazyLoaded: true
       };
     case dataSubtypes.string:
       return {
         type: 'string',
-        label: label
+        label: label,
+        lazyLoaded: true
       };
     case dataSubtypes.boxplot:
       return {
-        type: 'boxplotcustom',
+        type: 'boxplot',
         label: label,
-        domain: [1, 100]
+        domain: [1, 100],
+        lazyLoaded: true,
+        missingValue: <IBoxPlotData>{
+          min: 0,
+          max: 0,
+          median: 0,
+          q1: 0,
+          q3: 0
+        },
       };
     default:
       return {
         type: 'number',
         label: label,
         domain: subtype.domain,
-        missingValue: subtype.missingValue
+        missingValue: subtype.missingValue,
+        lazyLoaded: true
       };
   }
 }
@@ -84,7 +96,7 @@ class AggregatedScore implements IScore<number> {
     };
 
 
-    var url = `/targid/db/${this.dataSource.db}/aggregated_score`;
+    let url = `/targid/db/${this.dataSource.db}/aggregated_score`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
         url += '_panel';
@@ -101,7 +113,6 @@ class AggregatedScore implements IScore<number> {
 
     return ajax.getAPIJSON(url, param)
       .then((rows: any[]) => {
-        alert('hi')
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -111,7 +122,7 @@ class AggregatedScore implements IScore<number> {
   }
 }
 
-class BoxScore implements IScore<number> {
+class BoxScore implements IScore<IBoxPlotData> {
   constructor(private parameter: IAggregatedScoreParameter, private dataSource: IDataSourceConfig) {
 
   }
@@ -130,7 +141,7 @@ class BoxScore implements IScore<number> {
       agg: this.parameter.aggregation
     };
 
-    var url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
+    let url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
         url += '_panel';
@@ -447,24 +458,21 @@ export function create(desc: IPluginDesc) {
         showIf: (dependantValues) => (dependantValues[0].value === 'tumor_type'),
         options: {
           optionsFnc: (selection) => {
-            var r = [];
             if (selection[1].data === mutation) {
-              r = [
+              return [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Count', value: 'count', data: 'count'}
               ];
-            } else {
-              r = [
-                {name: 'Average', value: 'avg', data: 'avg'},
-                {name: 'Median', value: 'median', data: 'median'},
-                {name: 'Min', value: 'min', data: 'min'},
-                {name: 'Max', value: 'max', data: 'max'},
-                {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'Count', value: 'count', data: 'count'},
-                {name: 'Boxplot', value: 'boxplot', data: 'boxplot'}
-              ];
             }
-            return r;
+            return [
+              {name: 'Average', value: 'avg', data: 'avg'},
+              {name: 'Median', value: 'median', data: 'median'},
+              {name: 'Min', value: 'min', data: 'min'},
+              {name: 'Max', value: 'max', data: 'max'},
+              {name: 'Frequency', value: 'frequency', data: 'frequency'},
+              {name: 'Count', value: 'count', data: 'count'},
+              {name: 'Boxplot', value: 'boxplot', data: 'boxplot'}
+            ];
           },
           optionsData: []
         },
@@ -541,32 +549,20 @@ function createSingleEntityScore(data): IScore<number> {
 }
 
 function createAggregatedScore(data): IScore<number> {
-  var score: IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
-
-  if (data[ParameterFormIds.AGGREGATION] === 'boxplot') {
-
-    score = new BoxScore(data, data[ParameterFormIds.DATA_SOURCE])
-  }
-
-  if (data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
-
+  const aggregation = data[ParameterFormIds.AGGREGATION];
+  if (aggregation === 'boxplot') {
+    return new BoxScore(data, data[ParameterFormIds.DATA_SOURCE]);
+  } else if (aggregation === 'frequency' || aggregation === 'count') {
     // boolean to indicate that the resulting score does not need to be divided by the total count
-    var countOnly = false;
-    if (data[ParameterFormIds.AGGREGATION] === 'count') {
-      countOnly = true;
-    }
+    const countOnly = aggregation === 'count';
     switch (data[ParameterFormIds.DATA_TYPE]) {
       case mutation:
-        score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-        break;
+        return new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
       case copyNumber:
       case expression:
-        score = new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-        break;
+        return new FrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
     }
   }
-
-
-  return score;
+  return new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }
 
