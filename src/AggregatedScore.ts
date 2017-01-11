@@ -24,27 +24,33 @@ import {select} from 'd3';
  * @return {any}
  */
 export function createDesc(type: string, label: string, subtype: IDataSubtypeConfig): any {
-  switch(type) {
-      case dataSubtypes.cat:
-        return {
-          type: 'categorical',
-          label: label,
-          categories: subtype.categories,
-          missingValue: subtype.missingCategory
-        };
-      case dataSubtypes.string:
-        return {
-          type: 'string',
-          label: label
-        };
-      default:
-        return {
-          type: 'number',
-          label: label,
-          domain: subtype.domain,
-          missingValue: subtype.missingValue
-        };
-    }
+  switch (type) {
+    case dataSubtypes.cat:
+      return {
+        type: 'categorical',
+        label: label,
+        categories: subtype.categories,
+        missingValue: subtype.missingCategory
+      };
+    case dataSubtypes.string:
+      return {
+        type: 'string',
+        label: label
+      };
+    case dataSubtypes.boxplot:
+      return {
+        type: 'boxplotcustom',
+        label: label,
+        domain: [1, 100]
+      };
+    default:
+      return {
+        type: 'number',
+        label: label,
+        domain: subtype.domain,
+        missingValue: subtype.missingValue
+      };
+  }
 }
 
 interface IAggregatedScoreParameter {
@@ -77,6 +83,7 @@ class AggregatedScore implements IScore<number> {
       agg: this.parameter.aggregation
     };
 
+
     var url = `/targid/db/${this.dataSource.db}/aggregated_score`;
     switch (this.parameter.filter_by) {
       case 'tissue_panel':
@@ -94,6 +101,7 @@ class AggregatedScore implements IScore<number> {
 
     return ajax.getAPIJSON(url, param)
       .then((rows: any[]) => {
+        alert('hi')
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -103,39 +111,90 @@ class AggregatedScore implements IScore<number> {
   }
 }
 
+class BoxScore implements IScore<number> {
+  constructor(private parameter: IAggregatedScoreParameter, private dataSource: IDataSourceConfig) {
+
+  }
+
+  createDesc() {
+    const subset = this.parameter.filter_by === 'tissue_panel' ? this.parameter.tissue_panel_name : this.parameter.tumor_type;
+    return createDesc(dataSubtypes.boxplot, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
+  }
+
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const param: any = {
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
+      agg: this.parameter.aggregation
+    };
+
+    var url = `/targid/db/${this.dataSource.db}/aggregated_score_boxplot`;
+    switch (this.parameter.filter_by) {
+      case 'tissue_panel':
+        url += '_panel';
+        param.panel = this.parameter.tissue_panel_name;
+        break;
+      default:
+        param.species = getSelectedSpecies();
+        if (this.parameter.tumor_type === all_types) {
+          url += '_all';
+        } else {
+          param.tumortype = this.parameter.tumor_type;
+        }
+    }
+
+    return ajax.getAPIJSON(url, param)
+      .then((rows: any[]) => {
+        // convert log2 to linear scale
+        //if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+        //  rows = convertLog2ToLinear(rows, 'score');
+        //}
+        rows = rows.map((d) => {
+          return {
+            id: d.id,
+            score: d
+          };
+        });
+
+        return rows;
+      });
+  }
+}
+
+
 class MutationFrequencyScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      tumor_type:string,
-      data_subtype:IDataSubtypeConfig,
-      comparison_operator: string,
-      comparison_value: number
-    },
-    private dataSource: IDataSourceConfig,
-    private countOnly
-  ) {
+  constructor(private parameter: {
+    tumor_type: string,
+    data_subtype: IDataSubtypeConfig,
+    comparison_operator: string,
+    comparison_value: number
+  },
+              private dataSource: IDataSourceConfig,
+              private countOnly) {
 
   }
 
   createDesc(): any {
     const subtype = this.parameter.data_subtype;
-    const label = `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`;
+    const label = `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ ' + this.parameter.tumor_type}`;
     //always a number
     return createDesc(dataSubtypes.number, label, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type===all_types ? '_all' : ''}`;
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const url = `/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type === all_types ? '_all' : ''}`;
     const param = {
-        schema: this.dataSource.schema,
-        entity_name: this.dataSource.entityName,
-        data_subtype: this.parameter.data_subtype.useForAggregation,
-        tumortype: this.parameter.tumor_type,
-        species: getSelectedSpecies()
-      };
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
+      tumortype: this.parameter.tumor_type,
+      species: getSelectedSpecies()
+    };
 
     return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
+      .then((rows: any[]) => {
         return rows.map((row) => {
           row.score = this.countOnly ? row.count : row.count / row.total;
           return row;
@@ -146,41 +205,39 @@ class MutationFrequencyScore implements IScore<number> {
 
 
 class FrequencyScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      tumor_type:string,
-      comparison_operator: string,
-      comparison_value: number
-    },
-    private dataSource: IDataSourceConfig,
-    private countOnly
-  ) {
+  constructor(private parameter: {
+    data_type: IDataTypeConfig,
+    data_subtype: IDataSubtypeConfig,
+    tumor_type: string,
+    comparison_operator: string,
+    comparison_value: number
+  },
+              private dataSource: IDataSourceConfig,
+              private countOnly) {
 
   }
 
   createDesc(): any {
     const subtype = this.parameter.data_subtype;
-    const label = `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ '+this.parameter.tumor_type}`;
+    const label = `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ ' + this.parameter.tumor_type}`;
     return createDesc(dataSubtypes.number, label, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type===all_types ? '_all' : ''}`;
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const url = `/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type === all_types ? '_all' : ''}`;
     const param = {
-        schema: this.dataSource.schema,
-        entity_name: this.dataSource.entityName,
-        table_name: this.parameter.data_type.tableName,
-        data_subtype: this.parameter.data_subtype.useForAggregation,
-        tumortype: this.parameter.tumor_type,
-        operator: this.parameter.comparison_operator,
-        value: this.parameter.comparison_value,
-        species: getSelectedSpecies()
-      };
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
+      data_subtype: this.parameter.data_subtype.useForAggregation,
+      tumortype: this.parameter.tumor_type,
+      operator: this.parameter.comparison_operator,
+      value: this.parameter.comparison_value,
+      species: getSelectedSpecies()
+    };
 
     return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
+      .then((rows: any[]) => {
         return rows.map((row) => {
           row.score = this.countOnly ? row.count : row.count / row.total;
           return row;
@@ -190,15 +247,13 @@ class FrequencyScore implements IScore<number> {
 }
 
 class SingleEntityScore implements IScore<any> {
-  constructor(
-    private parameter: {
-      data_source: IDataSourceConfig,
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      entity_value: {id:string, text:string}
-    },
-    private dataSource: IDataSourceConfig
-  ) {
+  constructor(private parameter: {
+    data_source: IDataSourceConfig,
+    data_type: IDataTypeConfig,
+    data_subtype: IDataSubtypeConfig,
+    entity_value: {id: string, text: string}
+  },
+              private dataSource: IDataSourceConfig) {
 
   }
 
@@ -207,19 +262,19 @@ class SingleEntityScore implements IScore<any> {
     return createDesc(subtype.type, `${subtype.name} of ${this.parameter.entity_value.text}`, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
     const url = `/targid/db/${this.dataSource.db}/single_entity_score`;
     const param = {
-        schema: this.dataSource.schema,
-        entity_name: this.dataSource.entityName,
-        table_name: this.parameter.data_type.tableName,
-        data_subtype: this.parameter.data_subtype.id,
-        entity_value: this.parameter.entity_value.id,
-        species: getSelectedSpecies()
-      };
+      schema: this.dataSource.schema,
+      entity_name: this.dataSource.entityName,
+      table_name: this.parameter.data_type.tableName,
+      data_subtype: this.parameter.data_subtype.id,
+      entity_value: this.parameter.entity_value.id,
+      species: getSelectedSpecies()
+    };
 
     return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
+      .then((rows: any[]) => {
         // convert log2 to linear scale
         if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
           rows = convertLog2ToLinear(rows, 'score');
@@ -260,9 +315,9 @@ export function create(desc: IPluginDesc) {
         dependsOn: [ParameterFormIds.DATA_SOURCE],
         options: {
           optionsFnc: (selection) => {
-            if(selection[0].data === cellline) {
+            if (selection[0].data === cellline) {
               return [
-                {name: 'Tumor Type', value:'tumor_type', data:'tumor_type'},
+                {name: 'Tumor Type', value: 'tumor_type', data: 'tumor_type'},
                 {name: `Single ${selection[0].data.name}`, value: `single_cellline`, data: `single_cellline`}
               ];
             }
@@ -289,7 +344,7 @@ export function create(desc: IPluginDesc) {
           optionsData: [],
           ajax: {
             url: api2absURL(`/targid/db/${dataSources[0].db}/single_entity_lookup/lookup`),
-            data: (params:any) => {
+            data: (params: any) => {
               return {
                 schema: dataSources[0].schema,
                 table_name: dataSources[0].tableName,
@@ -317,7 +372,7 @@ export function create(desc: IPluginDesc) {
           optionsData: [],
           ajax: {
             url: api2absURL(`/targid/db/${dataSources[1].db}/single_entity_lookup/lookup`),
-            data: (params:any) => {
+            data: (params: any) => {
               return {
                 schema: dataSources[1].schema,
                 table_name: dataSources[1].tableName,
@@ -373,7 +428,7 @@ export function create(desc: IPluginDesc) {
         options: {
           optionsFnc: (selection) => {
             var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
-            if(selection[0].value === 'tumor_type') {
+            if (selection[0].value === 'tumor_type') {
               r = r.filter((d)=>d.type !== dataSubtypes.string); //no strings allowed
             }
             return r.map((ds) => {
@@ -393,7 +448,7 @@ export function create(desc: IPluginDesc) {
         options: {
           optionsFnc: (selection) => {
             var r = [];
-            if(selection[1].data === mutation) {
+            if (selection[1].data === mutation) {
               r = [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Count', value: 'count', data: 'count'}
@@ -405,7 +460,8 @@ export function create(desc: IPluginDesc) {
                 {name: 'Min', value: 'min', data: 'min'},
                 {name: 'Max', value: 'max', data: 'max'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
-                {name: 'Count', value: 'count', data: 'count'}
+                {name: 'Count', value: 'count', data: 'count'},
+                {name: 'Boxplot', value: 'boxplot', data: 'boxplot'}
               ];
             }
             return r;
@@ -420,7 +476,7 @@ export function create(desc: IPluginDesc) {
         id: ParameterFormIds.COMPARISON_OPERATOR,
         dependsOn: [ParameterFormIds.DATA_TYPE, ParameterFormIds.AGGREGATION],
         showIf: (dependantValues) => // show form element for expression and copy number frequencies
-          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count')  && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
+          ((dependantValues[1].value === 'frequency' || dependantValues[1].value === 'count') && (dependantValues[0].data === expression || dependantValues[0].data === copyNumber)),
         options: {
           optionsData: [
             {name: '&lt; less than', value: '<', data: '<'},
@@ -448,9 +504,9 @@ export function create(desc: IPluginDesc) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score:IScore<number>;
+      var score: IScore<number>;
 
-      switch(data[ParameterFormIds.FILTER_BY]) {
+      switch (data[ParameterFormIds.FILTER_BY]) {
         case 'single_cellline':
           data.entity_value = data[ParameterFormIds.CELLLINE_NAME];
           score = createSingleEntityScore(data);
@@ -480,21 +536,26 @@ export function create(desc: IPluginDesc) {
   }));
 }
 
-function createSingleEntityScore(data):IScore<number> {
+function createSingleEntityScore(data): IScore<number> {
   return new SingleEntityScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }
 
-function createAggregatedScore(data):IScore<number> {
-  var score:IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+function createAggregatedScore(data): IScore<number> {
+  var score: IScore<number> = new AggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 
-  if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
+  if (data[ParameterFormIds.AGGREGATION] === 'boxplot') {
+
+    score = new BoxScore(data, data[ParameterFormIds.DATA_SOURCE])
+  }
+
+  if (data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
 
     // boolean to indicate that the resulting score does not need to be divided by the total count
     var countOnly = false;
     if (data[ParameterFormIds.AGGREGATION] === 'count') {
       countOnly = true;
     }
-    switch(data[ParameterFormIds.DATA_TYPE]) {
+    switch (data[ParameterFormIds.DATA_TYPE]) {
       case mutation:
         score = new MutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
         break;
@@ -504,6 +565,7 @@ function createAggregatedScore(data):IScore<number> {
         break;
     }
   }
+
 
   return score;
 }

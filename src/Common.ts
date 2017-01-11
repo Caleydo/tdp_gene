@@ -247,7 +247,9 @@ export interface IDataTypeConfig {
 export const dataSubtypes = {
   number: 'number',
   string: 'string',
-  cat: 'cat'
+  cat: 'cat',
+  boxplot :'boxplot'
+
 };
 
 export interface IDataSubtypeConfig {
