@@ -64,7 +64,7 @@
     "extract-loader": "0.0.2"
   },
   "dependencies": {
-    "targid2": "github:Caleydo/targid2#master"
+    "targid2": "github:Caleydo/targid2#migrate"
   },
   "name": "targid_common",
   "description": "",
