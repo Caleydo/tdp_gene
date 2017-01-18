@@ -8,7 +8,7 @@ import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
 import {INamedSet, ENamedSetType} from 'targid2/src/storage';
 import {getAPIJSON} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
-import {IViewContext, ISelection, IAViewOptions} from 'targid2/src/View';
+import {IViewContext, ISelection} from 'targid2/src/View';
 import {ALineUpView2} from 'targid2/src/LineUpView';
 import {FormBuilder, IFormSelectDesc, FormElementType} from 'targid2/src/FormBuilder';
 
@@ -46,9 +46,9 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   private static panel2NamedSet({id, description}: {id: string, description: string}): INamedSet {
     return {
       type: ENamedSetType.PANEL,
-      id: id,
+      id,
       name: id,
-      description: description,
+      description,
 
       subTypeKey: ParameterFormIds.SPECIES,
       subTypeFromSession: true,
@@ -73,7 +73,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 }
 
 
-export interface IACommonListOptions extends IAViewOptions {
+export interface IACommonListOptions {
   namedSet: INamedSet;
 }
 
@@ -165,7 +165,7 @@ export abstract class ACommonList extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    var predefinedUrl: string;
+    let predefinedUrl: string;
     const param: any = {};
 
     switch(this.namedSet.type) {
@@ -182,7 +182,7 @@ export abstract class ACommonList extends ALineUpView2 {
     }
 
     // add filtered options
-    var filteredUrl = '';
+    let filteredUrl = '';
 
     if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
       if(this.namedSet.subTypeFromSession) {

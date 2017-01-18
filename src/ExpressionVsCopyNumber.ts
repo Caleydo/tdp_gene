@@ -8,7 +8,7 @@ import bindTooltip from 'phovea_d3/src/tooltip';
 import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
 import {Range} from 'phovea_core/src/range';
-import {all_types, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
+import {allTypes, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
 import {showErrorModalDialog} from 'targid2/src/Dialogs';
 import * as d3 from 'd3';
@@ -126,22 +126,22 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     const idtype = this.selection.idtype;
 
     const data:IDataFormat[] = ids.map((id) => {
-      return {id: id, geneName: '', rows: []};
+      return {id, geneName: '', rows: []};
     });
 
     const $ids = this.$node.selectAll('div.ids').data<IDataFormat>(<any>data, (d) => d.id.toString());
-    const $ids_enter = $ids.enter().append('div').classed('ids', true);
+    const $idsEnter = $ids.enter().append('div').classed('ids', true);
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
-    const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
+    const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     enterOrUpdateAll.each(function(d) {
       const $id = d3.select(this);
       const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/expression_vs_copynumber${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/expression_vs_copynumber${that.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`, {
               ensg: name,
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
@@ -265,7 +265,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
-    var title = 'No data for ' + geneName;
+    let title = 'No data for ' + geneName;
     if(rows[0]) {
       title = geneName;
     }

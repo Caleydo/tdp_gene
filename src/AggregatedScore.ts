@@ -8,7 +8,7 @@ import * as dialogs from 'phovea_ui/src/dialogs';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import * as idtypes from 'phovea_core/src/idtype';
 import {
-  all_types, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
+  allTypes, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies, tissue
 } from './Common';
 import {IScore} from 'targid2/src/LineUpView';
@@ -29,7 +29,7 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
     case dataSubtypes.cat:
       return {
         type: 'categorical',
-        label: label,
+        label,
         categories: subtype.categories,
         missingValue: subtype.missingCategory,
         lazyLoaded: true
@@ -37,13 +37,13 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
     case dataSubtypes.string:
       return {
         type: 'string',
-        label: label,
+        label,
         lazyLoaded: true
       };
     case dataSubtypes.boxplot:
       return {
         type: 'boxplot',
-        label: label,
+        label,
         domain: [1, 100],
         lazyLoaded: true,
         missingValue: <IBoxPlotData>{
@@ -57,7 +57,7 @@ export function createDesc(type: string, label: string, subtype: IDataSubtypeCon
     default:
       return {
         type: 'number',
-        label: label,
+        label,
         domain: subtype.domain,
         missingValue: subtype.missingValue,
         lazyLoaded: true
@@ -104,7 +104,7 @@ class AggregatedScore implements IScore<number> {
         break;
       default:
         param.species = getSelectedSpecies();
-        if (this.parameter.tumor_type === all_types) {
+        if (this.parameter.tumor_type === allTypes) {
           url += '_all';
         } else {
           param.tumortype = this.parameter.tumor_type;
@@ -149,7 +149,7 @@ class BoxScore implements IScore<IBoxPlotData> {
         break;
       default:
         param.species = getSelectedSpecies();
-        if (this.parameter.tumor_type === all_types) {
+        if (this.parameter.tumor_type === allTypes) {
           url += '_all';
         } else {
           param.tumortype = this.parameter.tumor_type;
@@ -189,13 +189,13 @@ class MutationFrequencyScore implements IScore<number> {
 
   createDesc(): any {
     const subtype = this.parameter.data_subtype;
-    const label = `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === all_types ? '' : '@ ' + this.parameter.tumor_type}`;
+    const label = `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.tumor_type === allTypes ? '' : '@ ' + this.parameter.tumor_type}`;
     //always a number
     return createDesc(dataSubtypes.number, label, subtype);
   }
 
   compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type === all_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.dataSource.db}/mutation_frequency${this.parameter.tumor_type === allTypes ? '_all' : ''}`;
     const param = {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
@@ -230,12 +230,12 @@ class FrequencyScore implements IScore<number> {
 
   createDesc(): any {
     const subtype = this.parameter.data_subtype;
-    const label = `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === all_types ? '' : '@ ' + this.parameter.tumor_type}`;
+    const label = `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.tumor_type === allTypes ? '' : '@ ' + this.parameter.tumor_type}`;
     return createDesc(dataSubtypes.number, label, subtype);
   }
 
   compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type === all_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.dataSource.db}/frequency_score${this.parameter.tumor_type === allTypes ? '_all' : ''}`;
     const param = {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
@@ -438,7 +438,7 @@ export function create(desc: IPluginDesc) {
         dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
         options: {
           optionsFnc: (selection) => {
-            var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
+            let r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if (selection[0].value === 'tumor_type') {
               r = r.filter((d)=>d.type !== dataSubtypes.string); //no strings allowed
             }
@@ -512,7 +512,7 @@ export function create(desc: IPluginDesc) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score: IScore<number>;
+      let score: IScore<number>;
 
       switch (data[ParameterFormIds.FILTER_BY]) {
         case 'single_cellline':

@@ -22,8 +22,8 @@ export const mutationCat = [
 ];
 export const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
 
-export const all_types = 'All Tumor Types';
-export const all_bio_types = 'All Bio Types';
+export const allTypes = 'All Tumor Types';
+export const allBioTypes = 'All Bio Types';
 //select distinct tumortype from cellline where tumortype is not null
 
 
@@ -66,7 +66,7 @@ export const cellline:ITumorTypeDataSourceConfig = {
   entityName: 'celllinename',
   base: 'cellline',
   tumorTypes: celllinesTumorTypes,
-  tumorTypesWithAll : [all_types].concat(celllinesTumorTypes)
+  tumorTypesWithAll : [allTypes].concat(celllinesTumorTypes)
 };
 
 //const tissueTumorTypes = ['Adrenal Gland', 'Artery - Aorta', 'Bladder', 'Brain - Cerebellum', 'Brain - Cortex', 'Brain - Spinal cord (cervical c-1)',
@@ -166,7 +166,7 @@ export const tissue:ITumorTypeDataSourceConfig = {
   entityName: 'tissuename',
   base: 'tissue',
   tumorTypes: tissueTumorTypes,
-  tumorTypesWithAll : [all_types].concat(tissueTumorTypes)
+  tumorTypesWithAll : [allTypes].concat(tissueTumorTypes)
 };
 
 const geneBioTypes = [
@@ -214,7 +214,7 @@ export const gene:IBioTypeDataSourceConfig = {
   entityName: 'ensg',
   base: 'gene',
   bioTypes: geneBioTypes,
-  bioTypesWithAll : [all_bio_types].concat(geneBioTypes)
+  bioTypesWithAll : [allBioTypes].concat(geneBioTypes)
 };
 
 export const dataSources = [cellline, tissue];
@@ -364,7 +364,7 @@ export function getSelectedSpecies() {
 
 export function convertCopyNumberClass(rows, field:string) {
   //console.log('convert copy number class');
-  let mapping = {};
+  const mapping = {};
   copyNumberCat.forEach((d) => mapping[d.value] = d.name);
   return rows.map((row) => {
     row[field] = mapping[row[field]];
@@ -374,7 +374,7 @@ export function convertCopyNumberClass(rows, field:string) {
 
 export function convertMutationCat(rows, field:string) {
   //console.log('convert copy number class');
-  let mapping = {};
+  const mapping = {};
   mutationCat.forEach((d) => mapping[d.value] = d.name);
   return rows.map((row) => {
     row[field] = mapping[row[field]];
