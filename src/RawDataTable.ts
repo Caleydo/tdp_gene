@@ -9,7 +9,7 @@ import {
   ALineUpView2, IScoreRow
 } from 'targid2/src/LineUpView';
 import {
-  dataSources, all_types, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
+  dataSources, allTypes, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
   getSelectedSpecies
 } from './Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
@@ -119,7 +119,7 @@ class RawDataTable extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const url = `/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const url = `/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`;
     const param = {
       schema: dataSource.schema,
       entity_name: dataSource.entityName,
@@ -138,20 +138,17 @@ class RawDataTable extends ALineUpView2 {
 
   protected getSelectionColumnDesc(id) {
     return this.getSelectionColumnLabel(id)
-      .then((label:string) => {
-        var desc;
+      .then((label: string) => {
         const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
-
-        if (dataSubType.type === 'boolean') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'string') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'cat') {
-          desc = categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
-        } else {
-          desc = numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
+        switch (dataSubType.type) {
+          case 'boolean':
+            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+          case 'string':
+            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+          case 'cat':
+            return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
         }
-        return desc;
+        return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
       });
   }
 
@@ -161,7 +158,7 @@ class RawDataTable extends ALineUpView2 {
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
       .then((ensg) => {
-        return ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
+        return <Promise<{symbol: string}[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
             ensgs: `'${ensg}'`,
             species: getSelectedSpecies()
           });
@@ -172,13 +169,13 @@ class RawDataTable extends ALineUpView2 {
       });
   }
 
-  protected loadSelectionColumnData(id) {
+  protected loadSelectionColumnData(id): Promise<IScoreRow<any>[]> {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
       .then((ensg) => {
-        return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
-          ensg: ensg,
+        return <Promise<IScoreRow<any>[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
+          ensg,
           schema: dataSource.schema,
           entity_name: dataSource.entityName,
           table_name: this.dataType.tableName,

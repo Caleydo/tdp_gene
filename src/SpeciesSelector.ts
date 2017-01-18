@@ -88,8 +88,8 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
     // get start views for entry points and sort them by name ASC
     const views = findViewCreators(this.entryPointId).sort((a,b) => {
-      let x = a.name.toLowerCase();
-      let y = b.name.toLowerCase();
+      const x = a.name.toLowerCase();
+      const y = b.name.toLowerCase();
       return x === y ? 0 : (x < y ? -1 : 1);
     });
 
