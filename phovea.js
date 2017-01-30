@@ -13,7 +13,7 @@ module.exports = function (registry) {
   }, {
     'name': 'Species Selector',
     'cssClass': 'speciesSelector',
-    'factory': 'createStartFactory',
+    'factory': 'create',
     'priority': 10
   });
 
