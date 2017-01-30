@@ -8,11 +8,13 @@
 module.exports = function (registry) {
   //registry.push('extension-type', 'extension-id', function() { return System.import('./src/extension_impl'); }, {});
   // generator-phovea:begin
-  registry.push('targidStartSpecies', 'targid_start_species', function () {
+  registry.push('targidStartMenuSection', 'targid_start_species', function () {
     return System.import('./src/SpeciesSelector');
   }, {
     'name': 'Species Selector',
-    'factory': 'createStartFactory'
+    'cssClass': 'speciesSelector',
+    'factory': 'createStartFactory',
+    'priority': 10
   });
 
   registry.push('targidStartEntryPoint', 'celllinedb_genes_start', function () {
