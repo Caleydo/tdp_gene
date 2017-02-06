@@ -11,8 +11,8 @@ import {
   allTypes, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies, tissue
 } from './Common';
-import {IScore} from 'targid2/src/LineUpView';
-import {FormBuilder, FormElementType, IFormElementDesc} from 'targid2/src/FormBuilder';
+import {IScore} from 'ordino/src/LineUpView';
+import {FormBuilder, FormElementType, IFormElementDesc} from 'ordino/src/FormBuilder';
 import {IBoxPlotData} from 'lineupjs/src/model/BoxPlotColumn';
 import {api2absURL} from 'phovea_core/src/ajax';
 import {select} from 'd3';

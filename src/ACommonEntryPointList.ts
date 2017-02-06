@@ -3,14 +3,14 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {AEntryPointList} from 'targid2/src/StartMenu';
+import {AEntryPointList} from 'ordino/src/StartMenu';
 import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
-import {INamedSet, ENamedSetType} from 'targid2/src/storage';
+import {INamedSet, ENamedSetType} from 'ordino/src/storage';
 import {getAPIJSON} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
-import {IViewContext, ISelection} from 'targid2/src/View';
-import {ALineUpView2} from 'targid2/src/LineUpView';
-import {FormBuilder, IFormSelectDesc, FormElementType} from 'targid2/src/FormBuilder';
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {ALineUpView2} from 'ordino/src/LineUpView';
+import {FormBuilder, IFormSelectDesc, FormElementType} from 'ordino/src/FormBuilder';
 
 export abstract class ACommonEntryPointList extends AEntryPointList {
 

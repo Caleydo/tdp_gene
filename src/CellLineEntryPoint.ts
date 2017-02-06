@@ -3,11 +3,11 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IEntryPointList} from 'targid2/src/StartMenu';
+import {IEntryPointList} from 'ordino/src/StartMenu';
 import {chooseDataSource} from './Common';
 import {ACommonEntryPointList, IACommonListOptions, ACommonList} from './ACommonEntryPointList';
-import {IViewContext, ISelection} from 'targid2/src/View';
-import {stringCol, categoricalCol} from 'targid2/src/LineUpView';
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {stringCol, categoricalCol} from 'ordino/src/LineUpView';
 
 
 /**

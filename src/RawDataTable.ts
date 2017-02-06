@@ -3,16 +3,16 @@
  */
 
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection} from 'targid2/src/View';
+import {IViewContext, ISelection} from 'ordino/src/View';
 import {
   stringCol, numberCol2, categoricalCol,
   ALineUpView2, IScoreRow
-} from 'targid2/src/LineUpView';
+} from 'ordino/src/LineUpView';
 import {
   dataSources, allTypes, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
   getSelectedSpecies
 } from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 
 class RawDataTable extends ALineUpView2 {
 

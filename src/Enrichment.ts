@@ -5,11 +5,11 @@
 
 import * as ajax from 'phovea_core/src/ajax';
 import * as idtypes from 'phovea_core/src/idtype';
-import {IViewContext, ISelection} from 'targid2/src/View';
-import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from 'targid2/src/LineUpView';
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from 'ordino/src/LineUpView';
 import {dataSources, allTypes, copyNumberCat, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
-import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
 
 export class Enrichment extends ALineUpView {
 
