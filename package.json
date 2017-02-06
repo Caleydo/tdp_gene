@@ -1,4 +1,21 @@
 {
+  "name": "targid_common",
+  "description": "",
+  "homepage": "https://phovea.caleydo.org",
+  "version": "1.0.1-SNAPSHOT",
+  "author": {
+    "name": "The Caleydo Team",
+    "email": "contact@caleydo.org",
+    "url": "https://caleydo.org"
+  },
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/caleydo/targid_common/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caleydo/targid_common.git"
+  },
   "main": "build/targid_common.js",
   "files": [
     "src",
@@ -32,6 +49,9 @@
     "predist": "npm run build && npm run docs",
     "dist": "mkdirp dist && cd build && tar cvzf ../dist/targid_common.tar.gz *"
   },
+  "dependencies": {
+    "ordino": "github:Caleydo/ordino#master"
+  },
   "devDependencies": {
     "@types/jasmine": "2.5.40",
     "awesome-typescript-loader": "3.0.0-beta.18",
@@ -62,25 +82,5 @@
     "webpack": "2.1.0-beta.28",
     "webpack-dev-server": "2.1.0-beta.12",
     "extract-loader": "0.1.0"
-  },
-  "dependencies": {
-    "ordino": "github:Caleydo/ordino#migrate"
-  },
-  "name": "targid_common",
-  "description": "",
-  "homepage": "https://phovea.caleydo.org",
-  "version": "1.0.1-SNAPSHOT",
-  "author": {
-    "name": "The Caleydo Team",
-    "email": "contact@caleydo.org",
-    "url": "https://caleydo.org"
-  },
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/caleydo/targid_common/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/caleydo/targid_common.git"
   }
 }
