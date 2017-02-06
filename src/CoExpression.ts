@@ -2,13 +2,13 @@
  * Created by Holger Stitz on 12.08.2016.
  */
 
-import ajax = require('../caleydo_core/ajax');
-import tooltip = require('../caleydo_d3/tooltip');
-import {IViewContext, ISelection, ASmallMultipleView} from '../targid2/View';
-import {all_types, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
-
+import * as ajax from 'phovea_core/src/ajax';
+import bindTooltip from 'phovea_d3/src/tooltip';
+import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
+import {allTypes, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
+import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import * as d3 from 'd3';
 
 export class CoExpression extends ASmallMultipleView {
 
@@ -182,7 +182,7 @@ export class CoExpression extends ASmallMultipleView {
   private loadRefGeneData() {
     this.refGene = this.paramForm.getElementById(ParameterFormIds.REFERENCE_GENE).value;
 
-    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`;
     const param = {
         ensg: this.refGene.data.id,
         schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
@@ -217,7 +217,7 @@ export class CoExpression extends ASmallMultipleView {
     const data:IDataFormat[] = ids
       .filter((id) => id !== this.refGene.data._id) // skip refGene, because it's already loaded
       .map((id) => {
-        return {id: id, geneName: '', rows: []};
+        return {id, geneName: '', rows: []};
       });
 
     // show/hidde message and loading indicator if two less genes are selected
@@ -225,18 +225,18 @@ export class CoExpression extends ASmallMultipleView {
     this.setBusy((data.length > 0));
 
     const $plots = this.$node.selectAll('div.plots').data<IDataFormat>(<any>data, (d) => d.id.toString());
-    const $plots_enter = $plots.enter().append('div').classed('plots', true);
+    const $plotsEnter = $plots.enter().append('div').classed('plots', true);
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
-    const enterOrUpdateAll = (updateAll) ? $plots : $plots_enter;
+    const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
 
     enterOrUpdateAll.each(function(d) {
       const $id = d3.select(this);
       const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${that.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`, {
+            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${that.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`, {
               ensg: name,
               schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
               entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
@@ -365,7 +365,7 @@ export class CoExpression extends ASmallMultipleView {
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
-    var title = 'No data for ' + geneName;
+    let title = 'No data for ' + geneName;
     if(rows[0]) {
       title = geneName;
     }
@@ -399,7 +399,7 @@ export class CoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
-      .call(tooltip.bind((d:any) => d[2]));
+      .call(bindTooltip((d:any) => d[2]));
 
     marks.transition().attr({
       cx : (d) => this.x(d[0]),

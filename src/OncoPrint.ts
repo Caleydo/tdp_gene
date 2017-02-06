@@ -1,14 +1,15 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path="../../tsd.d.ts" />
-/// <amd-dependency path='css!./style' />
 
-import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection, AView, IView} from '../targid2/View';
-import {all_types, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+import './style.scss';
+
+import * as ajax from 'phovea_core/src/ajax';
+import {IViewContext, ISelection, AView, IView} from 'targid2/src/View';
+import {allTypes, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from './Common';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import * as d3 from 'd3';
 
 
 interface IDataFormatRow {
@@ -113,26 +114,26 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
   //sort such that missing values are in the end
   //hierarchy: cn, mut, expression
   function compare(a: string, b: string) {
-    for (let row of rowLookups) {
-      let a_row: IDataFormatRow = row[a];
-      let b_row: IDataFormatRow = row[b];
+    for (const row of rowLookups) {
+      const aRow: IDataFormatRow = row[a];
+      const bRow: IDataFormatRow = row[b];
       { // undefined
-        if (a_row === b_row) { //e.g. both undefined
+        if (aRow === bRow) { //e.g. both undefined
           continue;
         }
-        if (a_row === undefined || a_row === null) {
+        if (aRow === undefined || aRow === null) {
           return FIRST_IS_NULL; //for a not defined -> bigger
         }
-        if (b_row === undefined || b_row === null) {
+        if (bRow === undefined || bRow === null) {
           return -FIRST_IS_NULL;
         }
       }
       //first condition can be false positive, null vs 'null', so if both are missing don't compare
-      if (a_row.cn !== b_row.cn && !(isMissingCNV(a_row.cn) && isMissingCNV(b_row.cn))) {
-        return compareCNV(a_row.cn, b_row.cn);
+      if (aRow.cn !== bRow.cn && !(isMissingCNV(aRow.cn) && isMissingCNV(bRow.cn))) {
+        return compareCNV(aRow.cn, bRow.cn);
       }
-      if (a_row.aa_mutated !== b_row.aa_mutated && !(isMissingMutation(a_row.aa_mutated) && isMissingMutation(b_row.aa_mutated))) {
-        return compareMutation(a_row.aa_mutated, b_row.aa_mutated);
+      if (aRow.aa_mutated !== bRow.aa_mutated && !(isMissingMutation(aRow.aa_mutated) && isMissingMutation(bRow.aa_mutated))) {
+        return compareMutation(aRow.aa_mutated, bRow.aa_mutated);
       }
       // ignore not encoded expression value
       // if (a_row.expr !== b_row.expr) {
@@ -146,9 +147,9 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
 }
 
 function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
-  const a_f = a && a.alterationFreq !== undefined ? a.alterationFreq : 0;
-  const b_f = b && b.alterationFreq !== undefined ? b.alterationFreq : 0;
-  return b_f - a_f;
+  const aFrequency = a && a.alterationFreq !== undefined ? a.alterationFreq : 0;
+  const bFrequency = b && b.alterationFreq !== undefined ? b.alterationFreq : 0;
+  return bFrequency - aFrequency;
 }
 
 export class OncoPrint extends AView {
@@ -252,7 +253,7 @@ export class OncoPrint extends AView {
     $cnLegend.append('li').classed('title', true).text('Copy Number');
 
     copyNumberCat.forEach((d) => {
-      let $li = $cnLegend.append('li').classed('cnv', true);
+      const $li = $cnLegend.append('li').classed('cnv', true);
       $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
       $li.append('span').text(d.name);
     });
@@ -263,7 +264,7 @@ export class OncoPrint extends AView {
     mutationCat
       //.filter((d) => d.value !=='f')
       .forEach((d) => {
-        let $li = $mutLegend.append('li').classed('mut', true);
+        const $li = $mutLegend.append('li').classed('mut', true);
         $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
         $li.append('span').text(d.name);
       });
@@ -272,7 +273,7 @@ export class OncoPrint extends AView {
   private loadSampleList() {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
-    const url = `/targid/db/${ds.db}/onco_print_sample_list${tumorType === all_types ? '_all' : ''}`;
+    const url = `/targid/db/${ds.db}/onco_print_sample_list${tumorType === allTypes ? '_all' : ''}`;
     const param = {
       schema: ds.schema,
       entity_name: ds.entityName,
@@ -288,7 +289,7 @@ export class OncoPrint extends AView {
   private loadRows(ensg: string): Promise<IDataFormatRow[]> {
     const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
     const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
-    return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === all_types ? '_all' : ''}`, {
+    return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === allTypes ? '_all' : ''}`, {
       ensgs: '\'' + ensg + '\'',
       schema: ds.schema,
       entity_name: ds.entityName,
@@ -317,7 +318,7 @@ export class OncoPrint extends AView {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const empty = (id) => ({id: id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});
+    const empty = (id) => ({id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});
     // merge the old rows with the current selection
     const merge = (ids: number[], old: IDataFormat[]) => {
       if (old.length === 0) {
@@ -331,11 +332,11 @@ export class OncoPrint extends AView {
     const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
 
     const $ids = this.$table.selectAll('tr.gene').data(data, (d) => String(d.id));
-    const $ids_enter = $ids.enter().append('tr').classed('gene', true);
+    const $idsEnter = $ids.enter().append('tr').classed('gene', true);
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
-    const enterOrUpdateAll = (updateAll) ? $ids : $ids_enter;
+    const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
       const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, gene.idType))
@@ -384,7 +385,7 @@ export class OncoPrint extends AView {
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
     const style = OncoPrint.STYLE;
     //console.log(data.geneName);
-    var rows: IDataFormatRow[] = data.rows;
+    let rows: IDataFormatRow[] = data.rows;
     rows = this.alignData(rows, samples);
 
     // count amplification/deletions and divide by total number of rows
@@ -425,10 +426,10 @@ export class OncoPrint extends AView {
 
     const $genes = this.$table.selectAll('tr.gene');
     $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
-      const a_i = lookup[a.name];
-      const b_i = lookup[b.name];
+      const aIndex = lookup[a.name];
+      const bIndex = lookup[b.name];
       // assume both exist
-      return a_i - b_i;
+      return aIndex - bIndex;
     });
     $genes.sort(byAlterationFrequency);
   }

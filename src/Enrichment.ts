@@ -1,15 +1,15 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path="../../tsd.d.ts" />
 
-import ajax = require('../caleydo_core/ajax');
-import idtypes = require('../caleydo_core/idtype');
-import {IViewContext, ISelection} from '../targid2/View';
-import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from '../targid2/LineUpView';
-import {dataSources, all_types, copyNumberCat, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
-import {showErrorModalDialog} from '../targid2/Dialogs';
+
+import * as ajax from 'phovea_core/src/ajax';
+import * as idtypes from 'phovea_core/src/idtype';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {ALineUpView, stringCol, numberCol2, useDefaultLayout} from 'targid2/src/LineUpView';
+import {dataSources, allTypes, copyNumberCat, ParameterFormIds, getSelectedSpecies} from './Common';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
+import {showErrorModalDialog} from 'targid2/src/Dialogs';
 
 export class Enrichment extends ALineUpView {
 
@@ -97,10 +97,10 @@ export class Enrichment extends ALineUpView {
 
     const promise = Promise.all([this.lineupPromise, this.resolveId(idtype, id, 'Ensembl')])
       .then((args) => {
-        const gene_name = args[1];
-        const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === all_types ? '_all' : ''}`;
+        const ensg = args[1];
+        const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/enrichment${this.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`;
         const param = {
-          ensg: gene_name,
+          ensg,
           schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
           entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
           table_name: this.getParameter(ParameterFormIds.DATA_SOURCE).tableName,
@@ -151,7 +151,7 @@ export class Enrichment extends ALineUpView {
       stringCol('symbol','symbol'),
       numberCol2('score', -3, 3),
     ];
-    var lineup = this.buildLineUp([], columns, idtypes.resolve('Ensembl'),(d) => d._id);
+    const lineup = this.buildLineUp([], columns, idtypes.resolve('Ensembl'),(d) => d._id);
     useDefaultLayout(lineup);
     lineup.update();
 

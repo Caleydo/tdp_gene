@@ -2,11 +2,11 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 
-import {IViewContext, ISelection} from '../targid2/View';
-import {IPluginDesc} from '../caleydo_core/plugin';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import {GeneProxyView} from './GeneProxyView';
-import {ProxyView} from '../targid2/ProxyView';
-import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from '../targid2/FormBuilder';
+import {ProxyView} from 'targid2/src/ProxyView';
+import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'targid2/src/FormBuilder';
 
 /**
  * helper view for proxying an existing external website
@@ -115,9 +115,9 @@ export class UniProtProxyView extends GeneProxyView {
         selectedItemSelect.updateOptionElements([]);
         return Promise.reject(reject);
       })
-      .then((args) => {
-        const uniProtIds = args[0]; // use names to get the last selected element
-        const data = args[1];
+      .then((args: any[]) => {
+        const uniProtIds = <string[]>args[0]; // use names to get the last selected element
+        const data = <{value: string, name: string, data: string}[]>args[1];
 
         selectedItemSelect.setVisible(true);
 
@@ -137,7 +137,7 @@ export class UniProtProxyView extends GeneProxyView {
       });
   }
 
-  private getUniProtSelectData(uniProtIds) {
+  private getUniProtSelectData(uniProtIds): Promise<{value: string, name: string, data: string}[]> {
     if(uniProtIds === null) {
       return Promise.resolve([]);
     }

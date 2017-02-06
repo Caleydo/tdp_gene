@@ -2,18 +2,17 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {IPluginDesc} from '../caleydo_core/plugin';
-import {IEntryPointList} from '../targid2/StartMenu';
-import {chooseDataSource} from './Common';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {IEntryPointList} from 'targid2/src/StartMenu';
+import {gene} from './Common';
 import {ACommonEntryPointList, IACommonListOptions, ACommonList} from './ACommonEntryPointList';
-import {IViewContext, ISelection} from '../targid2/View';
-import {stringCol, categoricalCol} from '../targid2/LineUpView';
-
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {stringCol, categoricalCol} from 'targid2/src/LineUpView';
 
 /**
  * Entry point list from all species and LineUp named sets (aka stored LineUp sessions)
  */
-class CellLineEntryPointList extends ACommonEntryPointList {
+class GeneEntryPointList extends ACommonEntryPointList {
 
   /**
    * Set the idType and the default data and build the list
@@ -22,23 +21,27 @@ class CellLineEntryPointList extends ACommonEntryPointList {
    * @param options
    */
   constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected options:any) {
-    super(parent, desc, chooseDataSource(desc), options);
+    super(parent, desc, gene, options);
   }
 }
 
-class CellLineList extends ACommonList {
+
+class GeneList extends ACommonList {
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options: IACommonListOptions) {
-    super(context, selection, parent, chooseDataSource(context.desc), options);
+    super(context, selection, parent, gene, options);
   }
 
   protected defineColumns(desc: any) {
     return [
-      stringCol('id', 'Name', true, 120),
+      stringCol('symbol', 'Symbol', true, 100),
+      stringCol('id', 'Ensembl', true, 120),
+      stringCol('chromosome', 'Chromosome', true, 150),
       //categoricalCol('species', desc.columns.species.categories, 'Species', true),
-      categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type', true),
-      categoricalCol('organ', desc.columns.organ.categories, 'Organ', true),
-      categoricalCol('gender', desc.columns.gender.categories, 'Gender', true)
+      categoricalCol('strand', [{ label: 'reverse strand', name:String(-1)}, { label: 'forward strand', name:String(1)}], 'Strand', true),
+      categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
+      stringCol('seqregionstart', 'Seq Region Start', false),
+      stringCol('seqregionend', 'Seq Region End', false)
     ];
   }
 }
@@ -52,10 +55,10 @@ class CellLineList extends ACommonList {
  * @returns {function(): any}
  */
 export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:any):IEntryPointList {
-  return new CellLineEntryPointList(parent, desc, options);
+  return new GeneEntryPointList(parent, desc, options);
 }
 
 
 export function createStart(context:IViewContext, selection: ISelection, parent:Element, options: IACommonListOptions) {
-  return new CellLineList(context, selection, parent, options);
+  return new GeneList(context, selection, parent, options);
 }

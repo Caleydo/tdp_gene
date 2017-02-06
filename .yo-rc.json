@@ -1,0 +1,421 @@
+{
+  "generator-phovea": {
+    "type": "lib",
+    "name": "targid_common",
+    "author": "The Caleydo Team",
+    "githubAccount": "caleydo",
+    "modules": [
+      "targid2"
+    ],
+    "extensions": [
+      {
+        "type": "targidStartSpecies",
+        "id": "targid_start_species",
+        "module": "SpeciesSelector",
+        "extras": {
+          "name": "Species Selector",
+          "factory": "createStartFactory"
+        }
+      },
+      {
+        "type": "targidStartEntryPoint",
+        "id": "bioinfodb_tissue_start",
+        "module": "CellLineEntryPoint",
+        "extras": {
+          "name": "Tissues",
+          "factory": "createStartFactory",
+          "viewId": "bioinfodb_tissue_start",
+          "idtype": "Tissue",
+          "selection": "none",
+          "sampleType": "Tissue"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "bioinfodb_tissue_start",
+        "module": "CellLineList",
+        "extras": {
+          "name": "Tissues",
+          "factory": "createStart",
+          "idtype": "Tissue",
+          "selection": "none",
+          "sampleType": "Tissue"
+        }
+      },
+      {
+        "type": "targidScore",
+        "id": "tissue_inverted_aggregated_score",
+        "module": "InvertedAggregatedScore",
+        "extras": {
+          "name": "Score",
+          "idtype": "Tissue",
+          "sampleType": "Tissue"
+        }
+      },
+      {
+        "type": "targidStartEntryPoint",
+        "id": "celllinedb_genes_start",
+        "module": "GeneEntryPoint",
+        "extras": {
+          "name": "Genes",
+          "factory": "createStartFactory",
+          "viewId": "celllinedb_start",
+          "idtype": "Ensembl",
+          "selection": "none"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllinedb_start",
+        "module": "GeneList",
+        "extras": {
+          "name": "Genes",
+          "factory": "createStart",
+          "idtype": "Ensembl",
+          "selection": "none"
+        }
+      },
+      {
+        "type": "targidStartEntryPoint",
+        "id": "celllinedb_cellline_start",
+        "module": "CellLineEntryPoint",
+        "extras": {
+          "name": "Cell Lines",
+          "factory": "createStartFactory",
+          "viewId": "celllinedb_cellline",
+          "idtype": "Cellline",
+          "selection": "none"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllinedb_cellline",
+        "module": "CellLineList",
+        "extras": {
+          "name": "Cell Lines",
+          "factory": "createStart",
+          "idtype": "Cellline",
+          "selection": "none"
+        }
+      },
+      {
+        "type": "__targidView__backup",
+        "id": "celllinedb_enrichment",
+        "module": "Enrichment",
+        "extras": {
+          "name": "Enrichment",
+          "category": "dynamic",
+          "idtype": "Ensembl",
+          "selection": "single",
+          "mockup": true
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllinedb_expression_vs_copynumber",
+        "module": "ExpressionVsCopyNumber",
+        "extras": {
+          "name": "Expression vs. Copy Number",
+          "category": "dynamic",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "small_multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllinedb_co_expression",
+        "module": "CoExpression",
+        "extras": {
+          "name": "Co-Expression",
+          "category": "dynamic",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "small_multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllinedb_onco_print",
+        "module": "OncoPrint",
+        "extras": {
+          "name": "OncoPrint",
+          "category": "dynamic",
+          "factory": "create",
+          "idtype": "Ensembl",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidScore",
+        "id": "gene_aggregated_score",
+        "module": "AggregatedScore",
+        "extras": {
+          "name": "Score",
+          "idtype": "Ensembl"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "expressiontable",
+        "module": "RawDataTable",
+        "extras": {
+          "name": "Expression",
+          "factory": "createExpressionTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "copynumbertable",
+        "module": "RawDataTable",
+        "extras": {
+          "name": "Copy Number",
+          "factory": "createCopyNumberTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "mutationtable",
+        "module": "RawDataTable",
+        "extras": {
+          "name": "Mutation",
+          "factory": "createMutationTable",
+          "idtype": "Ensembl",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidScore",
+        "id": "cellline_inverted_aggregated_score",
+        "module": "InvertedAggregatedScore",
+        "extras": {
+          "name": "Score",
+          "idtype": "Cellline"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllline_inverted_expressiontable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Expression",
+          "factory": "createExpressionTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllline_inverted_copynumbertable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Copy Number",
+          "factory": "createCopyNumberTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "celllline_inverted_mutationtable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Mutation",
+          "factory": "createMutationTable",
+          "idtype": "Cellline",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "tissue_inverted_expressiontable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Expression",
+          "factory": "createExpressionTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "tissue_inverted_copynumbertable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Copy Number",
+          "factory": "createCopyNumberTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "tissue_inverted_mutationtable",
+        "module": "InvertedRawDataTable",
+        "extras": {
+          "name": "Mutation",
+          "factory": "createMutationTable",
+          "idtype": "Tissue",
+          "sampleType": "Tissue",
+          "selection": "some"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "ensembl_org",
+        "module": "ProxyView",
+        "extras": {
+          "name": "Ensembl",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//sep2013.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "__targidView__bak",
+        "id": "gene_card",
+        "module": "ProxyView",
+        "extras": {
+          "name": "GeneCards",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "cansar",
+        "module": "ProxyView",
+        "extras": {
+          "name": "canSAR",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
+          "argument": "gene",
+          "idtype": "UniProt",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "uniprot",
+        "module": "ProxyView",
+        "extras": {
+          "name": "UniProt",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//www.uniprot.org/uniprot/{gene}/",
+          "argument": "gene",
+          "idtype": "UniProt",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "targetvalidation",
+        "module": "ProxyView",
+        "extras": {
+          "name": "Open Targets",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//targetvalidation.org/target/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "clip",
+        "module": "ProxyView",
+        "extras": {
+          "name": "CLIP",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//vie-toolbox/clip/multiViewGene.php?ensg={gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "proteinatlas_org",
+        "module": "ProxyView",
+        "extras": {
+          "name": "The Human Protein Atlas",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//proteinatlas.org/{gene}",
+          "argument": "gene",
+          "idtype": "Ensembl",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "cosmic",
+        "module": "ProxyView",
+        "extras": {
+          "name": "COSMIC",
+          "folder": "targid2",
+          "category": "static",
+          "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "clip_cellline",
+        "module": "ProxyView",
+        "extras": {
+          "name": "CLIP",
+          "folder": "targid2",
+          "category": "static",
+          "site": "///vie-toolbox/clip/multiViewCellline.php?celllinename={cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
+          "selection": "multiple"
+        }
+      },
+      {
+        "type": "targidView",
+        "id": "shiny_cellline",
+        "module": "ProxyView",
+        "extras": {
+          "name": "CN Cell Line Details",
+          "folder": "targid2",
+          "category": "static",
+          "site": "///vie-bio-shiny.eu.boehringer.com:3838/copynumberpercellline/?celllinename{cellline}",
+          "argument": "cellline",
+          "idtype": "Cellline",
+          "selection": "multiple"
+        }
+      }
+    ],
+    "sextensions": [],
+    "libraries": [],
+    "unknown": {
+      "requirements": []
+    },
+    "libraryAliases": {},
+    "libraryExternals": [],
+    "entries": "./index.js",
+    "ignores": [],
+    "today": "Sun, 06 Nov 2016 23:20:08 GMT"
+  }
+}

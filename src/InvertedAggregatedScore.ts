@@ -1,21 +1,21 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 
-import ajax = require('../caleydo_core/ajax');
-import ranges = require('../caleydo_core/range');
-import dialogs = require('../caleydo_bootstrap_fontawesome/dialogs');
-import {IPluginDesc} from '../caleydo_core/plugin';
-import idtypes = require('../caleydo_core/idtype');
+import * as ajax from 'phovea_core/src/ajax';
+import * as ranges from 'phovea_core/src/range';
+import * as dialogs from 'phovea_ui/src/dialogs';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import * as idtypes from 'phovea_core/src/idtype';
 import {
-  all_bio_types, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
+  allBioTypes, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes, getSelectedSpecies
 } from './Common';
-import {IScore} from '../targid2/LineUpView';
-import {FormBuilder, FormElementType, IFormElementDesc} from '../targid2/FormBuilder';
-import {api2absURL} from '../caleydo_core/ajax';
+import {IScore} from 'targid2/src/LineUpView';
+import {FormBuilder, FormElementType, IFormElementDesc} from 'targid2/src/FormBuilder';
+import {api2absURL} from 'phovea_core/src/ajax';
 import {createDesc} from './AggregatedScore';
+import {select} from 'd3';
 
 
 class InvertedAggregatedScore implements IScore<number> {
@@ -37,7 +37,7 @@ class InvertedAggregatedScore implements IScore<number> {
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
     const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -75,11 +75,11 @@ class InvertedMutationFrequencyScore implements IScore<number> {
 
   createDesc() {
     const subtype = this.parameter.data_subtype;
-    return createDesc(dataSubtypes.number, `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`, subtype);
+    return createDesc(dataSubtypes.number, `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === allBioTypes ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
     const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -116,11 +116,11 @@ class InvertedFrequencyScore implements IScore<number> {
 
   createDesc() {
     const subtype = this.parameter.data_subtype;
-    return createDesc(dataSubtypes.number, `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === all_bio_types ? '' : '@ '+this.parameter.bio_type}`, subtype);
+    return createDesc(dataSubtypes.number, `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === allBioTypes ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
   compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===all_bio_types ? '_all' : ''}`;
+    const url = `/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
     const param = {
         schema: this.dataSource.schema,
         entity_name: this.dataSource.entityName,
@@ -189,7 +189,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
   return new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Score Column', 'Add Score Column');
 
-    const form:FormBuilder = new FormBuilder(d3.select(dialog.body));
+    const form:FormBuilder = new FormBuilder(select(dialog.body));
     const formDesc:IFormElementDesc[] = [
       {
         type: FormElementType.SELECT,
@@ -277,7 +277,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         dependsOn: [ParameterFormIds.FILTER_BY, ParameterFormIds.DATA_TYPE],
         options: {
           optionsFnc: (selection) => {
-            var r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
+            let r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if(selection[0].value === 'bio_type') {
               r = r.filter((d)=>d.type !== ('string'));
             }
@@ -297,14 +297,14 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
         showIf: (dependantValues) => (dependantValues[0].value === 'bio_type'),
         options: {
           optionsFnc: (selection) => {
-            var r = [];
+            let r = [];
             if(selection[1].data === mutation) {
               r = [
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
                 {name: 'Count', value: 'count', data: 'count'}
               ];
 
-            } else if(selection[2].name === all_bio_types) {
+            } else if(selection[2].name === allBioTypes) {
               r = [
                 {name: 'Count', value: 'count', data: 'count'},
                 {name: 'Frequency', value: 'frequency', data: 'frequency'},
@@ -363,7 +363,7 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      var score:IScore<number>;
+      let score:IScore<number>;
 
       switch(data[ParameterFormIds.FILTER_BY]) {
         case 'single_entity':
@@ -395,25 +395,16 @@ function createInvertedSingleGeneScore(data):IScore<number> {
 }
 
 function createInvertedAggregatedScore(data):IScore<number> {
-  var score:IScore<number> = new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
-
   if(data[ParameterFormIds.AGGREGATION] === 'frequency' || data[ParameterFormIds.AGGREGATION] === 'count') {
-
     // boolean to indicate that the resulting score does not need to be divided by the total count
-    var countOnly = false;
-    if (data[ParameterFormIds.AGGREGATION] === 'count') {
-      countOnly = true;
-    }
+    const countOnly = data[ParameterFormIds.AGGREGATION] === 'count';
     switch(data[ParameterFormIds.DATA_TYPE]) {
       case mutation:
-        score = new InvertedMutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-        break;
+        return new InvertedMutationFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
       case copyNumber:
       case expression:
-        score = new InvertedFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
-        break;
+        return new InvertedFrequencyScore(data, data[ParameterFormIds.DATA_SOURCE], countOnly);
     }
   }
-
-  return score;
+  return new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }

@@ -1,21 +1,20 @@
 /**
- * Created by Marc Streit on 28.07.2016.
+ * Created by Marc Streit on 26.07.2016.
  */
-/// <reference path='../../tsd.d.ts' />
 
-import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection} from '../targid2/View';
+import * as ajax from 'phovea_core/src/ajax';
+import {IViewContext, ISelection} from 'targid2/src/View';
 import {
   stringCol, numberCol2, categoricalCol,
   ALineUpView2, IScoreRow
-} from '../targid2/LineUpView';
+} from 'targid2/src/LineUpView';
 import {
-  all_bio_types, gene, expression, copyNumber, mutation, mutationCat, IDataTypeConfig,
-  chooseDataSource, ParameterFormIds, convertLog2ToLinear, getSelectedSpecies, IDataSourceConfig
+  dataSources, allTypes, expression, copyNumber, mutation, ParameterFormIds, IDataTypeConfig, convertLog2ToLinear,
+  getSelectedSpecies
 } from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from '../targid2/FormBuilder';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
 
-class InvertedRawDataTable extends ALineUpView2 {
+class RawDataTable extends ALineUpView2 {
 
   private dataType:IDataTypeConfig;
 
@@ -23,12 +22,9 @@ class InvertedRawDataTable extends ALineUpView2 {
    * Parameter UI form
    */
   private paramForm:FormBuilder;
-  protected dataSource:IDataSourceConfig;
 
   constructor(context:IViewContext, selection:ISelection, parent:Element, dataType:IDataTypeConfig, options?) {
     super(context, selection, parent, options);
-
-    this.additionalScoreParameter = this.dataSource = chooseDataSource(context.desc);
     this.dataType = dataType;
   }
 
@@ -40,12 +36,12 @@ class InvertedRawDataTable extends ALineUpView2 {
         type: FormElementType.SELECT,
         label: 'Data Source',
         id: ParameterFormIds.DATA_SOURCE,
-        visible: false,
         options: {
-          optionsData: [this.dataSource].map((ds) => {
+          optionsData: dataSources.map((ds) => {
             return {name: ds.name, value: ds.name, data: ds};
           })
-        }
+        },
+        useSession: true
       },
       {
         type: FormElementType.SELECT,
@@ -60,10 +56,12 @@ class InvertedRawDataTable extends ALineUpView2 {
       },
       {
         type: FormElementType.SELECT,
-        label: 'Bio Type',
-        id: ParameterFormIds.BIO_TYPE,
+        label: 'Tumor Type',
+        id: ParameterFormIds.TUMOR_TYPE,
+        dependsOn: [ParameterFormIds.DATA_SOURCE],
         options: {
-          optionsData: gene.bioTypesWithAll
+          optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
+          optionsData: []
         },
         useSession: true
       }
@@ -83,7 +81,7 @@ class InvertedRawDataTable extends ALineUpView2 {
   }
 
   private updateDataSource() {
-    this.dataSource = this.paramForm.getElementById(ParameterFormIds.DATA_SOURCE).value.data;
+    this.additionalScoreParameter = this.paramForm.getElementById(ParameterFormIds.DATA_SOURCE).value.data;
   }
 
   getParameter(name: string): any {
@@ -98,7 +96,7 @@ class InvertedRawDataTable extends ALineUpView2 {
   }
 
   protected loadColumnDesc() {
-    const dataSource = gene; //this.getParameter(ParameterFormIds.DATA_SOURCE);
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return ajax.getAPIJSON(`/targid/db/${dataSource.db}/${dataSource.base}/desc`);
   }
 
@@ -106,14 +104,11 @@ class InvertedRawDataTable extends ALineUpView2 {
     super.initColumns(desc);
 
     const columns = [
-      stringCol('symbol', 'Symbol', true, 100),
-      stringCol('id', 'Ensembl', true, 120),
-      stringCol('chromosome', 'Chromosome', true, 150),
+      stringCol('id', 'Name', true, 120),
       //categoricalCol('species', desc.columns.species.categories, 'Species', true),
-      categoricalCol('strand', [{ label: 'reverse strand', name:String(-1)}, { label: 'forward strand', name:String(1)}], 'Strand', true),
-      categoricalCol('biotype', desc.columns.biotype.categories, 'Biotype', true),
-      stringCol('seqregionstart', 'Seq Region Start', false),
-      stringCol('seqregionend', 'Seq Region End', false)
+      categoricalCol('tumortype', desc.columns.tumortype.categories, 'Tumor Type', true),
+      categoricalCol('organ', desc.columns.organ.categories, 'Organ', true),
+      categoricalCol('gender', desc.columns.gender.categories, 'Gender', true)
     ];
 
     this.build([], columns);
@@ -124,13 +119,13 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   protected loadRows() {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const url = `/targid/db/${dataSource.db}/raw_data_table_inverted${this.getParameter(ParameterFormIds.BIO_TYPE) === all_bio_types ? '_all' : ''}`;
+    const url = `/targid/db/${dataSource.db}/raw_data_table${this.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`;
     const param = {
       schema: dataSource.schema,
       entity_name: dataSource.entityName,
       table_name: this.dataType.tableName,
       data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id,
-      biotype: this.getParameter(ParameterFormIds.BIO_TYPE),
+      tumortype: this.getParameter(ParameterFormIds.TUMOR_TYPE),
       species: getSelectedSpecies()
     };
     return ajax.getAPIJSON(url, param);
@@ -143,42 +138,44 @@ class InvertedRawDataTable extends ALineUpView2 {
 
   protected getSelectionColumnDesc(id) {
     return this.getSelectionColumnLabel(id)
-      .then((label:string) => {
-        var desc;
+      .then((label: string) => {
         const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
-
-        if (dataSubType.type === 'boolean') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'string') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'cat') {
-          if (this.dataType === mutation) {
-            desc = categoricalCol(this.getSelectionColumnId(id), mutationCat.map((d) => d.value), label, true, 50, id);
-          } else {
-            desc = categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
-          }
-        } else {
-          desc = numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
+        switch (dataSubType.type) {
+          case 'boolean':
+            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+          case 'string':
+            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+          case 'cat':
+            return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
         }
-        return desc;
+        return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
       });
   }
 
   protected getSelectionColumnLabel(id) {
+    const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
+    // resolve `_id` (= `targidid`) to symbol (`ensg`)
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
-      .then((name) => {
-        return name;
+      .then((ensg) => {
+        return <Promise<{symbol: string}[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
+            ensgs: `'${ensg}'`,
+            species: getSelectedSpecies()
+          });
+      })
+      .then((mapping) => {
+        // resolve ensg to gene name
+        return mapping[0].symbol;
       });
   }
 
-  protected loadSelectionColumnData(id) {
+  protected loadSelectionColumnData(id): Promise<IScoreRow<any>[]> {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
     return this.resolveId(this.selection.idtype, id)
-      .then((name) => {
-        return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_inverted_column`, {
-          entity_value: name, // selected cell line name or tissue name
+      .then((ensg) => {
+        return <Promise<IScoreRow<any>[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
+          ensg,
           schema: dataSource.schema,
           entity_name: dataSource.entityName,
           table_name: this.dataType.tableName,
@@ -190,6 +187,15 @@ class InvertedRawDataTable extends ALineUpView2 {
   protected mapSelectionRows(rows:IScoreRow<any>[]) {
     if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).useForAggregation.indexOf('log2') !== -1) {
       rows = convertLog2ToLinear(rows, 'score');
+    }
+
+    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
+      rows = rows
+        .filter((row) => row.score !== null)
+        .map((row) => {
+          row.score = row.score.toString();
+          return row;
+        });
     }
 
     if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
@@ -205,14 +211,16 @@ class InvertedRawDataTable extends ALineUpView2 {
   }
 }
 
+
+
 export function createExpressionTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
-  return new InvertedRawDataTable(context, selection, parent, expression, options);
+  return new RawDataTable(context, selection, parent, expression, options);
 }
 
 export function createCopyNumberTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
-  return new InvertedRawDataTable(context, selection, parent, copyNumber, options);
+  return new RawDataTable(context, selection, parent, copyNumber, options);
 }
 
 export function createMutationTable(context:IViewContext, selection:ISelection, parent:Element, options?) {
-  return new InvertedRawDataTable(context, selection, parent, mutation, options);
+  return new RawDataTable(context, selection, parent, mutation, options);
 }

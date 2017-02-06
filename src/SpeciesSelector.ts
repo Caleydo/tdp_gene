@@ -2,22 +2,21 @@
  * Created by Holger Stitz on 27.07.2016.
  */
 
-import session = require('../caleydo_core/session');
-import {IPluginDesc} from '../caleydo_core/plugin';
-import {IStartMenuSectionEntry, findViewCreators, IEntryPointList} from '../targid2/StartMenu';
-import {Targid} from '../targid2/Targid';
+import * as session from 'phovea_core/src/session';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'targid2/src/StartMenu';
+import {Targid} from 'targid2/src/Targid';
 import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
+import * as d3 from 'd3';
+
+
+const sessionKey = ParameterFormIds.SPECIES;
+export const extensionPoint = 'targidStartEntryPoint';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
 
-  private targid:Targid;
-  //private format = d3.time.format.utc('%Y-%m-%d %H:%M');
-
-  private sessionKey = ParameterFormIds.SPECIES;
-
-  private entryPointId = 'targidStartEntryPoint';
-
-  private entryPointLists:IEntryPointList[] = [];
+  private readonly targid:Targid;
+  private readonly entryPointLists:IEntryPointList[] = [];
 
   /**
    * Set the idType and the default data and build the list
@@ -25,12 +24,12 @@ class SpeciesSelector implements IStartMenuSectionEntry {
    * @param desc
    * @param options
    */
-  constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected options:any) {
+  constructor(private readonly parent: HTMLElement, public readonly desc: IPluginDesc,  private readonly options:IStartMenuOptions) {
     this.targid = options.targid;
     this.build();
   }
 
-  public getEntryPointLists() {
+  getEntryPointLists() {
     return this.entryPointLists;
   }
 
@@ -44,15 +43,13 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   }
 
   private buildSpeciesSelection($parent) {
-    const that = this;
-
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
-    const selectedSpecies = session.retrieve(this.sessionKey, defaultSpecies);
+    const selectedSpecies = session.retrieve(sessionKey, defaultSpecies);
 
     // store default option, if not available
-    if(session.has(this.sessionKey) === false) {
-      session.store(this.sessionKey, selectedSpecies);
+    if(!session.has(sessionKey)) {
+      session.store(sessionKey, selectedSpecies);
     }
 
     const $group = $speciesSelection.selectAll('.species-group').data(availableSpecies);
@@ -67,7 +64,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .attr('type', 'radio')
       .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
       .on('change', function(d) {
-        session.store(that.sessionKey, d.value);
+        session.store(sessionKey, d.value);
 
         $group.classed('active', false);
         d3.select(this.parentNode).classed('active', true);
@@ -86,11 +83,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
 
     // get start views for entry points and sort them by name ASC
-    const views = findViewCreators(this.entryPointId).sort((a,b) => {
-      let x = a.name.toLowerCase();
-      let y = b.name.toLowerCase();
-      return x === y ? 0 : (x < y ? -1 : 1);
-    });
+    const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
     const $items = $entryPoints.selectAll('.item').data(views);
     const $enter = $items.enter().append('div').classed('item', true);
@@ -116,6 +109,6 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   }
 }
 
-export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:any) {
+export function create(parent: HTMLElement, desc: IPluginDesc, options:IStartMenuOptions) {
   return new SpeciesSelector(parent, desc, options);
 }

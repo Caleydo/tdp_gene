@@ -2,10 +2,10 @@
  * Created by Holger Stitz on 06.12.2016.
  */
 
-import ajax = require('../caleydo_core/ajax');
-import {IViewContext, ISelection} from '../targid2/View';
-import {ProxyView} from '../targid2/ProxyView';
-import {IPluginDesc} from '../caleydo_core/plugin';
+import * as ajax from 'phovea_core/src/ajax';
+import {IViewContext, ISelection} from 'targid2/src/View';
+import {ProxyView} from 'targid2/src/ProxyView';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import {gene, getSelectedSpecies} from './Common';
 
 /**
