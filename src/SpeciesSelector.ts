@@ -4,8 +4,8 @@
 
 import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'targid2/src/StartMenu';
-import {Targid} from 'targid2/src/Targid';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'ordino/src/StartMenu';
+import {Targid} from 'ordino/src/Targid';
 import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
 import * as d3 from 'd3';
 

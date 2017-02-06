@@ -2,9 +2,9 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import {AView, IViewContext, ISelection, IView} from 'targid2/src/View';
+import {AView, IViewContext, ISelection, IView} from 'ordino/src/View';
 import * as ajax from 'phovea_core/src/ajax';
-import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import {IDataSourceConfig, gene, getSelectedSpecies} from './Common';
 
 

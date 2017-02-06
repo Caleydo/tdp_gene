@@ -11,8 +11,8 @@ import {
   allBioTypes, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, gene, convertLog2ToLinear, dataSubtypes, getSelectedSpecies
 } from './Common';
-import {IScore} from 'targid2/src/LineUpView';
-import {FormBuilder, FormElementType, IFormElementDesc} from 'targid2/src/FormBuilder';
+import {IScore} from 'ordino/src/LineUpView';
+import {FormBuilder, FormElementType, IFormElementDesc} from 'ordino/src/FormBuilder';
 import {api2absURL} from 'phovea_core/src/ajax';
 import {createDesc} from './AggregatedScore';
 import {select} from 'd3';

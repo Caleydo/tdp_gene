@@ -5,7 +5,7 @@
     "author": "The Caleydo Team",
     "githubAccount": "caleydo",
     "modules": [
-      "targid2"
+      "ordino"
     ],
     "extensions": [
       {
@@ -272,7 +272,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "Ensembl",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//sep2013.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}",
           "argument": "gene",
@@ -286,7 +286,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "GeneCards",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}",
           "argument": "gene",
@@ -300,7 +300,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "canSAR",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/",
           "argument": "gene",
@@ -314,7 +314,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "UniProt",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//www.uniprot.org/uniprot/{gene}/",
           "argument": "gene",
@@ -328,7 +328,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "Open Targets",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//targetvalidation.org/target/{gene}",
           "argument": "gene",
@@ -342,7 +342,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "CLIP",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//vie-toolbox/clip/multiViewGene.php?ensg={gene}",
           "argument": "gene",
@@ -356,7 +356,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "The Human Protein Atlas",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//proteinatlas.org/{gene}",
           "argument": "gene",
@@ -370,7 +370,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "COSMIC",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}",
           "argument": "cellline",
@@ -384,7 +384,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "CLIP",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "///vie-toolbox/clip/multiViewCellline.php?celllinename={cellline}",
           "argument": "cellline",
@@ -398,7 +398,7 @@
         "module": "ProxyView",
         "extras": {
           "name": "CN Cell Line Details",
-          "folder": "targid2",
+          "folder": "ordino",
           "category": "static",
           "site": "///vie-bio-shiny.eu.boehringer.com:3838/copynumberpercellline/?celllinename{cellline}",
           "argument": "cellline",

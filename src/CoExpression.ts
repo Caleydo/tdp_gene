@@ -4,10 +4,10 @@
 
 import * as ajax from 'phovea_core/src/ajax';
 import bindTooltip from 'phovea_d3/src/tooltip';
-import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
+import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
 import {allTypes, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'targid2/src/FormBuilder';
-import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 
 export class CoExpression extends ASmallMultipleView {

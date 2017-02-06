@@ -3,8 +3,8 @@
  */
 
 import * as ajax from 'phovea_core/src/ajax';
-import {IViewContext, ISelection} from 'targid2/src/View';
-import {ProxyView} from 'targid2/src/ProxyView';
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {ProxyView} from 'ordino/src/ProxyView';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {gene, getSelectedSpecies} from './Common';
 

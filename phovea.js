@@ -281,7 +281,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'cosmic', function () {
-    return System.import('targid2/src/ProxyView');
+    return System.import('ordino/src/ProxyView');
   }, {
     'name': 'COSMIC',
     'category': 'static',
@@ -292,7 +292,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'clip_cellline', function () {
-    return System.import('targid2/src/ProxyView');
+    return System.import('ordino/src/ProxyView');
   }, {
     'name': 'CLIP',
     'category': 'static',
@@ -303,7 +303,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'shiny_cellline', function () {
-    return System.import('targid2/src/ProxyView');
+    return System.import('ordino/src/ProxyView');
   }, {
     'name': 'CN Cell Line Details',
     'category': 'static',

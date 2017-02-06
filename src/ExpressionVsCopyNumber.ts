@@ -6,11 +6,11 @@ import './style.scss';
 import * as ajax from 'phovea_core/src/ajax';
 import bindTooltip from 'phovea_d3/src/tooltip';
 import * as idtypes from 'phovea_core/src/idtype';
-import {IViewContext, ISelection, ASmallMultipleView} from 'targid2/src/View';
+import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
 import {Range} from 'phovea_core/src/range';
 import {allTypes, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'targid2/src/FormBuilder';
-import {showErrorModalDialog} from 'targid2/src/Dialogs';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 
 
