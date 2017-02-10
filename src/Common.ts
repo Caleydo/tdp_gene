@@ -286,8 +286,8 @@ export const copyNumber:IDataTypeConfig = {
   tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
-    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'relativecopynumber'},
+    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'totalabscopynumber'},
     { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), mapCategoryRows: convertCopyNumberClass, missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
