@@ -4,9 +4,9 @@
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {AEntryPointList} from 'ordino/src/StartMenu';
-import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
+import {ParameterFormIds, defaultSpecies, IDataSourceConfig, getSelectedSpecies} from './Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
-import {getAPIJSON} from 'phovea_core/src/ajax';
+import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
@@ -40,7 +40,8 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       creator: ''
     });
 
-    this.build();
+    const startMenu = this.build();
+    startMenu.then(() => this.addSearchField());
   }
 
   private static panel2NamedSet({id, description}: {id: string, description: string}): INamedSet {
@@ -69,6 +70,42 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   protected getNamedSets(): Promise<INamedSet[]> {
     return Promise.all([this.loadPanels(), super.getNamedSets()])
       .then((sets: INamedSet[][]) => [].concat(...sets));
+  }
+
+  private addSearchField() {
+    const $searchWrapper = this.$node.insert('div', ':first-child').attr('class', 'startMenuSearch');
+
+    const formBuilder: FormBuilder = new FormBuilder($searchWrapper);
+    formBuilder.appendElement({
+      id: `search-${this.dataSource.entityName}`,
+      label: `Search ${this.dataSource.name}`,
+      type: FormElementType.SELECT2,
+      attributes: {
+        style: 'width:100%',
+      },
+      options: {
+        optionsData: [],
+        ajax: {
+          url: api2absURL(`/targid/db/${this.dataSource.db}/single_entity_lookup/lookup`),
+          data: (params: any) => {
+            return {
+              schema: this.dataSource.schema,
+              table_name: this.dataSource.tableName,
+              id_column: this.dataSource.entityName,
+              query_column: this.dataSource.entityName,
+              species: getSelectedSpecies(),
+              query: params.term,
+              page: params.page
+            };
+          }
+        }
+      }
+    });
+
+    const searchField = formBuilder.getElementById(`search-${this.dataSource.entityName}`);
+    searchField.on('change', (data) => {
+      console.log('change', data);
+    });
   }
 }
 
