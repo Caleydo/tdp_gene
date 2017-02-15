@@ -15,7 +15,7 @@ export class CoExpression extends ASmallMultipleView {
   protected $insufficientSelection;
 
   private refGene;
-  private refGeneExpression : {id:string, symbol:string, celllinename:string, expression:number}[] = [];
+  private refGeneExpression : {id:string, symbol:string, samplename:string, expression:number}[] = [];
 
   private x = d3.scale.log();
   private y = d3.scale.log();
@@ -380,13 +380,13 @@ export class CoExpression extends ASmallMultipleView {
     const smallerArray = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
 
     // build hashmap for faster access
-    const hash = d3.map(largerArray, (d) => d.celllinename);
+    const hash = d3.map(largerArray, (d) => d.samplename);
 
     const data2 = smallerArray
       .map((d) => {
-        if(hash.has(d.celllinename)) {
+        if(hash.has(d.samplename)) {
           // return values that are contained in both arrays
-          return [d.expression, hash.get(d.celllinename).expression, d.celllinename];
+          return [d.expression, hash.get(d.samplename).expression, d.samplename];
         }
         return null;
       })
@@ -417,7 +417,7 @@ interface IDataFormat {
   rows: {
     id: string,
     symbol: string,
-    celllinename: string,
+    samplename: string,
     expression: number
   }[];
 }
