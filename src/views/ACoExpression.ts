@@ -375,8 +375,6 @@ export abstract class ACoExpression extends ASmallMultipleView {
 export default ACoExpression;
 
 export interface IDataFormatRow {
-  id: string;
-  symbol: string;
   samplename: string;
   expression: number;
 }

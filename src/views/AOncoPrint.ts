@@ -13,7 +13,6 @@ import * as d3 from 'd3';
 
 export interface IDataFormatRow {
   name: string;
-  symbol: string;
   cn: number;
   expr: number;
   aa_mutated: boolean;
@@ -32,7 +31,6 @@ export interface IDataFormat {
 function unknownSample(sample: string): IDataFormatRow {
   return {
     name: sample,
-    symbol: '',
     cn: unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
     aa_mutated: unknownMutationValue // unknown

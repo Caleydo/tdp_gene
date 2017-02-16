@@ -268,8 +268,6 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 export default AExpressionVsCopyNumber;
 
 export interface IDataFormatRow {
-  id: string;
-  symbol: string;
   samplename: string;
   expression: number;
   cn: number;
