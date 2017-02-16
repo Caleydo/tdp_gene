@@ -3,7 +3,7 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {AEntryPointList} from 'ordino/src/StartMenu';
+import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {ParameterFormIds, defaultSpecies, IDataSourceConfig} from './Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
 import {getAPIJSON} from 'phovea_core/src/ajax';
@@ -20,7 +20,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
    * @param desc
    * @param options
    */
-  constructor(protected parent: HTMLElement, public desc: IPluginDesc, private dataSource: IDataSourceConfig, protected options: any) {
+  constructor(protected parent: HTMLElement, public desc: IPluginDesc, private dataSource: IDataSourceConfig, protected options: IEntryPointOptions) {
     super(parent, desc, options);
 
     this.idType = dataSource.idType;

@@ -140,27 +140,22 @@ class InvertedRawDataTable extends ALineUpView2 {
     return rows;
   }
 
-  protected getSelectionColumnDesc(id: number) {
-    return this.getSelectionColumnLabel(id)
-      .then((label:string) => {
-        let desc;
-        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+  protected async getSelectionColumnDesc(id: number) {
+    const label = await this.getSelectionColumnLabel(id);
+    const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
 
-        if (dataSubType.type === 'boolean') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'string') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'cat') {
-          if (this.dataType === mutation) {
-            desc = categoricalCol(this.getSelectionColumnId(id), mutationCat.map((d) => d.value), label, true, 50, id);
-          } else {
-            desc = categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
-          }
-        } else {
-          desc = numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
-        }
-        return desc;
-      });
+    if (dataSubType.type === 'boolean') {
+      return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+    } else if (dataSubType.type === 'string') {
+      return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+    } else if (dataSubType.type === 'cat') {
+      if (this.dataType === mutation) {
+        return categoricalCol(this.getSelectionColumnId(id), mutationCat.map((d) => d.value), label, true, 50, id);
+      } else {
+        return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
+      }
+    }
+    return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
   }
 
   protected getSelectionColumnLabel(id: number) {
