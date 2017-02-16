@@ -106,16 +106,6 @@ module.exports = function (registry) {
     'selection': 'small_multiple'
   });
 
-  registry.push('targidView', 'celllinedb_onco_print', function () {
-    return System.import('./src/OncoPrint');
-  }, {
-    'name': 'OncoPrint',
-    'category': 'dynamic',
-    'factory': 'create',
-    'idtype': 'Ensembl',
-    'selection': 'some'
-  });
-
 
   registry.push('targidView', 'expressiontable', function () {
     return System.import('./src/RawDataTable');
