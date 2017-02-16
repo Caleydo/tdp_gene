@@ -86,16 +86,6 @@ module.exports = function (registry) {
     'mockup': true
   });
 
-  registry.push('targidView', 'celllinedb_expression_vs_copynumber', function () {
-    return System.import('./src/ExpressionVsCopyNumber');
-  }, {
-    'name': 'Expression vs. Copy Number',
-    'category': 'dynamic',
-    'factory': 'create',
-    'idtype': 'Ensembl',
-    'selection': 'small_multiple'
-  });
-
   registry.push('targidView', 'celllinedb_co_expression', function () {
     return System.import('./src/CoExpression');
   }, {
