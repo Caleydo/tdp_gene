@@ -12,7 +12,7 @@ import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 
 
-interface IDataFormatRow {
+export interface IDataFormatRow {
   name: string;
   symbol: string;
   cn: number;
@@ -20,7 +20,7 @@ interface IDataFormatRow {
   aa_mutated: boolean;
 }
 
-interface IDataFormat {
+export interface IDataFormat {
   id:number;
   geneName: string;
   ensg: string;
@@ -152,7 +152,7 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
   return bFrequency - aFrequency;
 }
 
-export class OncoPrint extends AView {
+export abstract class AOncoPrint extends AView {
 
   private $table:d3.Selection<IView>;
 
@@ -174,30 +174,6 @@ export class OncoPrint extends AView {
   private sampleListPromise: Promise<string[]> = null;
 
   private paramForm:FormBuilder;
-  private paramDesc:IFormSelectDesc[] = [
-    {
-      type: FormElementType.SELECT,
-      label: 'Data Source',
-      id: ParameterFormIds.DATA_SOURCE,
-      options: {
-        optionsData: dataSources.map((ds) => {
-          return {name: ds.name, value: ds.name, data: ds};
-        })
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Tumor Type',
-      id: ParameterFormIds.TUMOR_TYPE,
-      dependsOn: [ParameterFormIds.DATA_SOURCE],
-      options: {
-        optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
-        optionsData: []
-      },
-      useSession: true
-    }
-  ];
 
   constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
@@ -207,22 +183,26 @@ export class OncoPrint extends AView {
     super.init();
     this.build();
     // load sample list with all available ids, then update the onco print
-    this.loadSampleList().then(this.update.bind(this, false));
+    this.sampleListPromise = this.loadSampleList();
+    this.sampleListPromise.then(this.update.bind(this, false));
   }
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
     this.paramForm = new FormBuilder($parent);
 
+    const paramDesc = this.buildParameterConfig();
     // map FormElement change function to provenance graph onChange function
-    this.paramDesc.forEach((p) => {
+    paramDesc.forEach((p) => {
       p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
     });
 
-    this.paramForm.build(this.paramDesc);
+    this.paramForm.build(paramDesc);
 
     // add other fields
     super.buildParameterUI($parent, onChange);
   }
+
+  protected abstract buildParameterConfig(): IFormSelectDesc[];
 
   getParameter(name: string): any {
     return this.paramForm.getElementById(name).value.data;
@@ -230,7 +210,8 @@ export class OncoPrint extends AView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
-    this.loadSampleList().then(this.update.bind(this,true));
+    this.sampleListPromise = this.loadSampleList();
+    this.sampleListPromise.then(this.update.bind(this,true));
   }
 
   changeSelection(selection:ISelection) {
@@ -270,42 +251,10 @@ export class OncoPrint extends AView {
       });
   }
 
-  private loadSampleList() {
-    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
-    const url = `/targid/db/${ds.db}/onco_print_sample_list${tumorType === allTypes ? '_all' : ''}`;
-    const param = {
-      schema: ds.schema,
-      entity_name: ds.entityName,
-      table_name: ds.tableName,
-      tumortype : tumorType,
-      species: getSelectedSpecies()
-    };
+  protected abstract loadSampleList(): Promise<string[]>;
+  protected abstract loadRows(ensg: string): Promise<IDataFormatRow[]>;
 
-    return this.sampleListPromise = ajax.getAPIJSON(url, param)
-      .then((rows) => rows.map((r) => r.id));
-  }
-
-  private loadRows(ensg: string): Promise<IDataFormatRow[]> {
-    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const tumorType = this.getParameter(ParameterFormIds.TUMOR_TYPE);
-    return ajax.getAPIJSON(`/targid/db/${ds.db}/onco_print${tumorType === allTypes ? '_all' : ''}`, {
-      ensgs: '\'' + ensg + '\'',
-      schema: ds.schema,
-      entity_name: ds.entityName,
-      table_name: ds.tableName,
-      tumortype: tumorType,
-      species: getSelectedSpecies()
-    });
-  }
-
-  private loadFirstName(ensg: string): Promise<string> {
-    const ds = this.getParameter(ParameterFormIds.DATA_SOURCE);
-    return ajax.getAPIJSON(`/targid/db/${ds.db}/gene_map_ensgs`, {
-      ensgs: '\'' + ensg + '\'',
-      species: getSelectedSpecies()
-    }).then((r) => r[0].symbol);
-  }
+  protected abstract loadFirstName(ensg: string): Promise<string>;
 
   private logErrorAndMarkReady(error: any) {
     console.error(error);
@@ -383,7 +332,7 @@ export class OncoPrint extends AView {
   }
 
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
-    const style = OncoPrint.STYLE;
+    const style = AOncoPrint.STYLE;
     //console.log(data.geneName);
     let rows: IDataFormatRow[] = data.rows;
     rows = this.alignData(rows, samples);
@@ -450,8 +399,6 @@ export class OncoPrint extends AView {
   }
 }
 
-export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new OncoPrint(context, selection, parent, options);
-}
+export default AOncoPrint;
 
 
