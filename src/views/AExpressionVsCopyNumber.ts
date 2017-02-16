@@ -1,13 +1,13 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import './style.scss';
+import '../style.scss';
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
 import {Range} from 'phovea_core/src/range';
-import {allTypes, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from '../Common';
+import {gene, expression, copyNumber, ParameterFormIds} from '../Common';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';

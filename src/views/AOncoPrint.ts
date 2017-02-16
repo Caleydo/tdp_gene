@@ -2,11 +2,11 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import './style.scss';
+import '../style.scss';
 
 import {IViewContext, ISelection, AView, IView} from 'ordino/src/View';
-import {allTypes, dataSources, copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from '../Common';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
+import {copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from '../Common';
+import {FormBuilder, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 
