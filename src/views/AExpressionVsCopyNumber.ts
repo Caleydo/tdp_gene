@@ -244,17 +244,17 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     marks.enter().append('circle')
       .classed('mark', true)
       .attr('r', 2)
-      .attr('title', (d) => d.celllinename)
+      .attr('title', (d) => d.samplename)
       .on('click', (d) => {
         console.log('selected', d);
         const r = new Range();
-        r.dim(0).setList((<any>[d.celllinename]));
+        r.dim(0).setList((<any>[d.samplename]));
         this.setItemSelection({
           idtype: idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType),
           range: r
         });
       })
-      .call(bindTooltip((d: any) => d.celllinename));
+      .call(bindTooltip((d: any) => d.samplename));
 
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
@@ -270,7 +270,7 @@ export default AExpressionVsCopyNumber;
 export interface IDataFormatRow {
   id: string;
   symbol: string;
-  celllinename: string;
+  samplename: string;
   expression: number;
   cn: number;
 }
