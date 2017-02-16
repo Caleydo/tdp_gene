@@ -2,20 +2,30 @@
  * Created by Holger Stitz on 12.08.2016.
  */
 
-import * as ajax from 'phovea_core/src/ajax';
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {allTypes, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from './Common';
+import {allTypes, dataSources, gene, expression, ParameterFormIds, getSelectedSpecies} from '../Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 
-export class CoExpression extends ASmallMultipleView {
+/**
+ * Filter expression values with 0, because log scale cannot handle log(0)
+ * @param rows
+ * @returns {any}
+ */
+function filterZeroValues(rows: IDataFormatRow[]) {
+  const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
+  console.log(`filtered ${rows.length-rows2.length} zero values`);
+  return rows2;
+}
+
+export abstract class ACoExpression extends ASmallMultipleView {
 
   protected $insufficientSelection;
 
   private refGene;
-  private refGeneExpression : {id:string, symbol:string, samplename:string, expression:number}[] = [];
+  private refGeneExpression : IDataFormatRow[] = [];
 
   private x = d3.scale.log();
   private y = d3.scale.log();
@@ -23,50 +33,6 @@ export class CoExpression extends ASmallMultipleView {
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
   private paramForm:FormBuilder;
-  private paramDesc:IFormSelectDesc[] = [
-    {
-      type: FormElementType.SELECT,
-      label: 'Reference Gene',
-      id: ParameterFormIds.REFERENCE_GENE,
-      options: {
-        optionsData: [],
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Data Source',
-      id: ParameterFormIds.DATA_SOURCE,
-      options: {
-        optionsData: dataSources.map((ds) => {
-          return {name: ds.name, value: ds.name, data: ds};
-        })
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Expression',
-      id: ParameterFormIds.EXPRESSION_SUBTYPE,
-      options: {
-        optionsData: expression.dataSubtypes.map((ds) => {
-          return {name: ds.name, value: ds.name, data: ds};
-        })
-      },
-      useSession: false
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Tumor Type',
-      id: ParameterFormIds.TUMOR_TYPE,
-      dependsOn: [ParameterFormIds.DATA_SOURCE],
-      options: {
-        optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
-        optionsData: []
-      },
-      useSession: true
-    }
-  ];
 
   constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
     super(context, selection, parent, options);
@@ -95,15 +61,41 @@ export class CoExpression extends ASmallMultipleView {
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
     this.paramForm = new FormBuilder($parent);
 
+    const paramDesc = this.buildParameterDescs();
     // map FormElement change function to provenance graph onChange function
-    this.paramDesc.forEach((p) => {
+    paramDesc.forEach((p) => {
       p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
     });
 
-    this.paramForm.build(this.paramDesc);
+    this.paramForm.build(paramDesc);
 
     // add other fields
     super.buildParameterUI($parent, onChange);
+  }
+
+  protected buildParameterDescs():IFormSelectDesc[] {
+    return [
+    {
+      type: FormElementType.SELECT,
+      label: 'Reference Gene',
+      id: ParameterFormIds.REFERENCE_GENE,
+      options: {
+        optionsData: [],
+      },
+      useSession: true
+    },
+    {
+      type: FormElementType.SELECT,
+      label: 'Expression',
+      id: ParameterFormIds.EXPRESSION_SUBTYPE,
+      options: {
+        optionsData: expression.dataSubtypes.map((ds) => {
+          return {name: ds.name, value: ds.name, data: ds};
+        })
+      },
+      useSession: false
+    }
+  ];
   }
 
   getParameter(name: string): any {
@@ -134,12 +126,7 @@ export class CoExpression extends ASmallMultipleView {
       .then((genesEnsembl) => {
         //console.log('Ensembl', genesEnsembl);
 
-        const promise = Promise.resolve(
-          ajax.getAPIJSON(`/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-            ensgs: '\'' + genesEnsembl.join('\',\'') + '\'',
-            species: getSelectedSpecies()
-          })
-        );
+        const promise = this.loadGeneList(genesEnsembl);
 
         // on error
         promise.catch(showErrorModalDialog)
@@ -179,35 +166,19 @@ export class CoExpression extends ASmallMultipleView {
       });
   }
 
-  private loadRefGeneData() {
+
+  private async loadRefGeneData() {
     this.refGene = this.paramForm.getElementById(ParameterFormIds.REFERENCE_GENE).value;
 
-    const url = `/targid/db/${this.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${this.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`;
-    const param = {
-        ensg: this.refGene.data.id,
-        schema: this.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-        entity_name: this.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-        expression_subtype: this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
-        tumortype : this.getParameter(ParameterFormIds.TUMOR_TYPE),
-        species: getSelectedSpecies()
-      };
-
-    return ajax.getAPIJSON(url, param)
-      .then((rows) => {
-        this.refGeneExpression = this.filterZeroValues(rows);
-      });
+    const rows = await this.loadData(this.refGene.data.id);
+    this.refGeneExpression = filterZeroValues(rows);
   }
 
-  /**
-   * Filter expression values with 0, because log scale cannot handle log(0)
-   * @param rows
-   * @returns {any}
-   */
-  private filterZeroValues(rows) {
-    const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
-    console.log(`filtered ${rows.length-rows2.length} zero values`);
-    return rows2;
-  }
+  protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
+  protected abstract loadGeneList(ensgs: string[]): Promise<{id: string, symbol: string}[]>;
+  protected abstract loadFirstName(ensg: string): Promise<string>;
+
+
 
   private update(updateAll = false) {
     const that = this;
@@ -236,18 +207,8 @@ export class CoExpression extends ASmallMultipleView {
       const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/co_expression${that.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`, {
-              ensg: name,
-              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-              expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
-              species: getSelectedSpecies()
-            }),
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\'',
-              species: getSelectedSpecies()
-            })
+            this.loadData(name),
+            this.loadFirstName(name)
           ]);
         });
       // on error
@@ -259,8 +220,8 @@ export class CoExpression extends ASmallMultipleView {
       // on success
       promise.then((input) => {
         // use EnsemblID if symbol is empty
-        d.geneName = (input[1][0].symbol) ? input[1][0].symbol : input[1][0].id;
-        d.rows = that.filterZeroValues(input[0]);
+        d.rows = filterZeroValues(input[0]);
+        d.geneName = input[1];
 
         //console.log('loaded data for', d.geneName);
 
@@ -411,19 +372,18 @@ export class CoExpression extends ASmallMultipleView {
 
 }
 
-interface IDataFormat {
+export default ACoExpression;
+
+export interface IDataFormatRow {
+  id: string;
+  symbol: string;
+  samplename: string;
+  expression: number;
+}
+
+export interface IDataFormat {
   id:number;
   geneName: string;
-  rows: {
-    id: string,
-    symbol: string,
-    samplename: string,
-    expression: number
-  }[];
+  rows: IDataFormatRow[];
 }
-
-export function create(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new CoExpression(context, selection, parent, options);
-}
-
 

@@ -86,16 +86,6 @@ module.exports = function (registry) {
     'mockup': true
   });
 
-  registry.push('targidView', 'celllinedb_co_expression', function () {
-    return System.import('./src/CoExpression');
-  }, {
-    'name': 'Co-Expression',
-    'category': 'dynamic',
-    'factory': 'create',
-    'idtype': 'Ensembl',
-    'selection': 'small_multiple'
-  });
-
 
   registry.push('targidView', 'expressiontable', function () {
     return System.import('./src/RawDataTable');
