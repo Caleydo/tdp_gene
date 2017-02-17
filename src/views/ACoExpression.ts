@@ -191,13 +191,13 @@ export abstract class ACoExpression extends ASmallMultipleView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
 
-    enterOrUpdateAll.each(function(d) {
+    enterOrUpdateAll.each(function(this: HTMLElement, d) {
       const $id = d3.select(this);
       const promise = that.resolveId(idtype, d.id, gene.idType)
         .then((name) => {
           return Promise.all([
-            this.loadData(name),
-            this.loadFirstName(name)
+            that.loadData(name),
+            that.loadFirstName(name)
           ]);
         });
       // on error

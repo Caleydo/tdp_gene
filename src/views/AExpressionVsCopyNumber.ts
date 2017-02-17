@@ -117,10 +117,10 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
-    enterOrUpdateAll.each(function (d) {
+    enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
       const promise = that.resolveId(idtype, d.id, gene.idType)
-        .then((name) => Promise.all([this.loadData(name),this.loadFirstName(name)]));
+        .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
       promise.catch(showErrorModalDialog)
