@@ -83,17 +83,6 @@ export abstract class ACoExpression extends ASmallMultipleView {
         optionsData: [],
       },
       useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Expression',
-      id: ParameterFormIds.EXPRESSION_SUBTYPE,
-      options: {
-        optionsData: expression.dataSubtypes.map((ds) => {
-          return {name: ds.name, value: ds.name, data: ds};
-        })
-      },
-      useSession: false
     }
   ];
   }
