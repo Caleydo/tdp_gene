@@ -320,8 +320,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
       title = geneName;
     }
 
-    $g.select('text.x.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name + ' of '+ this.getParameter(ParameterFormIds.REFERENCE_GENE).symbol);
-    $g.select('text.y.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name + ' of '+ geneName);
+    const attribute = this.getAttributeName();
+    $g.select('text.x.label').text(attribute + ' of '+ this.getParameter(ParameterFormIds.REFERENCE_GENE).symbol);
+    $g.select('text.y.label').text(attribute + ' of '+ geneName);
 
     $g.select('text.title').text(title);
 
@@ -358,6 +359,8 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     marks.exit().remove();
   }
+
+  protected abstract getAttributeName(): string;
 
 }
 
