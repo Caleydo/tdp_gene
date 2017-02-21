@@ -80,13 +80,14 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     const formBuilder: FormBuilder = new FormBuilder($searchWrapper);
     formBuilder.appendElement({
       id: `search-${this.dataSource.entityName}`,
-      label: `Search ${this.dataSource.name}`,
+      hideLabel: true,
       type: FormElementType.SELECT2,
       attributes: {
         style: 'width:100%',
       },
       options: {
         optionsData: [],
+        placeholder: `Search ${this.dataSource.name}`,
         ajax: {
           url: api2absURL(`/targid/db/${this.dataSource.db}/single_entity_lookup/lookup`),
           data: (params: any) => {
