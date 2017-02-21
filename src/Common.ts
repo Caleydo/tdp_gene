@@ -286,8 +286,8 @@ export const copyNumber:IDataTypeConfig = {
   tableName: 'copynumber',
   query: 'copynumber_score',
   dataSubtypes: [
-    { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'relativecopynumber'},
-    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: 0, constantDomain: true, useForAggregation: 'totalabscopynumber'},
+    { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'relativecopynumber'},
+    { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'totalabscopynumber'},
     { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), mapCategoryRows: convertCopyNumberClass, missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
@@ -299,12 +299,40 @@ export const mutation:IDataTypeConfig = {
   query: 'alteration_mutation_frequency',
   dataSubtypes: [
     //it is a cat by default but in the frequency case also a number?
-    { id: 'aa_mutated', name: 'AA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'aa_mutated'},
+    {
+      id: 'aa_mutated',
+      name: 'AA Mutated',
+      type: dataSubtypes.cat,
+      categories: toLineUpCategories(mutationCat),
+      mapCategoryRows: convertMutationCat,
+      missingCategory: unknownMutationValue,
+      useForAggregation: 'aa_mutated',
+      domain: [0, 100],
+      missingValue: NaN
+    },
     //just for single score:
-    { id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: ''},
-    { id: 'dna_mutated', name: 'DNA Mutated', type: dataSubtypes.cat, categories: toLineUpCategories(mutationCat), mapCategoryRows: convertMutationCat, missingCategory: unknownMutationValue, useForAggregation: 'dna_mutated'},
+    {
+      id: 'aamutation', name: 'AA Mutation', type: dataSubtypes.string, useForAggregation: '',
+      domain: [0, 100],
+      missingValue: NaN
+    },
+    {
+      id: 'dna_mutated',
+      name: 'DNA Mutated',
+      type: dataSubtypes.cat,
+      categories: toLineUpCategories(mutationCat),
+      mapCategoryRows: convertMutationCat,
+      missingCategory: unknownMutationValue,
+      useForAggregation: 'dna_mutated',
+      domain: [0, 100],
+      missingValue: NaN
+    },
     //just for single score:
-    { id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '' }
+    {
+      id: 'dnamutation', name: 'DNA Mutation', type: dataSubtypes.string, useForAggregation: '',
+      domain: [0, 100],
+      missingValue: NaN
+    }
   ]
 };
 
