@@ -246,6 +246,15 @@ export abstract class AOncoPrint extends AView {
         $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
         $li.append('span').text(d.name);
       });
+
+    this.$node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <p>Please note:</p> 
+      <ul>
+         <li>The indicated copy number states are only estimates, which can be affected by sample purity, ploidy, and other factors.</li>
+         <li>The indicated alteration prevalences are only estimates, which can be affected by incomplete data and small sample numbers.</li>
+      </ul>
+    `);
   }
 
   protected abstract loadSampleList(): Promise<string[]>;
