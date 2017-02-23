@@ -140,50 +140,40 @@ class InvertedRawDataTable extends ALineUpView2 {
     return rows;
   }
 
-  protected getSelectionColumnDesc(id: number) {
-    return this.getSelectionColumnLabel(id)
-      .then((label:string) => {
-        let desc;
-        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+  protected async getSelectionColumnDesc(id: number) {
+    const label = await this.getSelectionColumnLabel(id);
+    const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
 
-        if (dataSubType.type === 'boolean') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'string') {
-          desc = stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-        } else if (dataSubType.type === 'cat') {
-          if (this.dataType === mutation) {
-            desc = categoricalCol(this.getSelectionColumnId(id), mutationCat.map((d) => d.value), label, true, 50, id);
-          } else {
-            desc = categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
-          }
-        } else {
-          desc = numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
-        }
-        return desc;
-      });
+    if (dataSubType.type === 'boolean') {
+      return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+    } else if (dataSubType.type === 'string') {
+      return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+    } else if (dataSubType.type === 'cat') {
+      if (this.dataType === mutation) {
+        return categoricalCol(this.getSelectionColumnId(id), mutationCat.map((d) => d.value), label, true, 50, id);
+      } else {
+        return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
+      }
+    }
+    return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
   }
 
   protected getSelectionColumnLabel(id: number) {
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
-    return this.resolveId(this.selection.idtype, id)
-      .then((name) => {
-        return name;
-      });
+    return this.resolveId(this.selection.idtype, id);
   }
 
-  protected loadSelectionColumnData(id: number): Promise<IScoreRow<any>[]> {
+  protected async loadSelectionColumnData(id: number): Promise<IScoreRow<any>[]> {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
-    return this.resolveId(this.selection.idtype, id)
-      .then((name) => {
-        return <Promise<IScoreRow<any>[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_inverted_column`, {
-          entity_value: name, // selected cell line name or tissue name
-          schema: dataSource.schema,
-          entity_name: dataSource.entityName,
-          table_name: this.dataType.tableName,
-          data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id
-        });
-      });
+    const name = await this.resolveId(this.selection.idtype, id);
+    return <Promise<IScoreRow<any>[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_inverted_column`, {
+      entity_value: name, // selected cell line name or tissue name
+      schema: dataSource.schema,
+      entity_name: dataSource.entityName,
+      table_name: this.dataType.tableName,
+      data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id
+    });
   }
 
   protected mapSelectionRows(rows:IScoreRow<any>[]) {
@@ -198,7 +188,7 @@ class InvertedRawDataTable extends ALineUpView2 {
     return rows;
   }
 
-  getItemName(count) {
+  getItemName(count: number) {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
