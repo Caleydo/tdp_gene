@@ -184,10 +184,6 @@ class RawDataTable extends ALineUpView2 {
         });
     }
 
-    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
-      rows = this.getParameter(ParameterFormIds.DATA_SUBTYPE).mapCategoryRows(rows, 'score');
-    }
-
     return rows;
   }
 
