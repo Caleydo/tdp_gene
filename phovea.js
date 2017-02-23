@@ -285,7 +285,27 @@ module.exports = function (registry) {
 
   //scores
 
-  registry.push('targidScore', 'tissue_inverted_aggregated_score', function () {
+
+  registry.push('ordinoScore', 'gene_aggregated_score', function () {
+    return System.import('./src/AggregatedScore');
+  }, {
+    'name': 'Score',
+    'idtype': 'Ensembl'
+  });
+
+  registry.push('ordinoScoreImpl', 'gene_aggregated_score', function () {
+    return System.import('./src/AggregatedScore');
+  }, {
+    'factory': 'createScore'
+  });
+
+  registry.push('ordinoScore', 'cellline_inverted_aggregated_score', function () {
+    return System.import('./src/InvertedAggregatedScore');
+  }, {
+    'name': 'Score',
+    'idtype': 'Cellline'
+  });
+  registry.push('ordinoScore', 'tissue_inverted_aggregated_score', function () {
     return System.import('./src/InvertedAggregatedScore');
   }, {
     'name': 'Score',
@@ -293,17 +313,16 @@ module.exports = function (registry) {
     'sampleType': 'Tissue'
   });
 
-  registry.push('targidScore', 'gene_aggregated_score', function () {
-    return System.import('./src/AggregatedScore');
-  }, {
-    'name': 'Score',
-    'idtype': 'Ensembl'
-  });
-  registry.push('targidScore', 'cellline_inverted_aggregated_score', function () {
+  registry.push('ordinoScoreImpl', 'tissue_inverted_aggregated_score', function () {
     return System.import('./src/InvertedAggregatedScore');
   }, {
-    'name': 'Score',
-    'idtype': 'Cellline'
+    'factory': 'createScore'
+  });
+
+  registry.push('ordinoScoreImpl', 'cellline_inverted_aggregated_score', function () {
+    return System.import('./src/InvertedAggregatedScore');
+  }, {
+    'factory': 'createScore'
   });
   // generator-phovea:end
 };

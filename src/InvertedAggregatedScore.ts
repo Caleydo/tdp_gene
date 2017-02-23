@@ -340,22 +340,8 @@ export function create(desc: IPluginDesc, dataSource:IDataSourceConfig = gene) {
     dialog.onSubmit(() => {
       const data = form.getElementData();
 
-      let score:IScore<number>;
-
-      switch(data[ParameterFormIds.FILTER_BY]) {
-        case 'single_entity':
-          data.entity_value = data[ParameterFormIds.GENE_SYMBOL];
-          score = createInvertedSingleGeneScore(data);
-          break;
-
-        default:
-          score = createInvertedAggregatedScore(data);
-      }
-
-      //console.log(score, data);
-
       dialog.hide();
-      resolve(score);
+      resolve(data);
       return false;
     });
 
@@ -384,4 +370,14 @@ function createInvertedAggregatedScore(data):IScore<number> {
     }
   }
   return new InvertedAggregatedScore(data, data[ParameterFormIds.DATA_SOURCE]);
+}
+
+export function createScore(data): IScore<number> {
+  switch(data[ParameterFormIds.FILTER_BY]) {
+    case 'single_entity':
+      data.entity_value = data[ParameterFormIds.GENE_SYMBOL];
+      return createInvertedSingleGeneScore(data);
+    default:
+      return createInvertedAggregatedScore(data);
+  }
 }
