@@ -260,7 +260,6 @@ export interface IDataSubtypeConfig {
 
   //type: 'cat';
   categories?: {label: string, name: string, color: string}[];
-  mapCategoryRows?: (rows, field:string) => any[];
   missingCategory?: string;
 
   //type: 'number';
@@ -288,7 +287,7 @@ export const copyNumber:IDataTypeConfig = {
   dataSubtypes: [
     { id: 'relativecopynumber', name: 'Relative Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'relativecopynumber'},
     { id: 'totalabscopynumber', name: 'Total Absolute Copy Number', type: dataSubtypes.number, domain: [0, 15], missingValue: NaN, constantDomain: true, useForAggregation: 'totalabscopynumber'},
-    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), mapCategoryRows: convertCopyNumberClass, missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
+    { id: 'copynumberclass', name: 'Copy Number Class', type: dataSubtypes.cat, categories: toLineUpCategories(copyNumberCat), missingCategory: unknownCopyNumberValue, useForAggregation: 'copynumberclass'}
   ],
 };
 
@@ -304,7 +303,6 @@ export const mutation:IDataTypeConfig = {
       name: 'AA Mutated',
       type: dataSubtypes.cat,
       categories: toLineUpCategories(mutationCat),
-      mapCategoryRows: convertMutationCat,
       missingCategory: unknownMutationValue,
       useForAggregation: 'aa_mutated',
       domain: [0, 100],
@@ -321,7 +319,6 @@ export const mutation:IDataTypeConfig = {
       name: 'DNA Mutated',
       type: dataSubtypes.cat,
       categories: toLineUpCategories(mutationCat),
-      mapCategoryRows: convertMutationCat,
       missingCategory: unknownMutationValue,
       useForAggregation: 'dna_mutated',
       domain: [0, 100],
@@ -373,7 +370,7 @@ export class ParameterFormIds {
   static COMPARISON_VALUE = 'comparison_value';
 }
 
-export function convertLog2ToLinear (rows, field:string) {
+export function convertLog2ToLinear (rows: any[], field:string) {
   console.log('convert log2 score to linear scale');
   return rows.map((row) => {
     row[field] = Math.pow(2, row[field]);
@@ -387,25 +384,4 @@ function toLineUpCategories(arr: {name: string, value: any, color: string}[]) {
 
 export function getSelectedSpecies() {
   return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
-}
-
-
-export function convertCopyNumberClass(rows, field:string) {
-  //console.log('convert copy number class');
-  const mapping = {};
-  copyNumberCat.forEach((d) => mapping[d.value] = d.name);
-  return rows.map((row) => {
-    row[field] = mapping[row[field]];
-    return row;
-  });
-}
-
-export function convertMutationCat(rows, field:string) {
-  //console.log('convert copy number class');
-  const mapping = {};
-  mutationCat.forEach((d) => mapping[d.value] = d.name);
-  return rows.map((row) => {
-    row[field] = mapping[row[field]];
-    return row;
-  });
 }

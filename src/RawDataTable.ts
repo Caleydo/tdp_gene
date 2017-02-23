@@ -131,56 +131,42 @@ class RawDataTable extends ALineUpView2 {
     return ajax.getAPIJSON(url, param);
   }
 
-  protected mapRows(rows:any[]) {
-    rows = super.mapRows(rows);
-    return rows;
+  protected async getSelectionColumnDesc(id: number) {
+    const label = await this.getSelectionColumnLabel(id);
+    const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
+    switch (dataSubType.type) {
+      case 'boolean':
+        return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+      case 'string':
+        return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
+      case 'cat':
+        return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
+    }
+    return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
   }
 
-  protected getSelectionColumnDesc(id) {
-    return this.getSelectionColumnLabel(id)
-      .then((label: string) => {
-        const dataSubType = this.getParameter(ParameterFormIds.DATA_SUBTYPE);
-        switch (dataSubType.type) {
-          case 'boolean':
-            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-          case 'string':
-            return stringCol(this.getSelectionColumnId(id), label, true, 50, id);
-          case 'cat':
-            return categoricalCol(this.getSelectionColumnId(id), dataSubType.categories, label, true, 50, id);
-        }
-        return numberCol2(this.getSelectionColumnId(id), dataSubType.domain[0], dataSubType.domain[1], label, true, 50, id);
-      });
-  }
-
-  protected getSelectionColumnLabel(id) {
+  protected async getSelectionColumnLabel(id: number): Promise<string> {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     // resolve `_id` (= `targidid`) to symbol (`ensg`)
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
-    return this.resolveId(this.selection.idtype, id)
-      .then((ensg) => {
-        return <Promise<{symbol: string}[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
+    const ensg = await this.resolveId(this.selection.idtype, id);
+    const mapping: {symbol: string}[] = await ajax.getAPIJSON(`/targid/db/${dataSource.db}/gene_map_ensgs`, {
             ensgs: `'${ensg}'`,
             species: getSelectedSpecies()
           });
-      })
-      .then((mapping) => {
-        // resolve ensg to gene name
-        return mapping[0].symbol;
-      });
+    return mapping[0].symbol;
   }
 
-  protected loadSelectionColumnData(id): Promise<IScoreRow<any>[]> {
+  protected async loadSelectionColumnData(id: number): Promise<IScoreRow<any>[]> {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     // TODO When playing the provenance graph, the RawDataTable is loaded before the GeneList has finished loading, i.e. that the local idType cache is not build yet and it will send an unmap request to the server
-    return this.resolveId(this.selection.idtype, id)
-      .then((ensg) => {
-        return <Promise<IScoreRow<any>[]>>ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
-          ensg,
-          schema: dataSource.schema,
-          entity_name: dataSource.entityName,
-          table_name: this.dataType.tableName,
-          data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id
-        });
+    const ensg = await this.resolveId(this.selection.idtype, id);
+    return ajax.getAPIJSON(`/targid/db/${dataSource.db}/raw_data_table_column`, {
+        ensg,
+        schema: dataSource.schema,
+        entity_name: dataSource.entityName,
+        table_name: this.dataType.tableName,
+        data_subtype: this.getParameter(ParameterFormIds.DATA_SUBTYPE).id
       });
   }
 
@@ -198,14 +184,10 @@ class RawDataTable extends ALineUpView2 {
         });
     }
 
-    if(this.getParameter(ParameterFormIds.DATA_SUBTYPE).type === 'cat') {
-      rows = this.getParameter(ParameterFormIds.DATA_SUBTYPE).mapCategoryRows(rows, 'score');
-    }
-
     return rows;
   }
 
-  getItemName(count) {
+  getItemName(count: number) {
     const dataSource = this.getParameter(ParameterFormIds.DATA_SOURCE);
     return (count === 1) ? dataSource.name.toLowerCase() : dataSource.name.toLowerCase() + 's';
   }
