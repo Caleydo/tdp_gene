@@ -240,7 +240,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'proteinatlas_org', function () {
-    return System.import('./src/GeneProxyView');
+    return System.import('./src/GeneProxyView2');
   }, {
     'name': 'The Human Protein Atlas',
     'category': 'static',

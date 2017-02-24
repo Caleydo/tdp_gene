@@ -3,6 +3,7 @@
  */
 
 import * as session from 'phovea_core/src/session';
+import IDType from 'phovea_core/src/idtype/IDType';
 
 export const copyNumberCat = [
   {value: 2, name: 'Amplification', color: '#efb3bc', border: 'transparent'},
@@ -384,4 +385,24 @@ function toLineUpCategories(arr: {name: string, value: any, color: string}[]) {
 
 export function getSelectedSpecies() {
   return session.retrieve(ParameterFormIds.SPECIES, defaultSpecies);
+}
+
+/**
+ * selects a human readable idtype for a given one that can be mapped
+ * @param idType
+ * @returns {Promise<any>}
+ */
+export async function selectReadableIDType(idType: IDType): Promise<IDType|null> {
+  if (idType.id === gene.idType) {
+    const targetMapping = 'GeneSymbol';
+    const species = getSelectedSpecies();
+    const mapsTo = await idType.getCanBeMappedTo();
+    let target = mapsTo.find((d) => d.name === targetMapping + '_' + species);
+    if (!target) {
+      target = mapsTo.find((d) => d.name === targetMapping);
+    }
+    return target;
+  }
+  // TODO is there a nicer name for cell lines?
+  return null;
 }
