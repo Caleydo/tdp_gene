@@ -14,6 +14,11 @@ module.exports = function (registry) {
     'name': 'Predefined Datasets',
     'cssClass': 'speciesSelector',
     'factory': 'create',
+    'headers': {
+      'cellline': 'Cell Line Panels',
+      'ensembl': 'Gene Sets',
+      'tissue': 'Tissue Panels'
+    },
     'priority': 10
   });
 
