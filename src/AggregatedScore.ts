@@ -11,7 +11,7 @@ import {
   allTypes, dataSources, dataTypes, IDataSourceConfig, IDataTypeConfig, IDataSubtypeConfig, ParameterFormIds,
   expression, copyNumber, mutation, convertLog2ToLinear, cellline, dataSubtypes, getSelectedSpecies, tissue
 } from './Common';
-import {IScore, IScoreRow} from 'ordino/src/LineUpView';
+import {IScore} from 'ordino/src/LineUpView';
 import {FormBuilder, FormElementType, IFormElementDesc} from 'ordino/src/FormBuilder';
 import {IBoxPlotData} from 'lineupjs/src/model/BoxPlotColumn';
 import {api2absURL} from 'phovea_core/src/ajax';
@@ -86,7 +86,7 @@ class AggregatedScore implements IScore<number> {
     return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
   }
 
-  async compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
     const param: any = {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
@@ -111,12 +111,14 @@ class AggregatedScore implements IScore<number> {
         }
     }
 
-    const rows: any[] = await ajax.getAPIJSON(url, param);
-    // convert log2 to linear scale
-    if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-      return convertLog2ToLinear(rows, 'score');
-    }
-    return rows;
+    return ajax.getAPIJSON(url, param)
+      .then((rows: any[]) => {
+        // convert log2 to linear scale
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
+        return rows;
+      });
   }
 }
 
@@ -130,7 +132,7 @@ class BoxScore implements IScore<IBoxPlotData> {
     return createDesc(dataSubtypes.boxplot, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${subset}`, this.parameter.data_subtype);
   }
 
-  async compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<IScoreRow<IBoxPlotData>[]> {
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
     const param: any = {
       schema: this.dataSource.schema,
       entity_name: this.dataSource.entityName,
@@ -154,8 +156,21 @@ class BoxScore implements IScore<IBoxPlotData> {
         }
     }
 
-    const rows: any[] = await ajax.getAPIJSON(url, param);
-    return rows.map((d) => ({ id: d.id, score: d}));
+    return ajax.getAPIJSON(url, param)
+      .then((rows: any[]) => {
+        // convert log2 to linear scale
+        //if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+        //  rows = convertLog2ToLinear(rows, 'score');
+        //}
+        rows = rows.map((d) => {
+          return {
+            id: d.id,
+            score: d
+          };
+        });
+
+        return rows;
+      });
   }
 }
 
@@ -242,15 +257,14 @@ class FrequencyScore implements IScore<number> {
   }
 }
 
-interface ISingleEntityScoreInterface {
-  data_source: IDataSourceConfig;
-  data_type: IDataTypeConfig;
-  data_subtype: IDataSubtypeConfig;
-  entity_value: {id: string, text: string};
-}
-
 class SingleEntityScore implements IScore<any> {
-  constructor(private parameter: ISingleEntityScoreInterface, private dataSource: IDataSourceConfig) {
+  constructor(private parameter: {
+    data_source: IDataSourceConfig,
+    data_type: IDataTypeConfig,
+    data_subtype: IDataSubtypeConfig,
+    entity_value: {id: string, text: string}
+  },
+              private dataSource: IDataSourceConfig) {
 
   }
 
@@ -259,7 +273,7 @@ class SingleEntityScore implements IScore<any> {
     return createDesc(subtype.type, `${subtype.name} of ${this.parameter.entity_value.text}`, subtype);
   }
 
-  async compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+  compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
     const url = `/targid/db/${this.dataSource.db}/single_entity_score`;
     const param = {
       schema: this.dataSource.schema,
@@ -270,12 +284,14 @@ class SingleEntityScore implements IScore<any> {
       species: getSelectedSpecies()
     };
 
-    const rows: any[] = await ajax.getAPIJSON(url, param);
-    // convert log2 to linear scale
-    if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-      return convertLog2ToLinear(rows, 'score');
-    }
-    return rows;
+    return ajax.getAPIJSON(url, param)
+      .then((rows: any[]) => {
+        // convert log2 to linear scale
+        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+          rows = convertLog2ToLinear(rows, 'score');
+        }
+        return rows;
+      });
   }
 }
 
@@ -285,14 +301,13 @@ function listTissuePanels(): Promise<{id: string}[]> {
   return ajax.getAPIJSON(baseURL);
 }
 
-export async function create(desc: IPluginDesc) {
+export function create(desc: IPluginDesc) {
   // resolve promise when closing or submitting the modal dialog
-  const tissuePanels: {id: string}[] = await listTissuePanels();
-  return new Promise((resolve) => {
+  return listTissuePanels().then((tissuePanels: {id: string}[]) => new Promise((resolve) => {
     const dialog = dialogs.generateDialog('Add Score Column', 'Add Score Column');
 
-    const form: FormBuilder = new FormBuilder(select(dialog.body));
-    const formDesc: IFormElementDesc[] = [
+    const form:FormBuilder = new FormBuilder(select(dialog.body));
+    const formDesc:IFormElementDesc[] = [
       {
         type: FormElementType.SELECT,
         label: 'Data Source',
@@ -425,7 +440,7 @@ export async function create(desc: IPluginDesc) {
           optionsFnc: (selection) => {
             let r = (<IDataTypeConfig>selection[1].data).dataSubtypes;
             if (selection[0].value === 'tumor_type') {
-              r = r.filter((d) => d.type !== dataSubtypes.string); //no strings allowed
+              r = r.filter((d)=>d.type !== dataSubtypes.string); //no strings allowed
             }
             return r.map((ds) => {
               return {name: ds.name, value: ds.id, data: ds};
@@ -526,14 +541,14 @@ export async function create(desc: IPluginDesc) {
     });
 
     dialog.show();
-  });
+  }));
 }
 
 function createSingleEntityScore(data): IScore<number> {
   return new SingleEntityScore(data, data[ParameterFormIds.DATA_SOURCE]);
 }
 
-function createAggregatedScore(data): IScore<number|IBoxPlotData> {
+function createAggregatedScore(data): IScore<number> {
   const aggregation = data[ParameterFormIds.AGGREGATION];
   if (aggregation === 'boxplot') {
     return new BoxScore(data, data[ParameterFormIds.DATA_SOURCE]);
