@@ -370,7 +370,7 @@ export class ParameterFormIds {
   static COMPARISON_VALUE = 'comparison_value';
 }
 
-export function convertLog2ToLinear (rows, field:string) {
+export function convertLog2ToLinear (rows: any[], field:string) {
   console.log('convert log2 score to linear scale');
   return rows.map((row) => {
     row[field] = Math.pow(2, row[field]);

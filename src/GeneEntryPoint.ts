@@ -3,7 +3,7 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IEntryPointList} from 'ordino/src/StartMenu';
+import {IEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {gene} from './Common';
 import {ACommonEntryPointList, IACommonListOptions, ACommonList} from './ACommonEntryPointList';
 import {IViewContext, ISelection} from 'ordino/src/View';
@@ -20,7 +20,7 @@ class GeneEntryPointList extends ACommonEntryPointList {
    * @param desc
    * @param options
    */
-  constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected options:any) {
+  constructor(parent: HTMLElement, desc: IPluginDesc, options:IEntryPointOptions) {
     super(parent, desc, gene, options);
   }
 }
@@ -54,7 +54,7 @@ class GeneList extends ACommonList {
  * @param options
  * @returns {function(): any}
  */
-export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:any):IEntryPointList {
+export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:IEntryPointOptions):IEntryPointList {
   return new GeneEntryPointList(parent, desc, options);
 }
 

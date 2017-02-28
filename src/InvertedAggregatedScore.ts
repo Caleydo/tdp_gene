@@ -17,59 +17,54 @@ import {api2absURL} from 'phovea_core/src/ajax';
 import {createDesc} from './AggregatedScore';
 import {select} from 'd3';
 
+interface ICommonScoreParam {
+  data_subtype: IDataSubtypeConfig;
+  bio_type: string;
+}
+
+interface IInvertedAggregatedScoreParam extends ICommonScoreParam {
+  data_source: IDataSourceConfig;
+  data_type: IDataTypeConfig;
+  aggregation: string;
+}
 
 class InvertedAggregatedScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      data_source: IDataSourceConfig,
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      bio_type:string,
-      aggregation: string
-    },
-    private dataSource: IDataSourceConfig
-  ) {
-
+  constructor(private parameter: IInvertedAggregatedScoreParam, private dataSource: IDataSourceConfig) {
   }
 
   createDesc() {
     return createDesc(dataSubtypes.number, `${this.parameter.aggregation} ${this.parameter.data_subtype.name} @ ${this.parameter.bio_type}`, this.parameter.data_subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
-    const url = `/targid/db/${this.dataSource.db}/aggregated_score_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
+  async compute(ids: ranges.Range, idtype: idtypes.IDType): Promise<any[]> {
+    const p = this.parameter;
+    const ds = this.dataSource;
+    const url = `/targid/db/${ds.db}/aggregated_score_inverted${p.bio_type === allBioTypes ? '_all' : ''}`;
     const param = {
-        schema: this.dataSource.schema,
-        entity_name: this.dataSource.entityName,
-        table_name: this.parameter.data_type.tableName,
-        data_subtype: this.parameter.data_subtype.useForAggregation,
-        biotype: this.parameter.bio_type,
-        agg: this.parameter.aggregation,
-        species: getSelectedSpecies()
-      };
+      schema: ds.schema,
+      entity_name: ds.entityName,
+      table_name: p.data_type.tableName,
+      data_subtype: p.data_subtype.useForAggregation,
+      biotype: p.bio_type,
+      agg: p.aggregation,
+      species: getSelectedSpecies()
+    };
 
-    return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
-        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-          rows = convertLog2ToLinear(rows, 'score');
-        }
-        return rows;
-      });
+    const rows: any[] = await ajax.getAPIJSON(url, param);
+    if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+      return convertLog2ToLinear(rows, 'score');
+    }
+    return rows;
   }
 }
 
+interface IInvertedMutationFrequencyScoreParam extends ICommonScoreParam {
+  comparison_operator: string;
+  comparison_value: number;
+}
 
 class InvertedMutationFrequencyScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      bio_type:string,
-      data_subtype:IDataSubtypeConfig,
-      comparison_operator: string,
-      comparison_value: number
-    },
-    private dataSource: IDataSourceConfig,
-    private countOnly
-  ) {
+  constructor(private parameter: IInvertedMutationFrequencyScoreParam, private dataSource: IDataSourceConfig, private countOnly) {
 
   }
 
@@ -78,7 +73,7 @@ class InvertedMutationFrequencyScore implements IScore<number> {
     return createDesc(dataSubtypes.number, `${subtype.name} ${this.countOnly ? 'Count' : 'Frequency'} ${this.parameter.bio_type === allBioTypes ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
+  async compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     const url = `/targid/db/${this.dataSource.db}/mutation_frequency_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
     const param = {
         schema: this.dataSource.schema,
@@ -88,29 +83,20 @@ class InvertedMutationFrequencyScore implements IScore<number> {
         species: getSelectedSpecies()
       };
 
-    return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
-        return rows.map((row) => {
-          row.score = this.countOnly ? row.count : row.count / row.total;
-          return row;
-        });
-      });
+    const rows = await ajax.getAPIJSON(url, param);
+    rows.forEach((row) => this.countOnly ? row.count : row.count / row.total);
+    return rows;
   }
 }
 
+interface IInvertedFrequencyScoreParam extends ICommonScoreParam {
+  data_type:IDataTypeConfig;
+  comparison_operator: string;
+  comparison_value: number;
+}
 
 class InvertedFrequencyScore implements IScore<number> {
-  constructor(
-    private parameter: {
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      bio_type:string,
-      comparison_operator: string,
-      comparison_value: number
-    },
-    private dataSource: IDataSourceConfig,
-    private countOnly
-  ) {
+  constructor(private parameter: IInvertedFrequencyScoreParam, private dataSource: IDataSourceConfig, private countOnly) {
 
   }
 
@@ -119,7 +105,7 @@ class InvertedFrequencyScore implements IScore<number> {
     return createDesc(dataSubtypes.number, `${subtype.name} ${this.parameter.comparison_operator} ${this.parameter.comparison_value} ${this.countOnly ? 'Count' : 'Frequency'}  ${this.parameter.bio_type === allBioTypes ? '' : '@ '+this.parameter.bio_type}`, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
+  async compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     const url = `/targid/db/${this.dataSource.db}/frequency_score_inverted${this.parameter.bio_type===allBioTypes ? '_all' : ''}`;
     const param = {
         schema: this.dataSource.schema,
@@ -132,28 +118,22 @@ class InvertedFrequencyScore implements IScore<number> {
         species: getSelectedSpecies()
       };
 
-    return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
-        return rows.map((row) => {
-          row.score = this.countOnly ? row.count : row.count / row.total;
-          return row;
-        });
-      });
+    const rows = await ajax.getAPIJSON(url, param);
+    rows.forEach((row) => row.score = this.countOnly ? row.count : row.count / row.total);
+    return rows;
   }
 }
 
+interface IInvertedSingleGeneScore extends ICommonScoreParam {
+  data_type:IDataTypeConfig;
+  data_source: IDataSourceConfig;
+  tumor_type: string;
+  aggregation: string;
+  entity_value: {id: string, text: string};
+}
+
 class InvertedSingleGeneScore implements IScore<any> {
-  constructor(
-    private parameter: {
-      data_source: IDataSourceConfig,
-      data_type:IDataTypeConfig,
-      data_subtype:IDataSubtypeConfig,
-      tumor_type:string,
-      aggregation: string,
-      entity_value: {id:string, text:string}
-    },
-    private dataSource: IDataSourceConfig
-  ) {
+  constructor(private parameter: IInvertedSingleGeneScore, private dataSource: IDataSourceConfig) {
 
   }
 
@@ -162,7 +142,7 @@ class InvertedSingleGeneScore implements IScore<any> {
     return createDesc(subtype.type, `${this.parameter.data_subtype.name} of ${this.parameter.entity_value.text}`, subtype);
   }
 
-  compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
+  async compute(ids:ranges.Range, idtype:idtypes.IDType):Promise<any[]> {
     const url = `/targid/db/${this.dataSource.db}/single_entity_score_inverted`;
     const param = {
         schema: this.dataSource.schema,
@@ -173,14 +153,11 @@ class InvertedSingleGeneScore implements IScore<any> {
         species: getSelectedSpecies()
       };
 
-    return ajax.getAPIJSON(url, param)
-      .then((rows:any[]) => {
-        if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
-          rows = convertLog2ToLinear(rows, 'score');
-        }
-
-        return rows;
-      });
+    const rows: any[] = await ajax.getAPIJSON(url, param);
+    if (this.parameter.data_subtype.useForAggregation.indexOf('log2') !== -1) {
+      return convertLog2ToLinear(rows, 'score');
+    }
+    return rows;
   }
 }
 

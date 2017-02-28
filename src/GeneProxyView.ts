@@ -17,25 +17,23 @@ export class GeneProxyView extends ProxyView {
     super(context, selection, parent, options, plugin);
   }
 
-  protected getSelectionSelectData(names:string[]):Promise<{value:string, name:string, data:any}[]> {
+  protected async getSelectionSelectData(names:string[]):Promise<{value:string, name:string, data:any}[]> {
     if(names === null) {
       return Promise.resolve([]);
     }
 
-    return ajax.getAPIJSON(`/targid/db/${gene.db}/gene_map_ensgs`, {
+    const mapping: {id: string, symbol: string}[] = await ajax.getAPIJSON(`/targid/db/${gene.db}/gene_map_ensgs`, {
         ensgs: `'${names.join('\',\'')}'`,
         species: getSelectedSpecies()
-      })
-      .then((mapping) => {
-        // resolve ensg to gene name
-        return mapping.map((d) => {
-          return {
-              value: d.id,
-              name: (d.symbol) ? `${d.symbol} (${d.id})` : d.id,
-              data: d
-            };
-        });
       });
+    // resolve ensg to gene name
+    return mapping.map((d) => {
+      return {
+          value: d.id,
+          name: (d.symbol) ? `${d.symbol} (${d.id})` : d.id,
+          data: d
+        };
+    });
   }
 
 }
