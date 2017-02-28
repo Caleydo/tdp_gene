@@ -11,7 +11,7 @@ module.exports = function (registry) {
   registry.push('targidStartMenuSection', 'targid_start_species', function () {
     return System.import('./src/SpeciesSelector');
   }, {
-    'name': 'Species Selector',
+    'name': 'Predefined Datasets',
     'cssClass': 'speciesSelector',
     'factory': 'create',
     'priority': 10
