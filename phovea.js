@@ -14,12 +14,12 @@ module.exports = function (registry) {
     'name': 'Predefined Datasets',
     'cssClass': 'speciesSelector',
     'factory': 'create',
+    'priority': 10,
     'headers': {
       'cellline': 'Cell Line Panels',
       'ensembl': 'Gene Sets',
       'tissue': 'Tissue Panels'
-    },
-    'priority': 10
+    }
   });
 
   registry.push('targidStartEntryPoint', 'celllinedb_genes_start', function () {
