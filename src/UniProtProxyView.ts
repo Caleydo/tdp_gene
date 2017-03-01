@@ -13,7 +13,7 @@ import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 
  */
 export class UniProtProxyView extends GeneProxyView {
 
-  static SELECTED_UNIPROT_ITEM = 'externalUniProt';
+  protected static SELECTED_UNIPROT_ITEM = 'externalUniProt';
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
     super(context, selection, parent, options, plugin);
@@ -137,12 +137,14 @@ export class UniProtProxyView extends GeneProxyView {
       });
   }
 
-  private getUniProtSelectData(uniProtIds: string[]): {value: string, name: string, data: string}[] {
+  private getUniProtSelectData(uniProtIds): Promise<{value: string, name: string, data: string}[]> {
     if(uniProtIds === null) {
-      return [];
+      return Promise.resolve([]);
     }
 
-    return uniProtIds.map((d:string) => ({value: d, name: d, data: d}));
+    return Promise.resolve(uniProtIds.map((d:string) => {
+      return {value: d, name: d, data: d};
+    }));
   }
 
   protected updateProxyView() {

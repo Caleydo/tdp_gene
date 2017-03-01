@@ -3,7 +3,7 @@
  */
 
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
+import {IEntryPointList} from 'ordino/src/StartMenu';
 import {chooseDataSource} from './Common';
 import {ACommonEntryPointList, IACommonListOptions, ACommonList} from './ACommonEntryPointList';
 import {IViewContext, ISelection} from 'ordino/src/View';
@@ -21,7 +21,7 @@ class CellLineEntryPointList extends ACommonEntryPointList {
    * @param desc
    * @param options
    */
-  constructor(parent: HTMLElement, desc: IPluginDesc, options:IEntryPointOptions) {
+  constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected options:any) {
     super(parent, desc, chooseDataSource(desc), options);
   }
 }
@@ -51,7 +51,7 @@ class CellLineList extends ACommonList {
  * @param options
  * @returns {function(): any}
  */
-export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:IEntryPointOptions):IEntryPointList {
+export function createStartFactory(parent: HTMLElement, desc: IPluginDesc, options:any):IEntryPointList {
   return new CellLineEntryPointList(parent, desc, options);
 }
 

@@ -11,15 +11,10 @@ module.exports = function (registry) {
   registry.push('targidStartMenuSection', 'targid_start_species', function () {
     return System.import('./src/SpeciesSelector');
   }, {
-    'name': 'Predefined Datasets',
+    'name': 'Species Selector',
     'cssClass': 'speciesSelector',
     'factory': 'create',
-    'priority': 10,
-    'headers': {
-      'cellline': 'Cell Line Panels',
-      'ensembl': 'Gene Sets',
-      'tissue': 'Tissue Panels'
-    }
+    'priority': 10
   });
 
   registry.push('targidStartEntryPoint', 'celllinedb_genes_start', function () {
@@ -89,6 +84,36 @@ module.exports = function (registry) {
     'idtype': 'Ensembl',
     'selection': 'single',
     'mockup': true
+  });
+
+  registry.push('targidView', 'celllinedb_expression_vs_copynumber', function () {
+    return System.import('./src/ExpressionVsCopyNumber');
+  }, {
+    'name': 'Expression vs. Copy Number',
+    'category': 'dynamic',
+    'factory': 'create',
+    'idtype': 'Ensembl',
+    'selection': 'small_multiple'
+  });
+
+  registry.push('targidView', 'celllinedb_co_expression', function () {
+    return System.import('./src/CoExpression');
+  }, {
+    'name': 'Co-Expression',
+    'category': 'dynamic',
+    'factory': 'create',
+    'idtype': 'Ensembl',
+    'selection': 'small_multiple'
+  });
+
+  registry.push('targidView', 'celllinedb_onco_print', function () {
+    return System.import('./src/OncoPrint');
+  }, {
+    'name': 'OncoPrint',
+    'category': 'dynamic',
+    'factory': 'create',
+    'idtype': 'Ensembl',
+    'selection': 'some'
   });
 
 
