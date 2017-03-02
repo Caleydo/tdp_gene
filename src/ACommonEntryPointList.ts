@@ -262,11 +262,11 @@ export abstract class ACommonList extends ALineUpView2 {
       param.table_name = dataSource.tableName;
       param.species = defaultSpecies;
       param.entity_name = dataSource.entityName;
-      param.names = `'${this.search.ids.join('\',\'')}'`;
+      param.entities = `'${this.search.ids.join('\',\'')}'`;
 
-      const type = this.search.type !== 'gene'? 'celllines_tissues' : `${this.search.type}s`;
+      const path = this.search.type !== 'gene'? 'row' : `${this.search.type}s_by_names`;
 
-      baseURL = `/targid/db/${dataSource.db}/${type}_by_names`;
+      baseURL = `/targid/db/${dataSource.db}/${path}`;
     }
 
     return getAPIJSON(baseURL, param);
