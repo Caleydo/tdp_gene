@@ -14,12 +14,7 @@ module.exports = function (registry) {
     'name': 'Predefined Datasets',
     'cssClass': 'speciesSelector',
     'factory': 'create',
-    'priority': 10,
-    'headers': {
-      'cellline': 'Cell Line Panels',
-      'ensembl': 'Gene Sets',
-      'tissue': 'Tissue Panels'
-    }
+    'priority': 10
   });
 
   registry.push('targidStartEntryPoint', 'celllinedb_genes_start', function () {
@@ -29,7 +24,8 @@ module.exports = function (registry) {
     'factory': 'createStartFactory',
     'viewId': 'celllinedb_start',
     'idtype': 'Ensembl',
-    'selection': 'none'
+    'selection': 'none',
+    'description': 'Gene Sets'
   });
   registry.push('targidView', 'celllinedb_start', function () {
     return System.import('./src/GeneEntryPoint');
@@ -48,7 +44,8 @@ module.exports = function (registry) {
     'viewId': 'bioinfodb_tissue_start',
     "idtype": "Tissue",
     "selection": "none",
-    "sampleType": "Tissue"
+    "sampleType": "Tissue",
+    'description': 'Tissue Panels'
   });
   registry.push('targidView', 'bioinfodb_tissue_start', function () {
     return System.import('./src/CellLineEntryPoint');
@@ -68,7 +65,8 @@ module.exports = function (registry) {
     'factory': 'createStartFactory',
     'viewId': 'celllinedb_cellline',
     'idtype': 'Cellline',
-    'selection': 'none'
+    'selection': 'none',
+    'description': 'Cell Line Panels'
   });
   registry.push('targidView', 'celllinedb_cellline', function () {
     return System.import('./src/CellLineEntryPoint');
