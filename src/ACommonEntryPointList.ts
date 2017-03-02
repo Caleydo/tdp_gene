@@ -131,7 +131,12 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
 export interface IACommonListOptions {
   namedSet?: INamedSet;
-  search?: { ids: string[], type: string };
+  search?: ISearchResult;
+}
+
+interface ISearchResult {
+  ids: string[];
+  type: string;
 }
 
 export abstract class ACommonList extends ALineUpView2 {
@@ -141,7 +146,7 @@ export abstract class ACommonList extends ALineUpView2 {
    * Override in constructor of extended class
    */
   private namedSet : INamedSet;
-  private search: { ids: string[], type: string };
+  private search: ISearchResult;
 
   /**
    * Parameter UI form
