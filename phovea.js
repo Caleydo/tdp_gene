@@ -202,7 +202,7 @@ module.exports = function (registry) {
     'category': 'static',
     'site': '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
-    'idtype': 'UniProt',
+    'idtype': 'UniProt_human',
     'selection': 'multiple'
   });
 
@@ -213,7 +213,7 @@ module.exports = function (registry) {
     'category': 'static',
     'site': '//www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
-    'idtype': 'UniProt',
+    'idtype': 'UniProt_human',
     'selection': 'multiple'
   });
 
