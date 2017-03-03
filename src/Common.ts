@@ -343,6 +343,7 @@ export const availableSpecies = [
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
+export const DEFAULT_ENTITY_TYPE = 'gene-entry-point';
 
 /**
  * List of ids for parameter form elements

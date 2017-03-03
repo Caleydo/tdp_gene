@@ -6,7 +6,7 @@ import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
-import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
+import {availableSpecies, defaultSpecies, ParameterFormIds, DEFAULT_ENTITY_TYPE} from './Common';
 import * as d3 from 'd3';
 
 
@@ -39,7 +39,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     $parent.html(''); // remove loading element or previous data
 
     this.buildSpeciesSelection($parent);
-    this.buildEntryPointList($parent);
+    this.buildEntityTypes($parent);
   }
 
   private buildSpeciesSelection($parent) {
@@ -77,13 +77,33 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
   }
 
-  private buildEntryPointList($parent) {
-    const that = this;
-
-    const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
-
+  private buildEntityTypes($parent) {
     // get start views for entry points and sort them by name ASC
     const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+    this.buildEntityTypeSelection($parent, views);
+    this.buildEntryPointList($parent, views);
+  }
+
+  private buildEntityTypeSelection($parent, views): void {
+    const $entityTypes = $parent.append('div').classed('entity-type-selection', true);
+
+    const nodes = $entityTypes
+      .selectAll('div')
+      .data(views)
+      .enter()
+      .append('input')
+      .attr('type', 'radio')
+      .attr('checked', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'checked' : null)
+      .attr('id', (d) => `entityType_${d.p.cssClass}`)
+      .attr('title', (d) => d.p.description);
+
+
+  }
+
+  private buildEntryPointList($parent, views): void {
+    const that = this;
+    const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
 
     const $items = $entryPoints.selectAll('.item').data(views);
     const $enter = $items.enter().append('div').classed('item', true);
