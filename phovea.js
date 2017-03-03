@@ -33,7 +33,8 @@ module.exports = function (registry) {
     'name': 'Genes',
     'factory': 'createStart',
     'idtype': 'Ensembl',
-    'selection': 'none'
+    'selection': 'none',
+    'dbPath': 'genes_by_names'
   });
 
   registry.push('targidStartEntryPoint', 'bioinfodb_tissue_start', function () {
@@ -54,7 +55,8 @@ module.exports = function (registry) {
     'factory': 'createStart',
     "idtype": "Tissue",
     "selection": "none",
-    "sampleType": "Tissue"
+    "sampleType": "Tissue",
+    'dbPath': 'row'
   });
 
 
@@ -74,7 +76,8 @@ module.exports = function (registry) {
     'name': 'Cell Lines',
     'factory': 'createStart',
     'idtype': 'Cellline',
-    'selection': 'none'
+    'selection': 'none',
+    'dbPath': 'row'
   });
 
   //views
