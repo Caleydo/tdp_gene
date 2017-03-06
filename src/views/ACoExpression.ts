@@ -4,7 +4,7 @@
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {gene, expression, ParameterFormIds} from '../Common';
+import {gene, ParameterFormIds} from '../Common';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
