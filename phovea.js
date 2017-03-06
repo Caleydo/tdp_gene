@@ -22,7 +22,7 @@ module.exports = function (registry) {
   // proxy pages
 
   registry.push('targidView', 'ensembl_org', function () {
-    return System.import('./src/GeneProxyView');
+    return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Ensembl',
     'category': 'static',
@@ -33,7 +33,7 @@ module.exports = function (registry) {
   });
 
   registry.push('__targidView__bak', 'gene_card', function () {
-    return System.import('./src/GeneProxyView');
+    return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'GeneCards',
     'category': 'static',
@@ -44,7 +44,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'cansar', function () {
-    return System.import('./src/UniProtProxyView');
+    return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'canSAR',
     'category': 'static',
@@ -55,7 +55,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'uniprot', function () {
-    return System.import('./src/UniProtProxyView');
+    return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'UniProt',
     'category': 'static',
@@ -66,7 +66,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'targetvalidation', function () {
-    return System.import('./src/GeneProxyView');
+    return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Open Targets',
     'category': 'static',
@@ -77,7 +77,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'clip', function () {
-    return System.import('./src/GeneProxyView');
+    return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'CLIP',
     'category': 'static',
@@ -88,7 +88,7 @@ module.exports = function (registry) {
   });
 
   registry.push('targidView', 'proteinatlas_org', function () {
-    return System.import('./src/GeneProxyView2');
+    return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'The Human Protein Atlas',
     'category': 'static',

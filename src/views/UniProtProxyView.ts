@@ -4,7 +4,7 @@
 
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {GeneProxyView} from './GeneProxyView';
+import GeneProxyView from './GeneProxyView';
 import {ProxyView} from 'ordino/src/ProxyView';
 import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'ordino/src/FormBuilder';
 
