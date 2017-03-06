@@ -8,6 +8,7 @@ import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOpt
 import {Targid} from 'ordino/src/Targid';
 import {availableSpecies, defaultSpecies, ParameterFormIds, DEFAULT_ENTITY_TYPE} from './Common';
 import * as d3 from 'd3';
+import * as $ from 'jquery';
 
 
 const sessionKey = ParameterFormIds.SPECIES;
@@ -86,29 +87,37 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   }
 
   private buildEntityTypeSelection($parent, views): void {
-    const $entityTypes = $parent.append('div').classed('entity-type-selection', true);
+    const $entityTypes = $parent.append('ul').classed('nav nav-tabs', true).attr('role', 'tablist');
 
     const nodes = $entityTypes
-      .selectAll('div')
+      .selectAll('li')
       .data(views)
       .enter()
-      .append('input')
-      .attr('type', 'radio')
-      .attr('checked', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'checked' : null)
+      .append('li')
+      .attr('class', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'active' : null)
+      .attr('role', 'presentation')
+      .append('a')
+      .attr('href', (d) => `#entity_${d.p.cssClass}`)
       .attr('id', (d) => `entityType_${d.p.cssClass}`)
-      .attr('title', (d) => d.p.description);
+      .text((d) => d.p.description)
+      .on('click', function() {
+        (<Event>d3.event).preventDefault();
+        $(this).tab('show');
+      });
 
 
   }
 
   private buildEntryPointList($parent, views): void {
     const that = this;
-    const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
+    const $entryPoints = $parent.append('div').classed('entry-points-wrapper tab-content', true);
 
     const $items = $entryPoints.selectAll('.item').data(views);
-    const $enter = $items.enter().append('div').classed('item', true);
-
-    $enter.append('div').classed('header', true).text((d) => d.name);
+    const $enter = $items.enter()
+      .append('div')
+      .attr('id', (d) => `entity_${d.p.cssClass}`)
+      .attr('class', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'active' : '')
+      .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually
     $enter.append('div').classed('body', true)
