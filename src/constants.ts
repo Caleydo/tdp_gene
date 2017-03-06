@@ -19,3 +19,5 @@ export const mutationCat = [
   {value: 'null', name: 'Unknown', color: 'transparent', border: '#999'}
 ];
 export const unknownMutationValue: any = mutationCat[mutationCat.length-1].value;
+
+export const GENE_IDTYPE = 'Ensembl';

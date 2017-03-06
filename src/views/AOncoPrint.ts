@@ -5,7 +5,7 @@
 import '../style.scss';
 
 import {IViewContext, ISelection, AView, IView} from 'ordino/src/View';
-import {copyNumberCat, mutationCat, gene, ParameterFormIds, getSelectedSpecies, unknownCopyNumberValue, unknownMutationValue} from '../Common';
+import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue, GENE_IDTYPE} from '../constants';
 import {FormBuilder, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
@@ -294,7 +294,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, gene.idType))
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, GENE_IDTYPE))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([

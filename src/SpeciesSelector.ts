@@ -6,11 +6,10 @@ import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
-import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
+import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
 import * as d3 from 'd3';
 
 
-const sessionKey = ParameterFormIds.SPECIES;
 export const extensionPoint = 'targidStartEntryPoint';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
@@ -45,11 +44,11 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   private buildSpeciesSelection($parent) {
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
-    const selectedSpecies = session.retrieve(sessionKey, defaultSpecies);
+    const selectedSpecies = session.retrieve(SPECIES_SESSION_KEY, defaultSpecies);
 
     // store default option, if not available
-    if(!session.has(sessionKey)) {
-      session.store(sessionKey, selectedSpecies);
+    if(!session.has(SPECIES_SESSION_KEY)) {
+      session.store(SPECIES_SESSION_KEY, selectedSpecies);
     }
 
     const $group = $speciesSelection.selectAll('.species-group').data(availableSpecies);
@@ -64,7 +63,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .attr('type', 'radio')
       .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
       .on('change', function(d) {
-        session.store(sessionKey, d.value);
+        session.store(SPECIES_SESSION_KEY, d.value);
 
         $group.classed('active', false);
         d3.select(this.parentNode).classed('active', true);

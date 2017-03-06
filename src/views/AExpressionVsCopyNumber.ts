@@ -4,10 +4,10 @@
 import '../style.scss';
 
 import bindTooltip from 'phovea_d3/src/tooltip';
-import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
 import {Range} from 'phovea_core/src/range';
-import {gene, expression, copyNumber, ParameterFormIds} from '../Common';
+import {GENE_IDTYPE} from '../constants';
+import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
@@ -47,27 +47,26 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     super.buildParameterUI($parent, onChange);
   }
 
+  protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
+  protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
+
   protected buildParameterDescs(): IFormSelectDesc[] {
     return [
       {
         type: FormElementType.SELECT,
         label: 'Expression',
-        id: ParameterFormIds.EXPRESSION_SUBTYPE,
+        id: FORM_EXPRESSION_SUBTYPE_ID,
         options: {
-          optionsData: expression.dataSubtypes.map((ds) => {
-            return {name: ds.name, value: ds.id, data: ds};
-          })
+          optionsData: this.getExpressionValues()
         },
         useSession: false
       },
       {
         type: FormElementType.SELECT,
         label: 'Copy Number',
-        id: ParameterFormIds.COPYNUMBER_SUBTYPE,
+        id: FORM_COPYNUMBER_SUBTYPE_ID,
         options: {
-          optionsData: copyNumber.dataSubtypes.map((ds) => {
-            return {name: ds.name, value: ds.id, data: ds};
-          })
+          optionsData: this.getCopyNumberValues()
         },
         useSession: false
       }
@@ -119,7 +118,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, gene.idType)
+      const promise = that.resolveId(idtype, d.id, GENE_IDTYPE)
         .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
@@ -179,7 +178,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     svg.append('text')
       .attr('class', 'x label')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
+      .text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
 
     svg.append('g')
       .attr('class', 'y axis');
@@ -189,7 +188,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('transform', 'rotate(-90)')
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
+      .text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
   }
 
   private resizeChart($parent: d3.Selection<any>) {
@@ -228,8 +227,8 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     const $g = $parent.select('svg g');
 
-    $g.select('text.x.label').text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
-    $g.select('text.y.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
+    $g.select('text.x.label').text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
+    $g.select('text.y.label').text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
 
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
@@ -249,10 +248,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
         console.log('selected', d);
         const r = new Range();
         r.dim(0).setList((<any>[d.samplename]));
-        this.setItemSelection({
-          idtype: idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType),
-          range: r
-        });
+        this.select(r);
       })
       .call(bindTooltip((d: any) => d.samplename));
 
@@ -263,6 +259,8 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     marks.exit().remove();
   }
+
+  protected abstract select(r: Range): void;
 
 }
 export default AExpressionVsCopyNumber;
