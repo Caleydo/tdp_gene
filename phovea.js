@@ -32,16 +32,16 @@ module.exports = function (registry) {
     'selection': 'multiple'
   });
 
-  registry.push('__targidView__bak', 'gene_card', function () {
-    return System.import('./src/views/GeneProxyView');
-  }, {
-    'name': 'GeneCards',
-    'category': 'static',
-    'site': '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'multiple'
-  });
+  // registry.push('targidView', 'gene_card', function () {
+  //   return System.import('./src/views/GeneProxyView');
+  // }, {
+  //   'name': 'GeneCards',
+  //   'category': 'static',
+  //   'site': '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
+  //   'argument': 'gene',
+  //   'idtype': 'Ensembl',
+  //   'selection': 'multiple'
+  // });
 
   registry.push('targidView', 'cansar', function () {
     return System.import('./src/views/UniProtProxyView');
@@ -76,17 +76,6 @@ module.exports = function (registry) {
     'selection': 'multiple'
   });
 
-  registry.push('targidView', 'clip', function () {
-    return System.import('./src/views/GeneProxyView');
-  }, {
-    'name': 'CLIP',
-    'category': 'static',
-    'site': '//vie-toolbox/clip/multiViewGene.php?ensg={gene}',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'multiple'
-  });
-
   registry.push('targidView', 'proteinatlas_org', function () {
     return System.import('./src/views/GeneProxyView');
   }, {
@@ -104,28 +93,6 @@ module.exports = function (registry) {
     'name': 'COSMIC',
     'category': 'static',
     'site': '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
-    'argument': 'cellline',
-    'idtype': 'Cellline',
-    'selection': 'multiple'
-  });
-
-  registry.push('targidView', 'clip_cellline', function () {
-    return System.import('ordino/src/ProxyView');
-  }, {
-    'name': 'CLIP',
-    'category': 'static',
-    'site': '///vie-toolbox/clip/multiViewCellline.php?celllinename={cellline}',
-    'argument': 'cellline',
-    'idtype': 'Cellline',
-    'selection': 'multiple'
-  });
-
-  registry.push('targidView', 'shiny_cellline', function () {
-    return System.import('ordino/src/ProxyView');
-  }, {
-    'name': 'CN Cell Line Details',
-    'category': 'static',
-    'site': '///vie-bio-shiny.eu.boehringer.com:3838/copynumberpercellline/?celllinename{cellline}',
     'argument': 'cellline',
     'idtype': 'Cellline',
     'selection': 'multiple'
