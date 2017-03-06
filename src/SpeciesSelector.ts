@@ -89,12 +89,12 @@ class SpeciesSelector implements IStartMenuSectionEntry {
   private buildEntityTypeSelection($parent, views): void {
     const $entityTypes = $parent.append('ul').classed('nav nav-tabs', true).attr('role', 'tablist');
 
-    const nodes = $entityTypes
+    $entityTypes
       .selectAll('li')
       .data(views)
       .enter()
       .append('li')
-      .attr('class', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'active' : null)
+      .attr('class', (d) => d.p.idtype === DEFAULT_ENTITY_TYPE? 'active' : null)
       .attr('role', 'presentation')
       .append('a')
       .attr('href', (d) => `#entity_${d.p.cssClass}`)
@@ -104,8 +104,6 @@ class SpeciesSelector implements IStartMenuSectionEntry {
         (<Event>d3.event).preventDefault();
         $(this).tab('show');
       });
-
-
   }
 
   private buildEntryPointList($parent, views): void {
@@ -116,7 +114,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const $enter = $items.enter()
       .append('div')
       .attr('id', (d) => `entity_${d.p.cssClass}`)
-      .attr('class', (d) => d.p.cssClass === DEFAULT_ENTITY_TYPE? 'active' : '')
+      .attr('class', (d) => d.p.idtype === DEFAULT_ENTITY_TYPE? 'active' : '')
       .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually

@@ -90,7 +90,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         placeholder: `Search ${this.dataSource.name}`,
         multiple: true,
         tags: true,
-        tokenSeparators: [',', ' '],
+        tokenSeparators: [',', ' ', ';'],
         ajax: {
           url: api2absURL(`/targid/db/${this.dataSource.db}/single_entity_lookup/lookup`),
           data: (params: any) => {
@@ -108,7 +108,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       }
     });
 
-    const $searchButton = $searchWrapper.append('button').classed('btn btn-primary', true).text('Go');
+    const $searchButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Go');
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.entityName}`);
     $searchButton.on('click', () => {
