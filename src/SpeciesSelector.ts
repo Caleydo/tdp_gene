@@ -4,7 +4,7 @@
 
 import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'ordino/src/StartMenu';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions, IStartFactory} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
 import {availableSpecies, defaultSpecies, ParameterFormIds, DEFAULT_ENTITY_TYPE} from './Common';
 import * as d3 from 'd3';
@@ -43,7 +43,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     this.buildEntityTypes($parent);
   }
 
-  private buildSpeciesSelection($parent) {
+  private buildSpeciesSelection($parent: d3.Selection<HTMLElement>) {
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
     const selectedSpecies = session.retrieve(sessionKey, defaultSpecies);
@@ -78,7 +78,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
   }
 
-  private buildEntityTypes($parent) {
+  private buildEntityTypes($parent: d3.Selection<HTMLElement>) {
     // get start views for entry points and sort them by name ASC
     const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
@@ -86,7 +86,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     this.buildEntryPointList($parent, views);
   }
 
-  private buildEntityTypeSelection($parent, views): void {
+  private buildEntityTypeSelection($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
     const $entityTypes = $parent.append('ul').classed('nav nav-tabs', true).attr('role', 'tablist');
 
     $entityTypes
@@ -94,27 +94,27 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .data(views)
       .enter()
       .append('li')
-      .attr('class', (d) => d.p.idtype === DEFAULT_ENTITY_TYPE? 'active' : null)
+      .attr('class', (d) => d.idType === DEFAULT_ENTITY_TYPE? 'active' : null)
       .attr('role', 'presentation')
       .append('a')
-      .attr('href', (d) => `#entity_${d.p.cssClass}`)
-      .attr('id', (d) => `entityType_${d.p.cssClass}`)
-      .text((d) => d.p.description)
+      .attr('href', (d) => `#entity_${d.cssClass}`)
+      .attr('id', (d) => `entityType_${d.cssClass}`)
+      .text((d) => d.description)
       .on('click', function() {
         (<Event>d3.event).preventDefault();
         $(this).tab('show');
       });
   }
 
-  private buildEntryPointList($parent, views): void {
+  private buildEntryPointList($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
     const that = this;
     const $entryPoints = $parent.append('div').classed('entry-points-wrapper tab-content', true);
 
     const $items = $entryPoints.selectAll('.item').data(views);
     const $enter = $items.enter()
       .append('div')
-      .attr('id', (d) => `entity_${d.p.cssClass}`)
-      .attr('class', (d) => d.p.idtype === DEFAULT_ENTITY_TYPE? 'active' : '')
+      .attr('id', (d) => `entity_${d.cssClass}`)
+      .attr('class', (d) => d.idType === DEFAULT_ENTITY_TYPE? 'active' : '')
       .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually
