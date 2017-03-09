@@ -10,7 +10,7 @@ import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
-import {FormBuilder, IFormSelectDesc, FormElementType} from 'ordino/src/FormBuilder';
+import {FormBuilder, IFormSelectDesc, FormElementType, IFormSelect2Element} from 'ordino/src/FormBuilder';
 import {createStart} from './GeneEntryPoint';
 import {TargidConstants} from 'ordino/src/Targid';
 
@@ -116,7 +116,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         view: (<any>this.desc).viewId,
         options: {
           search: {
-            ids: searchField.values.map((d) => d.id),
+            ids: (<IFormSelect2Element>searchField).values.map((d) => d.id),
             type: this.dataSource.tableName
           }
         }
