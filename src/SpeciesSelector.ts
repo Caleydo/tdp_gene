@@ -12,6 +12,7 @@ import * as $ from 'jquery';
 
 
 const sessionKey = ParameterFormIds.SPECIES;
+const tabSessionKey = 'entityType';
 export const extensionPoint = 'targidStartEntryPoint';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
@@ -82,6 +83,10 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     // get start views for entry points and sort them by name ASC
     const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
+    if(!session.has(tabSessionKey)) {
+      session.store(tabSessionKey, DEFAULT_ENTITY_TYPE);
+    }
+
     this.buildEntityTypeSelection($parent, views);
     this.buildEntryPointList($parent, views);
   }
@@ -94,14 +99,15 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .data(views)
       .enter()
       .append('li')
-      .attr('class', (d) => d.idType === DEFAULT_ENTITY_TYPE? 'active' : null)
+      .attr('class', (d) => d.idType === session.retrieve(tabSessionKey, DEFAULT_ENTITY_TYPE)? 'active' : null)
       .attr('role', 'presentation')
       .append('a')
       .attr('href', (d) => `#entity_${d.cssClass}`)
       .attr('id', (d) => `entityType_${d.cssClass}`)
       .text((d) => d.description)
-      .on('click', function() {
+      .on('click', function(d) {
         (<Event>d3.event).preventDefault();
+        session.store(tabSessionKey, d.idType);
         $(this).tab('show');
       });
   }
@@ -114,7 +120,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const $enter = $items.enter()
       .append('div')
       .attr('id', (d) => `entity_${d.cssClass}`)
-      .attr('class', (d) => d.idType === DEFAULT_ENTITY_TYPE? 'active' : '')
+      .attr('class', (d) => d.idType === session.retrieve(tabSessionKey, DEFAULT_ENTITY_TYPE)? 'active' : '')
       .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually
