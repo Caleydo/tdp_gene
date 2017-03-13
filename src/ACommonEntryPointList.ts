@@ -10,7 +10,7 @@ import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
-import {FormBuilder, IFormSelectDesc, FormElementType} from 'ordino/src/FormBuilder';
+import {FormBuilder, IFormSelectDesc, FormElementType, IFormSelect2Element} from 'ordino/src/FormBuilder';
 import {createStart} from './GeneEntryPoint';
 import {TargidConstants} from 'ordino/src/Targid';
 
@@ -88,6 +88,9 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       options: {
         optionsData: [],
         placeholder: `Search ${this.dataSource.name}`,
+        multiple: true,
+        tags: true,
+        tokenSeparators: [',', ' ', ';', '\t'],
         ajax: {
           url: api2absURL(`/targid/db/${this.dataSource.db}/single_entity_lookup/lookup`),
           data: (params: any) => {
@@ -105,13 +108,15 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       }
     });
 
+    const $searchButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Go');
+
     const searchField = formBuilder.getElementById(`search-${this.dataSource.entityName}`);
-    searchField.on('change', (data) => {
+    $searchButton.on('click', () => {
       session.store(TargidConstants.NEW_ENTRY_POINT, {
         view: (<any>this.desc).viewId,
         options: {
           search: {
-            id: data.args['0'].id,
+            ids: (<IFormSelect2Element>searchField).values.map((d) => d.id),
             type: this.dataSource.tableName
           }
         }
@@ -126,7 +131,12 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
 export interface IACommonListOptions {
   namedSet?: INamedSet;
-  search?: { id: string, type: string };
+  search?: ISearchResult;
+}
+
+interface ISearchResult {
+  ids: string[];
+  type: string;
 }
 
 export abstract class ACommonList extends ALineUpView2 {
@@ -136,7 +146,7 @@ export abstract class ACommonList extends ALineUpView2 {
    * Override in constructor of extended class
    */
   private namedSet : INamedSet;
-  private search: { id: string, type: string };
+  private search: ISearchResult;
 
   /**
    * Parameter UI form
@@ -257,9 +267,9 @@ export abstract class ACommonList extends ALineUpView2 {
       param.table_name = dataSource.tableName;
       param.species = defaultSpecies;
       param.entity_name = dataSource.entityName;
-      param.name = this.search.id;
+      param.entities = `'${this.search.ids.join('\',\'')}'`;
 
-      baseURL = `/targid/db/${dataSource.db}/${this.search.type}_single_row`;
+      baseURL = `/targid/db/${dataSource.db}/${this.context.desc.dbPath}`;
     }
 
     return getAPIJSON(baseURL, param);
