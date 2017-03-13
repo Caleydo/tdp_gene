@@ -90,7 +90,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         placeholder: `Search ${this.dataSource.name}`,
         multiple: true,
         tags: true,
-        tokenSeparators: [',', ' ', ';', '\t'],
+        tokenSeparators: [',', ' ', ';', '\t', '\n'],
         ajax: {
           url: api2absURL(`/targid/db/${this.dataSource.db}/single_entity_lookup/lookup`),
           data: (params: any) => {
