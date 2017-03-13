@@ -6,7 +6,7 @@ import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions, IStartFactory} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
-import {availableSpecies, defaultSpecies, ParameterFormIds, DEFAULT_ENTITY_TYPE} from './Common';
+import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY, DEFAULT_ENTITY_TYPE} from './Common';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
 
