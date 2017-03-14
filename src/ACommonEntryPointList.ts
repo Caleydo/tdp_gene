@@ -14,7 +14,6 @@ import {FormBuilder, IFormSelectDesc, FormElementType, IFormSelect2Element} from
 import {createStart} from './GeneEntryPoint';
 import {TargidConstants} from 'ordino/src/Targid';
 import {generateDialog} from 'phovea_ui/src/dialogs';
-import {randomId} from 'phovea_core/src/index';
 
 export abstract class ACommonEntryPointList extends AEntryPointList {
 
@@ -131,36 +130,45 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     });
 
     $saveSetButton.on('click', () => {
-      const dialog = generateDialog('Create Test', 'Save');
-      const randomID = randomId(3);
+      const dialog = generateDialog('Save Named Set', 'Save');
 
       const form = document.createElement('form');
 
       form.innerHTML = `
+        <form id="namedset_form">
         <div class="form-group">
-            <label for="${randomID}-new-name">Name</label>
-            <input type="text" id="${randomID}-new-name">
+          <label for="namedset_name">Name</label>
+          <input type="text" class="form-control" id="namedset_name" placeholder="Name" required="required">
         </div>
+        <div class="form-group">
+          <label for="namedset_description">Description</label>
+          <textarea class="form-control" id="namedset_description" rows="5" placeholder="Description"></textarea>
+        </div>
+      </form>
       `;
 
-      dialog.onSubmit(function() {
-        const name = (<HTMLInputElement>document.getElementById(`${randomID}-new-name`)).value;
+      dialog.onSubmit(() => {
+        const name = (<HTMLInputElement>document.getElementById('namedset_name')).value;
+        const description = (<HTMLInputElement>document.getElementById('namedset_description')).value;
         const ids = `('${(<IFormSelect2Element>searchField).values.map((d) => d.id).join('\',\'')}')`;
+
+        console.log(<HTMLInputElement>document.getElementById('namedset_description'));
 
         const data = {
           name,
-          creator: 'admin',
           idType: this.dataSource.idType,
           ids,
-          description: '',
-          subTypeKey: '',
-          subTypeValue: ''
+          description,
+          subTypeKey: ParameterFormIds.SPECIES,
+          subTypeValue: defaultSpecies
         };
+
+        console.log('DATA', data);
 
         sendAPI('/targid/storage/namedsets', data, 'POST').then((response) => {
           console.log('Response', response);
+          dialog.hide();
         });
-        dialog.hide();
       });
 
       dialog.body.appendChild(form);
