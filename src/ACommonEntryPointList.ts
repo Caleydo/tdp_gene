@@ -6,13 +6,15 @@ import {IPluginDesc} from 'phovea_core/src/plugin';
 import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {ParameterFormIds, defaultSpecies, IDataSourceConfig, getSelectedSpecies} from './Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
-import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
+import {getAPIJSON, api2absURL, sendAPI} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
 import {FormBuilder, IFormSelectDesc, FormElementType, IFormSelect2Element} from 'ordino/src/FormBuilder';
 import {createStart} from './GeneEntryPoint';
 import {TargidConstants} from 'ordino/src/Targid';
+import {generateDialog} from 'phovea_ui/src/dialogs';
+import {randomId} from 'phovea_core/src/index';
 
 export abstract class ACommonEntryPointList extends AEntryPointList {
 
@@ -20,6 +22,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
    * Set the idType and the default data and build the list
    * @param parent
    * @param desc
+   * @param dataSource
    * @param options
    */
   constructor(protected parent: HTMLElement, public desc: IPluginDesc, private dataSource: IDataSourceConfig, protected options: IEntryPointOptions) {
@@ -109,6 +112,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     });
 
     const $searchButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Go');
+    const $saveSetButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Save');
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.entityName}`);
     $searchButton.on('click', () => {
@@ -124,6 +128,43 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
       // create new graph and apply new view after window.reload (@see targid.checkForNewEntryPoint())
       this.options.targid.graphManager.newRemoteGraph();
+    });
+
+    $saveSetButton.on('click', () => {
+      const dialog = generateDialog('Create Test', 'Save');
+      const randomID = randomId(3);
+
+      const form = document.createElement('form');
+
+      form.innerHTML = `
+        <div class="form-group">
+            <label for="${randomID}-new-name">Name</label>
+            <input type="text" id="${randomID}-new-name">
+        </div>
+      `;
+
+      dialog.onSubmit(function() {
+        const name = (<HTMLInputElement>document.getElementById(`${randomID}-new-name`)).value;
+        const ids = `('${(<IFormSelect2Element>searchField).values.map((d) => d.id).join('\',\'')}')`;
+
+        const data = {
+          name,
+          creator: 'admin',
+          idType: this.dataSource.idType,
+          ids,
+          description: '',
+          subTypeKey: '',
+          subTypeValue: ''
+        };
+
+        sendAPI('/targid/storage/namedsets', data, 'POST').then((response) => {
+          console.log('Response', response);
+        });
+        dialog.hide();
+      });
+
+      dialog.body.appendChild(form);
+      dialog.show();
     });
   }
 }
