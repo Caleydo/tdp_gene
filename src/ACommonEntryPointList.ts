@@ -159,7 +159,6 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         const ids = await idType.map(idStrings);
 
         const response = await saveNamedSet(name, idType, ids, {key: ParameterFormIds.SPECIES, value: defaultSpecies}, description);
-        console.log('Response', response);
         super.addNamedSet(response);
         dialog.hide();
       });
