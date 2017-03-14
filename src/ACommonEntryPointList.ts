@@ -6,7 +6,7 @@ import {IPluginDesc} from 'phovea_core/src/plugin';
 import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {ParameterFormIds, defaultSpecies, IDataSourceConfig, getSelectedSpecies} from './Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
-import {getAPIJSON, api2absURL, sendAPI} from 'phovea_core/src/ajax';
+import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
@@ -14,6 +14,9 @@ import {FormBuilder, IFormSelectDesc, FormElementType, IFormSelect2Element} from
 import {createStart} from './GeneEntryPoint';
 import {TargidConstants} from 'ordino/src/Targid';
 import {generateDialog} from 'phovea_ui/src/dialogs';
+import {saveNamedSet} from 'ordino/src/storage';
+import {resolve} from 'phovea_core/src/idtype/manager';
+
 
 export abstract class ACommonEntryPointList extends AEntryPointList {
 
@@ -147,28 +150,18 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       </form>
       `;
 
-      dialog.onSubmit(() => {
+      dialog.onSubmit(async () => {
         const name = (<HTMLInputElement>document.getElementById('namedset_name')).value;
         const description = (<HTMLInputElement>document.getElementById('namedset_description')).value;
-        const ids = `('${(<IFormSelect2Element>searchField).values.map((d) => d.id).join('\',\'')}')`;
+        const idStrings = (<IFormSelect2Element>searchField).values.map((d) => d.id);
 
-        console.log(<HTMLInputElement>document.getElementById('namedset_description'));
+        const idType = resolve(this.dataSource.idType);
+        const ids = await idType.map(idStrings);
 
-        const data = {
-          name,
-          idType: this.dataSource.idType,
-          ids,
-          description,
-          subTypeKey: ParameterFormIds.SPECIES,
-          subTypeValue: defaultSpecies
-        };
-
-        console.log('DATA', data);
-
-        sendAPI('/targid/storage/namedsets', data, 'POST').then((response) => {
-          console.log('Response', response);
-          dialog.hide();
-        });
+        const response = await saveNamedSet(name, idType, ids, {key: ParameterFormIds.SPECIES, value: defaultSpecies}, description);
+        console.log('Response', response);
+        super.addNamedSet(response);
+        dialog.hide();
       });
 
       dialog.body.appendChild(form);
