@@ -3,8 +3,7 @@
  */
 
 import {AView, IViewContext, ISelection, IView} from 'ordino/src/View';
-import * as ajax from 'phovea_core/src/ajax';
-import {showErrorModalDialog} from 'ordino/src/Dialogs';
+import {getAPIJSON} from 'phovea_core/src/ajax';
 import {IDataSourceConfig, gene, getSelectedSpecies} from './Common';
 
 
@@ -45,8 +44,8 @@ export class InfoTable extends AView {
     this.setBusy(true);
 
     try {
-      const selectedItems = await this.resolveIds(this.selection.idtype, this.selection.range, 'Ensembl');
-      const data = await ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/row`, {
+      const selectedItems = await this.resolveIds(this.selection.idtype, this.selection.range, this.dataSource.idType);
+      const data = await getAPIJSON(`/targid/db/${this.dataSource.db}/row`, {
         entities: `'${selectedItems[0]}'`,
         schema: this.dataSource.schema,
         table_name: this.dataSource.tableName,
