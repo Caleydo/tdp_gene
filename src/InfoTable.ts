@@ -4,10 +4,10 @@
 
 import {AView, IViewContext, ISelection, IView} from 'ordino/src/View';
 import {getAPIJSON} from 'phovea_core/src/ajax';
-import {IDataSourceConfig, gene, getSelectedSpecies} from './Common';
+import {IDataSourceConfig, cellline, tissue, gene, getSelectedSpecies} from './Common';
 
 
-export class InfoTable extends AView {
+export abstract class AInfoTable extends AView {
 
   private $table:d3.Selection<IView>;
   private $thead;
@@ -40,7 +40,7 @@ export class InfoTable extends AView {
     return this.update();
   }
 
-  private async update(updateAll = false) {
+  private async update() {
     this.setBusy(true);
 
     try {
@@ -83,7 +83,32 @@ export class InfoTable extends AView {
   }
 }
 
-export function createGeneInfo(context:IViewContext, selection: ISelection, parent:Element, options?) {
-  return new InfoTable(context, selection, parent, gene, options);
+class CelllineInfoTable extends AInfoTable {
+  constructor(context, selection, parent, options) {
+    super(context, selection, parent, cellline, options);
+  }
 }
 
+class GeneInfoTable extends AInfoTable {
+  constructor(context, selection, parent, options) {
+    super(context, selection, parent, gene, options);
+  }
+}
+
+class TissueInfoTable extends AInfoTable {
+  constructor(context, selection, parent, options) {
+    super(context, selection, parent, tissue, options);
+  }
+}
+
+export function createCelllineInfoTable(context:IViewContext, selection: ISelection, parent:Element, options?) {
+  return new CelllineInfoTable(context, selection, parent, options);
+}
+
+export function createGeneInfoTable(context:IViewContext, selection: ISelection, parent:Element, options?) {
+  return new GeneInfoTable(context, selection, parent, options);
+}
+
+export function createTissueInfoTable(context:IViewContext, selection: ISelection, parent:Element, options?) {
+  return new TissueInfoTable(context, selection, parent, options);
+}

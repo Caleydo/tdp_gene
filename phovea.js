@@ -338,8 +338,26 @@ module.exports = function (registry) {
     return System.import('./src/InfoTable.ts');
   }, {
     'name': 'Disease model info',
-    'factory': 'createGeneInfo',
+    'factory': 'createGeneInfoTable',
     'idtype': 'Ensembl',
+    'selection': 'multiple'
+  });
+
+  registry.push('targidView', 'cellline_generic_detail_view', function () {
+    return System.import('./src/InfoTable.ts');
+  }, {
+    'name': 'Disease model info',
+    'factory': 'createCelllineInfoTable',
+    'idtype': 'Cellline',
+    'selection': 'multiple'
+  });
+
+  registry.push('targidView', 'tissue_generic_detail_view', function () {
+    return System.import('./src/InfoTable.ts');
+  }, {
+    'name': 'Disease model info',
+    'factory': 'createTissueInfoTable',
+    'idtype': 'Tissue',
     'selection': 'multiple'
   });
   // generator-phovea:end
