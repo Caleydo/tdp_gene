@@ -76,7 +76,9 @@ export class InfoTable extends AView {
     const $tr = this.$tbody.selectAll('tr').data(tuples);
 
     $tr.enter().append('tr');
-    $tr.selectAll('td').data((d) => d).enter().append('td').html((d) => `<td>${d}</td>`);
+
+    // append a td element to each tr using a nested D3 selection
+    $tr.selectAll('td').data((d) => d).enter().append('td').text((d) => d);
 
     $tr.exit().remove();
   }
