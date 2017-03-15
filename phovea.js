@@ -333,6 +333,15 @@ module.exports = function (registry) {
   }, {
     'factory': 'createScore'
   });
+
+  registry.push('targidView', 'gene_generic_detail_view', function () {
+    return System.import('./src/InfoTable.ts');
+  }, {
+    'name': 'Disease model info',
+    'factory': 'createGeneInfo',
+    'idtype': 'Ensembl',
+    'selection': 'multiple'
+  });
   // generator-phovea:end
 };
 

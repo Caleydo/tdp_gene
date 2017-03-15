@@ -26,8 +26,13 @@ export class InfoTable extends AView {
     this.$node.classed('infoTable', true);
 
     this.$table = this.$node
-      .append('div').classed('infoTableWrapper', true);
-    this.$thead = this.$table.append('table');
+      .append('table').classed('table table-striped table-hover table-bordered table-condensed', true);
+
+    this.$thead = this.$table.append('thead');
+    this.$thead.append('tr');
+    this.$thead.append('th').text('Column');
+    this.$thead.append('th').text('Data');
+
     this.$tbody = this.$table.append('tbody');
   }
 
@@ -36,84 +41,44 @@ export class InfoTable extends AView {
     return this.update();
   }
 
-  private update(updateAll = false) {
+  private async update(updateAll = false) {
     this.setBusy(true);
 
-    const promise1 = Promise.all([
-      this.resolveIds(this.selection.idtype, this.selection.range, 'Ensembl')
-    ]);
-
-    // on error
-    promise1.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
+    try {
+      const selectedItems = await this.resolveIds(this.selection.idtype, this.selection.range, 'Ensembl');
+      const data = await ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/row`, {
+        entities: `'${selectedItems[0]}'`,
+        schema: this.dataSource.schema,
+        table_name: this.dataSource.tableName,
+        entity_name: this.dataSource.entityName,
+        species: getSelectedSpecies()
       });
-
-    // on success
-    const promise2 = promise1.then((args) => {
-        const names = args[0];
-        console.log(args);
-        return ajax.getAPIJSON(`/targid/db/${this.dataSource.db}/row`, {
-          entities: '\''+names.join('\',\'')+'\'',
-          schema: this.dataSource.schema,
-          table_name: this.dataSource.tableName,
-          entity_name: this.dataSource.entityName,
-          species: getSelectedSpecies()
-        });
-      });
-
-    // on error
-    promise2.catch(showErrorModalDialog)
-      .catch((error) => {
-        console.error(error);
-        this.setBusy(false);
-      });
-
-    // on success
-    promise2.then((args) => {
-        this.updateInfoTable(args);
-      });
-
-    this.setBusy(false);
-    return promise2;
+      this.setBusy(false);
+      this.updateInfoTable(data[0]);
+    } catch(error) {
+      console.error(error);
+      this.setBusy(false);
+    }
   }
 
   private updateInfoTable(data) {
-
-    //console.log(data.geneName);
-
     this.createTable(data);
   }
 
   private createTable(data) {
-/*    data.forEach((d) => {
-        for(let name in d) {
-            if(data[name]) {
-                data[name] = [];
-            }
-            data[name].push(d[name]);
-        }
-    })
-
-
-    var output = [];
-    for(var name in data) {
-      output.push([name].concat(data[name]);
+    const tuples = [];
+    for(const key in data) {
+      if(data.hasOwnProperty(key)) {
+        tuples.push([key, data[key]]);
+      }
     }
 
-    var $tr = this.$tbody.selectAll('tr').data(data)
+    const $tr = this.$tbody.selectAll('tr').data(tuples);
 
     $tr.enter().append('tr');
-
-    $tr.html((d) => `
-    <td>${d[0]}</td>
-    //<td>${d[1-x]}</td>
-    `)
-
+    $tr.selectAll('td').data((d) => d).enter().append('td').html((d) => `<td>${d}</td>`);
 
     $tr.exit().remove();
-*/
   }
 }
 
