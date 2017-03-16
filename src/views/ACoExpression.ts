@@ -4,10 +4,12 @@
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {gene, expression, ParameterFormIds} from '../Common';
+import {GENE_IDTYPE} from '../constants';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+
+const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
 /**
  * Filter expression values with 0, because log scale cannot handle log(0)
@@ -78,11 +80,10 @@ export abstract class ACoExpression extends ASmallMultipleView {
     {
       type: FormElementType.SELECT,
       label: 'Reference Gene',
-      id: ParameterFormIds.REFERENCE_GENE,
+      id: FORM_ID_REFERENCE_GENE,
       options: {
         optionsData: [],
-      },
-      useSession: true
+      }
     }
   ];
   }
@@ -111,7 +112,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
   }
 
   private updateRefGeneSelect() {
-    return this.resolveIds(this.selection.idtype, this.selection.range, gene.idType)
+    return this.resolveIds(this.selection.idtype, this.selection.range, GENE_IDTYPE)
       .then((genesEnsembl) => {
         //console.log('Ensembl', genesEnsembl);
 
@@ -136,7 +137,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
           });
           //console.log('gene symbols', data);
 
-          const refGeneSelect = this.paramForm.getElementById(ParameterFormIds.REFERENCE_GENE);
+          const refGeneSelect = this.paramForm.getElementById(FORM_ID_REFERENCE_GENE);
 
           // backup entry and restore the selectedIndex by value afterwards again,
           // because the position of the selected element might change
@@ -157,7 +158,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
 
   private async loadRefGeneData() {
-    this.refGene = this.paramForm.getElementById(ParameterFormIds.REFERENCE_GENE).value;
+    this.refGene = this.paramForm.getElementById(FORM_ID_REFERENCE_GENE).value;
 
     const rows = await this.loadData(this.refGene.data.id);
     this.refGeneExpression = filterZeroValues(rows);
@@ -193,7 +194,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function(this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, gene.idType)
+      const promise = that.resolveId(idtype, d.id, GENE_IDTYPE)
         .then((name) => {
           return Promise.all([
             that.loadData(name),
@@ -302,7 +303,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
     }
 
     // hide small multiple co-expression plot because it would just project the ref gene on its own
-    if (this.getParameter(ParameterFormIds.REFERENCE_GENE) === geneName) {
+    if (this.getParameter(FORM_ID_REFERENCE_GENE) === geneName) {
       $parent.classed('hidden', true);
       return;
     }
@@ -321,7 +322,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
     }
 
     const attribute = this.getAttributeName();
-    $g.select('text.x.label').text(attribute + ' of '+ this.getParameter(ParameterFormIds.REFERENCE_GENE).symbol);
+    $g.select('text.x.label').text(attribute + ' of '+ this.getParameter(FORM_ID_REFERENCE_GENE).symbol);
     $g.select('text.y.label').text(attribute + ' of '+ geneName);
 
     $g.select('text.title').text(title);
