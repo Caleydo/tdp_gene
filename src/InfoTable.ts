@@ -4,7 +4,8 @@
 
 import {AView, IViewContext, ISelection, IView} from 'ordino/src/View';
 import {getAPIJSON} from 'phovea_core/src/ajax';
-import {IDataSourceConfig, cellline, tissue, gene, getSelectedSpecies} from './Common';
+import {IDataSourceConfig, cellline, tissue, gene, getSelectedSpecies, ParameterFormIds} from './Common';
+import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 
 
 export abstract class AInfoTable extends AView {
@@ -13,10 +14,43 @@ export abstract class AInfoTable extends AView {
   private $thead;
   private $tbody;
 
+  /**
+   * Parameter UI form
+   */
+  private paramForm:FormBuilder;
+
   constructor(context: IViewContext, private selection: ISelection, parent: Element, private dataSource:IDataSourceConfig, options?) {
     super(context, parent, options);
 
     this.changeSelection(selection);
+  }
+
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    console.log('TEST');
+
+    const paramDesc:IFormSelectDesc[] = [
+      {
+        type: FormElementType.SELECT,
+        label: 'Show',
+        id: ParameterFormIds.SELECTION,
+        visible: false,
+        options: {
+          optionsData: [this.dataSource].map((ds) => {
+            return {name: ds.name, value: ds.name, data: ds};
+          }),
+          onChange: (selection, formElement) => onChange(formElement.id, selection.value)
+        }
+      }
+    ];
+
+    this.paramForm.build(paramDesc);
+
+    //this.updateDataSource();
+
+    // add other fields
+    super.buildParameterUI($parent.select('form'), onChange);
   }
 
   init() {
