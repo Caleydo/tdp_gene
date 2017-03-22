@@ -30,7 +30,10 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
-    'group': 'External resources'
+    'group': {
+      'name': 'External resources',
+      'order': 0
+    }
   });
 
   // registry.push('targidView', 'gene_card', function () {
@@ -75,7 +78,10 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
-    'group': 'External resources'
+    'group': {
+      'name': 'External resources',
+      'order': 40
+    }
   });
 
   registry.push('targidView', 'proteinatlas_org', function () {
@@ -87,7 +93,10 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
-    'group': 'External resources'
+    'group': {
+      'name': 'External resources',
+      'order': 50
+    }
   });
 
   registry.push('targidView', 'cosmic', function () {
@@ -99,7 +108,10 @@ module.exports = function (registry) {
     'argument': 'cellline',
     'idtype': 'Cellline',
     'selection': 'multiple',
-    'group': 'External Resources'
+    'group': {
+      'name': 'External resources',
+      'order': 0
+    }
   });
 
 
