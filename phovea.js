@@ -29,7 +29,8 @@ module.exports = function (registry) {
     'site': '//feb2014.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': 'External resources'
   });
 
   // registry.push('targidView', 'gene_card', function () {
@@ -73,18 +74,20 @@ module.exports = function (registry) {
     'site': '//targetvalidation.org/target/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': 'External resources'
   });
 
   registry.push('targidView', 'proteinatlas_org', function () {
     return System.import('./src/views/GeneProxyView');
   }, {
-    'name': 'The Human Protein Atlas',
+    'name': 'Human Protein Atlas',
     'category': 'static',
     'site': '//proteinatlas.org/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': 'External resources'
   });
 
   registry.push('targidView', 'cosmic', function () {
@@ -95,7 +98,8 @@ module.exports = function (registry) {
     'site': '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
     'argument': 'cellline',
     'idtype': 'Cellline',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': 'External Resources'
   });
 
 
