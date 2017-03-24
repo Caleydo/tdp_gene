@@ -25,7 +25,6 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Ensembl',
-    'category': 'static',
     'site': '//feb2014.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
@@ -40,7 +39,6 @@ module.exports = function (registry) {
   //   return System.import('./src/views/GeneProxyView');
   // }, {
   //   'name': 'GeneCards',
-  //   'category': 'static',
   //   'site': '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
   //   'argument': 'gene',
   //   'idtype': 'Ensembl',
@@ -51,7 +49,6 @@ module.exports = function (registry) {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'canSAR',
-    'category': 'static',
     'site': '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
@@ -62,7 +59,6 @@ module.exports = function (registry) {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'UniProt',
-    'category': 'static',
     'site': '//www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
@@ -73,7 +69,6 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Open Targets',
-    'category': 'static',
     'site': '//targetvalidation.org/target/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
@@ -88,7 +83,6 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Human Protein Atlas',
-    'category': 'static',
     'site': '//proteinatlas.org/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
@@ -103,7 +97,6 @@ module.exports = function (registry) {
     return System.import('ordino/src/ProxyView');
   }, {
     'name': 'COSMIC',
-    'category': 'static',
     'site': '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
     'argument': 'cellline',
     'idtype': 'Cellline',
