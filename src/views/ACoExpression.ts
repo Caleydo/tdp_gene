@@ -8,6 +8,7 @@ import {GENE_IDTYPE} from '../constants';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+import Range from 'phovea_core/src/range/Range';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -351,6 +352,12 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
+      .on('click', (d) => {
+        console.log('selected', d);
+        const r = new Range();
+        r.dim(0).setList((<any>[d[2]]));
+        this.select(r);
+      })
       .call(bindTooltip((d:any) => d[2]));
 
     marks.transition().attr({
@@ -362,6 +369,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
   }
 
   protected abstract getAttributeName(): string;
+  protected abstract select(r: Range): void;
 
 }
 
