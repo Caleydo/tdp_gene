@@ -9,6 +9,7 @@ import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 import Range from 'phovea_core/src/range/Range';
+import {list} from 'phovea_core/src/range';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -353,9 +354,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .attr('r', 2)
       .attr('title', (d) => d[2])
       .on('click', (d) => {
-        console.log('selected', d);
-        const r = new Range();
-        r.dim(0).setList((<any>[d[2]]));
+        const r = list([d[2]]);
         this.select(r);
       })
       .call(bindTooltip((d:any) => d[2]));
