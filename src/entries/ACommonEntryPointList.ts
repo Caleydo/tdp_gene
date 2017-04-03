@@ -109,7 +109,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
     const formBuilder: FormBuilder = new FormBuilder($searchWrapper);
     formBuilder.appendElement({
-      id: `search-${this.dataSource.entityName}`,
+      id: `search-${this.dataSource.idType}${this.dataSource.entityName}`,
       hideLabel: true,
       type: FormElementType.SELECT2,
       attributes: {
@@ -121,7 +121,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     const $searchButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Go');
     const $saveSetButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Save');
 
-    const searchField = formBuilder.getElementById(`search-${this.dataSource.entityName}`);
+    const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
     $searchButton.on('click', () => {
       session.store(TargidConstants.NEW_ENTRY_POINT, {
         view: (<any>this.desc).viewId,

@@ -8,7 +8,6 @@ import {getAPIJSON} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
-import {FormBuilder, IFormSelectDesc, FormElementType} from 'ordino/src/FormBuilder';
 
 
 export interface IACommonListOptions {
@@ -29,11 +28,6 @@ export abstract class ACommonList extends ALineUpView2 {
    */
   private namedSet : INamedSet;
   private search: ISearchResult;
-
-  /**
-   * Parameter UI form
-   */
-  private paramForm:FormBuilder;
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, private dataSource: ICommonDBConfig, options: IACommonListOptions) {
     super(context, selection, parent, options);
@@ -82,7 +76,7 @@ export abstract class ACommonList extends ALineUpView2 {
           param.filter_panel = this.namedSet.id;
           break;
       }
-      if(this.namedSet.subTypeKey && this.namedSet.subTypeKey !== '' && this.namedSet.subTypeValue !== 'all') {
+      if(this.namedSet.subTypeKey && this.isValidFilter(this.namedSet.subTypeKey) && this.namedSet.subTypeValue !== 'all') {
         if(this.namedSet.subTypeFromSession) {
           param['filter_' + this.namedSet.subTypeKey] = session.retrieve(this.namedSet.subTypeKey, this.namedSet.subTypeValue);
         } else {
@@ -94,6 +88,12 @@ export abstract class ACommonList extends ALineUpView2 {
     }
     return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/filter`, param);
   }
+
+
+  protected isValidFilter(key: string) {
+    return key !== '';
+  }
+
 
   getItemName(count) {
     return (count === 1) ? this.dataSource.name.toLowerCase() : this.dataSource.name.toLowerCase() + 's';
