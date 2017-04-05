@@ -52,7 +52,11 @@ module.exports = function (registry) {
     'site': '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': {
+      'name': 'External resources',
+      'order': 60
+    }
   });
 
   registry.push('targidView', 'uniprot', function () {
@@ -62,7 +66,11 @@ module.exports = function (registry) {
     'site': '//www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
-    'selection': 'multiple'
+    'selection': 'multiple',
+    'group': {
+      'name': 'External resources',
+      'order': 70
+    }
   });
 
   registry.push('targidView', 'targetvalidation', function () {
