@@ -9,6 +9,7 @@ import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 import {Range, list} from 'phovea_core/src/range';
+import {list as listIDTypes} from 'phovea_core/src/idtype';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -337,9 +338,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     const data2: (string | number)[][] = smallerArray
       .map((d) => {
-        if(hash.has(d.samplename) && d._id) {
+        if(hash.has(d.samplename)) {
           // return values that are contained in both arrays
-          return [d.expression, hash.get(d.samplename).expression, d.samplename, d._id];
+          return [d.expression, hash.get(d.samplename).expression, d.samplename, d.id];
         }
         return null;
       })
@@ -352,12 +353,14 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
-      .on('click', (d: IDataFormatRow) => {
-        const target: EventTarget = (<Event>d3.event).target
+      .on('click', async (d: IDataFormatRow) => {
+        const target: EventTarget = (<Event>d3.event).target;
         d3.selectAll('circle.mark.clicked').classed('clicked', false);
         d3.select(target).classed('clicked', true);
-        const id: number = d[3]; // d[3] === _id
-        const r: Range = list([id]);
+
+        const idType = this.selection.idtype;
+        const id: number[] = await idType.map([d[3]]); // d[3] = ENSG...
+        const r: Range = list(id);
         this.select(r);
       })
       .call(bindTooltip((d:any) => d[2]));
@@ -380,7 +383,7 @@ export default ACoExpression;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
-  _id: number;
+  id: string;
 }
 
 export interface IDataFormat {
