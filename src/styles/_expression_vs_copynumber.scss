@@ -8,6 +8,7 @@
     fill: $core_color_almost_black;
     cursor: pointer;
 
+    &.clicked,
     &:active,
     &:focus,
     &:hover {
