@@ -340,7 +340,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .map((d) => {
         if(hash.has(d.samplename)) {
           // return values that are contained in both arrays
-          return [d.expression, hash.get(d.samplename).expression, d.samplename];
+          return [d.expression, hash.get(d.samplename).expression, d.samplename, d._id];
         }
         return null;
       })
@@ -353,8 +353,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
-      .on('click', (d) => {
-        const r = list([d[2]]);
+      .on('click', (d: IDataFormatRow) => {
+        const id: number = d[3];
+        const r = list([id]);
         this.select(r);
       })
       .call(bindTooltip((d:any) => d[2]));
@@ -377,6 +378,7 @@ export default ACoExpression;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
+  _id: number;
 }
 
 export interface IDataFormat {
