@@ -5,7 +5,7 @@ import '../style.scss';
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {Range} from 'phovea_core/src/range';
+import {Range, list} from 'phovea_core/src/range';
 import {GENE_IDTYPE} from '../constants';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
@@ -245,9 +245,8 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('r', 2)
       .attr('title', (d) => d.samplename)
       .on('click', (d) => {
-        console.log('selected', d);
-        const r = new Range();
-        r.dim(0).setList((<any>[d.samplename]));
+        const id: number = d._id;
+        const r = list([id]);
         this.select(r);
       })
       .call(bindTooltip((d: any) => d.samplename));
@@ -269,6 +268,7 @@ export interface IDataFormatRow {
   samplename: string;
   expression: number;
   cn: number;
+  _id: number;
 }
 
 export interface IDataFormat {
