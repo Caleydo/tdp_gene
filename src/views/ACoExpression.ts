@@ -330,15 +330,15 @@ export abstract class ACoExpression extends ASmallMultipleView {
     $g.select('text.title').text(title);
 
     // get smaller and larger array to build intersection between both
-    const largerArray = (this.refGeneExpression.length <= rows.length) ? rows : this.refGeneExpression;
-    const smallerArray = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
+    const largerArray: IDataFormatRow[] = (this.refGeneExpression.length <= rows.length) ? rows : this.refGeneExpression;
+    const smallerArray: IDataFormatRow[] = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
 
     // build hashmap for faster access
     const hash = d3.map(largerArray, (d) => d.samplename);
 
-    const data2 = smallerArray
+    const data2: (string | number)[][] = smallerArray
       .map((d) => {
-        if(hash.has(d.samplename)) {
+        if(hash.has(d.samplename) && d._id) {
           // return values that are contained in both arrays
           return [d.expression, hash.get(d.samplename).expression, d.samplename, d._id];
         }
@@ -354,7 +354,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .attr('r', 2)
       .attr('title', (d) => d[2])
       .on('click', (d: IDataFormatRow) => {
-        const id: number = d[3];
+        const id: number = d[3]; // d[3] === _id
         const r = list([id]);
         this.select(r);
       })
