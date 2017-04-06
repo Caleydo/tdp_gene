@@ -340,7 +340,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .map((d) => {
         if(hash.has(d.samplename)) {
           // return values that are contained in both arrays
-          return [d.expression, hash.get(d.samplename).expression, d.samplename, d.id];
+          return [d.expression, hash.get(d.samplename).expression, d.samplename, d._id];
         }
         return null;
       })
@@ -358,9 +358,8 @@ export abstract class ACoExpression extends ASmallMultipleView {
         d3.selectAll('circle.mark.clicked').classed('clicked', false);
         d3.select(target).classed('clicked', true);
 
-        const idType = this.selection.idtype;
-        const id: number[] = await idType.map([d[3]]); // d[3] = ENSG...
-        const r: Range = list(id);
+        const id: number = d[3]; // d[3] = _id
+        const r: Range = list([id]);
         this.select(r);
       })
       .call(bindTooltip((d:any) => d[2]));
@@ -383,7 +382,7 @@ export default ACoExpression;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
-  id: string;
+  _id: string;
 }
 
 export interface IDataFormat {
