@@ -245,9 +245,10 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('r', 2)
       .attr('title', (d) => d.samplename)
       .on('click', (d) => {
-        const target: EventTarget = (<Event>d3.event).target
+        const target: EventTarget = (<Event>d3.event).target;
         d3.selectAll('circle.mark.clicked').classed('clicked', false);
         d3.select(target).classed('clicked', true);
+
         const id: number = d._id;
         const r: Range = list([id]);
         this.select(r);
