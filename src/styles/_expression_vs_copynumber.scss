@@ -8,7 +8,10 @@
     fill: $core_color_almost_black;
     cursor: pointer;
 
-    &.clicked,
+    &.clicked {
+      fill: $select-data-color
+    }
+
     &:active,
     &:focus,
     &:hover {
