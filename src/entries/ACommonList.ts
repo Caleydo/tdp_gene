@@ -64,8 +64,15 @@ export abstract class ACommonList extends ALineUpView2 {
     return columns;
   }
 
+  protected assignIds() {
+    return false;
+  }
+
   protected loadRows() {
     const param: any = {};
+    if (this.assignIds()) {
+      param._assignids = true; //assign globally ids on the server side
+    }
 
     if(this.namedSet) {
       switch(this.namedSet.type) {
