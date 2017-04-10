@@ -8,8 +8,8 @@ import {GENE_IDTYPE} from '../constants';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
-import {Range, list} from 'phovea_core/src/range';
-import {list as listIDTypes} from 'phovea_core/src/idtype';
+import {Range, list, none} from 'phovea_core/src/range';
+import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -355,12 +355,30 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .attr('title', (d) => d[2])
       .on('click', (d: [number, number, string, number]) => {
         const target: EventTarget = (<Event>d3.event).target;
-        d3.selectAll('circle.mark.clicked').classed('clicked', false);
-        d3.select(target).classed('clicked', true);
+
+        const selectOperation: SelectOperation = toSelectOperation(<MouseEvent>d3.event);
 
         const id: number = d[3]; // d[3] = _id
         const r: Range = list([id]);
-        this.select(r);
+
+        const oldSelection = this.getItemSelection();
+        let newSelection: Range = none();
+
+        switch(selectOperation) {
+          case SelectOperation.SET:
+            newSelection = r;
+            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+            break;
+          case SelectOperation.ADD:
+            newSelection = oldSelection.range.union(r);
+            break;
+          case SelectOperation.REMOVE:
+            newSelection = oldSelection.range.without(r);
+            break;
+        }
+
+        d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
+        this.select(newSelection);
       })
       .call(bindTooltip((d:any) => d[2]));
 
