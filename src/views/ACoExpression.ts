@@ -353,7 +353,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
-      .on('click', async (d: IDataFormatRow) => {
+      .on('click', (d: IDataFormatRow) => {
         const target: EventTarget = (<Event>d3.event).target;
         d3.selectAll('circle.mark.clicked').classed('clicked', false);
         d3.select(target).classed('clicked', true);
