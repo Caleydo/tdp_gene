@@ -8,6 +8,7 @@ import {getAPIJSON} from 'phovea_core/src/ajax';
 import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
+import {mixin} from 'phovea_core/src';
 
 
 export interface IACommonListOptions {
@@ -82,6 +83,8 @@ export abstract class ACommonList extends ALineUpView2 {
         case ENamedSetType.PANEL:
           param.filter_panel = this.namedSet.id;
           break;
+        case ENamedSetType.FILTER:
+          mixin(param, this.namedSet.filter);
       }
       if(this.namedSet.subTypeKey && this.isValidFilter(this.namedSet.subTypeKey) && this.namedSet.subTypeValue !== 'all') {
         if(this.namedSet.subTypeFromSession) {
