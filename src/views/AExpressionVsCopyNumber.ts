@@ -5,12 +5,13 @@ import '../style.scss';
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {Range, list} from 'phovea_core/src/range';
+import {Range, list, none} from 'phovea_core/src/range';
 import {GENE_IDTYPE} from '../constants';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 
 
 export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
@@ -246,12 +247,30 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('title', (d) => d.samplename)
       .on('click', (d) => {
         const target: EventTarget = (<Event>d3.event).target;
-        d3.selectAll('circle.mark.clicked').classed('clicked', false);
-        d3.select(target).classed('clicked', true);
+
+        const selectOperation = toSelectOperation(<MouseEvent>d3.event);
 
         const id: number = d._id;
         const r: Range = list([id]);
-        this.select(r);
+
+        const oldSelection = this.getItemSelection();
+        let newSelection: Range = none();
+
+        switch(selectOperation) {
+          case SelectOperation.SET:
+            newSelection = r;
+            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+            break;
+          case SelectOperation.ADD:
+            newSelection = oldSelection.range.union(r);
+            break;
+          case SelectOperation.REMOVE:
+            newSelection = oldSelection.range.without(r);
+            break;
+        }
+
+        d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
+        this.select(newSelection);
       })
       .call(bindTooltip((d: any) => d.samplename));
 
