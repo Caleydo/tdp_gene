@@ -131,7 +131,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
             return {
               //use EnsemblID if symbol is empty
               value: (d.symbol) ? d.symbol : d.id,
-              name: (d.symbol) ? d.symbol : d.id,
+              name: (d.symbol && d.symbol !== d.id) ? `${d.symbol} (${d.id})` : d.id,
               data: d
             };
           });
