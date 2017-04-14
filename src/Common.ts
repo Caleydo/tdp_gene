@@ -4,6 +4,9 @@
 
 import * as session from 'phovea_core/src/session';
 import IDType from 'phovea_core/src/idtype/IDType';
+import {IFormSelectOption} from 'ordino/src/FormBuilder';
+import {ISelection} from 'ordino/src/View';
+
 
 import {GENE_IDTYPE} from './constants';
 
@@ -41,4 +44,25 @@ export async function selectReadableIDType(idType: IDType): Promise<IDType|null>
   }
   // TODO is there a nicer name for cell lines?
   return null;
+}
+
+
+export function createOptions(ensgs: string[], selection: ISelection): Promise<IFormSelectOption[]> {
+  if (ensgs === null || ensgs.length === 0) {
+    return Promise.resolve([]);
+  }
+  const idType = selection.idtype;
+  return selectReadableIDType(idType).then((target) => {
+    if (!target) {
+      return ensgs.map((ensg) => ({value: ensg, name: ensg, data: ensg}));
+    }
+    // map and use names
+    return idType.mapToFirstName(selection.range, target).then((names) => {
+      return names.map((name, i) => ({
+        value: ensgs[i],
+        name: name ? `${name} (${ensgs[i]})` : ensgs[i],
+        data: ensgs[i]
+      }));
+    });
+  });
 }
