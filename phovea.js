@@ -31,7 +31,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 0
+      // 'order': 0
     }
   });
 
@@ -55,7 +55,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 60
+      // 'order': 60
     }
   });
 
@@ -69,7 +69,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 70
+      // 'order': 70
     }
   });
 
@@ -83,7 +83,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 40
+      // 'order': 40
     }
   });
 
@@ -97,7 +97,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 50
+      // 'order': 50
     }
   });
 
@@ -111,7 +111,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
-      'order': 0
+      // 'order': 0
     }
   });
 
