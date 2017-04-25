@@ -25,7 +25,7 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Ensembl',
-    'site': '//feb2014.archive.ensembl.org/Homo_sapiens/Gene/Summary?g={gene}',
+    'site': '//feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',

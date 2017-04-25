@@ -7,6 +7,7 @@ import {ProxyView} from 'ordino/src/ProxyView';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {createOptions} from '../Common';
 import {IFormSelectOption} from 'ordino/src/FormBuilder';
+import {getSelectedSpecies} from '../Common';
 
 /**
  * helper view for proxying an existing external website
@@ -15,6 +16,12 @@ export default class GeneProxyView extends ProxyView {
 
   protected getSelectionSelectData(ensgs: string[]): Promise<IFormSelectOption[]> {
     return createOptions(ensgs, this.selection);
+  }
+
+  protected updateProxyView() {
+    const extra: any = this.options.extra;
+    extra.species = getSelectedSpecies();
+    super.updateProxyView();
   }
 }
 
