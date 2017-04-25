@@ -11,10 +11,16 @@ import {ISelection} from 'ordino/src/View';
 import {GENE_IDTYPE} from './constants';
 
 // hast to work for all data sources (gene, tissue, cell line)
-export const availableSpecies = [
+interface IAvailableSpecies {
+  name: string;
+  value: string;
+  iconClass?: string;
+}
+
+export const availableSpecies: IAvailableSpecies[] = [
   {name: 'Human', value: 'human', iconClass: 'fa-male'},
-  //{ name: 'Rat', value: 'rat', iconClass: 'fa-male' },
-  { name: 'Mouse', value: 'mouse', iconClass: 'fa-male' }
+  //{ name: 'Rat', value: 'rat' },
+  { name: 'Mouse', value: 'mouse' }
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
