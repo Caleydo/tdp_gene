@@ -12,9 +12,9 @@ import {GENE_IDTYPE} from './constants';
 
 // hast to work for all data sources (gene, tissue, cell line)
 export const availableSpecies = [
-  {name: 'Human', value: 'human'},
-  //{ name: 'Rat', value: 'rat' },
-  { name: 'Mouse', value: 'mouse' }
+  {name: 'Human', value: 'human', iconClass: 'fa-male'},
+  //{ name: 'Rat', value: 'rat', iconClass: 'fa-male' },
+  { name: 'Mouse', value: 'mouse', iconClass: 'fa-male' }
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
