@@ -8,9 +8,7 @@ import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {defaultSpecies, getSelectedSpecies} from '../Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
 import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
-import * as session from 'phovea_core/src/session';
 import {FormBuilder, FormElementType, IFormSelect2Element} from 'ordino/src/FormBuilder';
-import {TargidConstants} from 'ordino/src/Targid';
 import {generateDialog} from 'phovea_ui/src/dialogs';
 import {saveNamedSet} from 'ordino/src/storage';
 import {resolve} from 'phovea_core/src/idtype/manager';
@@ -104,6 +102,13 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     };
   }
 
+  protected getDefaultSessionValues() {
+    // initialize the session with the selected species
+    return {
+      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+    };
+  }
+
   private addSearchField() {
     const $searchWrapper = this.$node.insert('div', ':first-child').attr('class', 'startMenuSearch');
 
@@ -123,18 +128,12 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
     $searchButton.on('click', () => {
-      session.store(TargidConstants.NEW_ENTRY_POINT, {
-        view: (<any>this.desc).viewId,
-        options: {
+      this.options.targid.initNewSession((<any>this.desc).viewId, {
           search: {
             ids: (<IFormSelect2Element>searchField).values.map((d) => d.id),
             type: this.dataSource.tableName
           }
-        }
-      });
-
-      // create new graph and apply new view after window.reload (@see targid.checkForNewEntryPoint())
-      this.options.targid.graphManager.newRemoteGraph();
+        }, this.getDefaultSessionValues());
     });
 
     $saveSetButton.on('click', () => {
