@@ -1,4 +1,4 @@
-.expressionVsCopyNumber {
+.expressionVsCopyNumber, .coExpression {
 
   .title {
       font-weight: 500;
@@ -7,6 +7,10 @@
   .mark {
     fill: $core_color_almost_black;
     cursor: pointer;
+
+    &.clicked {
+      fill: $select-data-color
+    }
 
     &:active,
     &:focus,

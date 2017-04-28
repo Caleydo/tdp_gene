@@ -8,6 +8,8 @@ import {GENE_IDTYPE} from '../constants';
 import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+import {Range, list, none} from 'phovea_core/src/range';
+import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -131,7 +133,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
             return {
               //use EnsemblID if symbol is empty
               value: (d.symbol) ? d.symbol : d.id,
-              name: (d.symbol) ? d.symbol : d.id,
+              name: (d.symbol && d.symbol !== d.id) ? `${d.symbol} (${d.id})` : d.id,
               data: d
             };
           });
@@ -328,17 +330,17 @@ export abstract class ACoExpression extends ASmallMultipleView {
     $g.select('text.title').text(title);
 
     // get smaller and larger array to build intersection between both
-    const largerArray = (this.refGeneExpression.length <= rows.length) ? rows : this.refGeneExpression;
-    const smallerArray = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
+    const largerArray: IDataFormatRow[] = (this.refGeneExpression.length <= rows.length) ? rows : this.refGeneExpression;
+    const smallerArray: IDataFormatRow[] = (this.refGeneExpression.length <= rows.length) ? this.refGeneExpression : rows;
 
     // build hashmap for faster access
     const hash = d3.map(largerArray, (d) => d.samplename);
 
-    const data2 = smallerArray
+    const data2: (string | number)[][] = smallerArray
       .map((d) => {
         if(hash.has(d.samplename)) {
           // return values that are contained in both arrays
-          return [d.expression, hash.get(d.samplename).expression, d.samplename];
+          return [d.expression, hash.get(d.samplename).expression, d.samplename, d._id];
         }
         return null;
       })
@@ -351,6 +353,33 @@ export abstract class ACoExpression extends ASmallMultipleView {
       .classed('mark', true)
       .attr('r', 2)
       .attr('title', (d) => d[2])
+      .on('click', (d: [number, number, string, number]) => {
+        const target: EventTarget = (<Event>d3.event).target;
+
+        const selectOperation: SelectOperation = toSelectOperation(<MouseEvent>d3.event);
+
+        const id: number = d[3]; // d[3] = _id
+        const r: Range = list([id]);
+
+        const oldSelection = this.getItemSelection();
+        let newSelection: Range = none();
+
+        switch(selectOperation) {
+          case SelectOperation.SET:
+            newSelection = r;
+            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+            break;
+          case SelectOperation.ADD:
+            newSelection = oldSelection.range.union(r);
+            break;
+          case SelectOperation.REMOVE:
+            newSelection = oldSelection.range.without(r);
+            break;
+        }
+
+        d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
+        this.select(newSelection);
+      })
       .call(bindTooltip((d:any) => d[2]));
 
     marks.transition().attr({
@@ -362,6 +391,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
   }
 
   protected abstract getAttributeName(): string;
+  protected abstract select(r: Range): void;
 
 }
 
@@ -370,6 +400,7 @@ export default ACoExpression;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
+  _id: string;
 }
 
 export interface IDataFormat {

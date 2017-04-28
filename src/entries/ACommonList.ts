@@ -39,6 +39,10 @@ export abstract class ACommonList extends ALineUpView2 {
     if(!this.namedSet) { this.search = options.search; }
   }
 
+  protected extraComputeScoreParam(): any {
+    return this.namedSet;
+  }
+
   /**
    * Get sub type for named sets
    * @returns {{key: string, value: string}}
