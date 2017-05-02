@@ -26,6 +26,10 @@ export function getSelectedSpecies() {
   return session.retrieve(SPECIES_SESSION_KEY, defaultSpecies);
 }
 
+export interface IPostProcessor {
+  process: (idColumn: number, data: string[][]) => void;
+}
+
 /**
  * selects a human readable idtype for a given one that can be mapped
  * @param idType
@@ -65,4 +69,14 @@ export function createOptions(ensgs: string[], selection: ISelection): Promise<I
       }));
     });
   });
+}
+
+export function convertGeneSymbolToEnsembl(): IPostProcessor {
+  return {
+   process: function process(idColumn: number, data: string[][]) {
+     // TODO: Implement PostProcessor to convert GeneSymbols to Ensembl
+     console.log('IDCol', idColumn);
+     console.log('DATA', data);
+   }
+  };
 }
