@@ -92,9 +92,13 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
        // if a 1:n mapping is found, multiple rows are added with different Ensembl IDs
        const newData = [];
        data.forEach((row, i) => {
-         ensgs[i].forEach((mapping) => {
-           newData.push([...row, mapping]);
-         });
+         if(ensgs[i] && ensgs[i].length > 0) {
+           ensgs[i].forEach((mapping) => {
+             newData.push([...row, mapping]);
+           });
+         } else {
+           newData.push([...row, '']);
+         }
        });
 
 
