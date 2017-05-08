@@ -79,20 +79,28 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
   return {
    process: async function process(importResults, data: string[][]): Promise<any[]> {
      if(importResults.idType.includes('GeneSymbol')) {
-       // TODO 1: fix: after import is finished, selections reflect the item under the selected one
-       // TODO 2: fix: the last row has now Ensembl ID (could have the same reason the TODO #1)
-       // TODO 3: return newConfig instead of changing it by reference?
+       // TODO: return newConfig instead of changing it by reference?
        const idType = resolve(importResults.idType);
+
        const geneSymbols = data.map((row) => row[importResults.idColumn]);
        const systemIDs = await idType.map(geneSymbols);
        const ensgs = await idType.mapToName(systemIDs, GENE_IDTYPE);
 
        // append converted ENSGs to each row
-       const newData = data.map((row, i) => {
-         return row.concat(ensgs[i]);
+       // ensgs is an Array of Arrays
+       // if a 1:1 mapping is found, only 1 row is added
+       // if a 1:n mapping is found, multiple rows are added with different Ensembl IDs
+       const newData = [];
+       data.forEach((row, i) => {
+         ensgs[i].forEach((mapping) => {
+           newData.push([...row, mapping]);
+         });
        });
 
+
        const newConfig = importResults;
+
+       delete newConfig.columns[newConfig.idColumn].idType;
 
        // add new column header
        newConfig.columns.push({
