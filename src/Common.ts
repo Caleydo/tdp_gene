@@ -77,7 +77,7 @@ export function createOptions(ensgs: string[], selection: ISelection): Promise<I
  */
 export function convertGeneSymbolToEnsembl(): IPostProcessor {
   return {
-   process: async function process(importResults, data: string[][]): Promise<any[]> {
+   process: async function process(importResults: {[key: string]: any}, data: string[][]): Promise<string[][]> {
      if(importResults.idType.includes('GeneSymbol')) {
        // TODO: return newConfig instead of changing it by reference?
        const idType = resolve(importResults.idType);
