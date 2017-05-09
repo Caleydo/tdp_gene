@@ -114,8 +114,6 @@ module.exports = function (registry) {
       // 'order': 0
     }
   });
-
-
   // generator-phovea:end
 };
 
