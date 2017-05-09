@@ -2,12 +2,13 @@
   .mouse-icon:before {
     content: '';
     display: block;
-    height: 0.9em;
+    height: 0.85em;
     background: no-repeat center/50px url('./styles/mouse-icon.png');
     opacity: 0.1;
+    transition: opacity 0.2s ease-in-out;
   }
 
-  &.active .mouse-icon:before {
+  & label:hover .mouse-icon:before, &.active .mouse-icon:before {
     opacity: 1;
   }
 }
