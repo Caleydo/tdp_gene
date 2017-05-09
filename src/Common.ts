@@ -6,8 +6,6 @@ import * as session from 'phovea_core/src/session';
 import IDType from 'phovea_core/src/idtype/IDType';
 import {IFormSelectOption} from 'ordino/src/FormBuilder';
 import {ISelection} from 'ordino/src/View';
-
-
 import {GENE_IDTYPE} from './constants';
 
 // hast to work for all data sources (gene, tissue, cell line)
@@ -18,9 +16,9 @@ interface IAvailableSpecies {
 }
 
 export const availableSpecies: IAvailableSpecies[] = [
-  {name: 'Human', value: 'human', iconClass: 'fa-male'},
+  { name: 'Human', value: 'human', iconClass: 'fa-male' },
   //{ name: 'Rat', value: 'rat' },
-  { name: 'Mouse', value: 'mouse' }
+  { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' }
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
