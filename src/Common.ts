@@ -32,7 +32,7 @@ export function getSelectedSpecies() {
 }
 
 export interface IPostProcessor {
-  process: (importResults, data: string[][]) => Promise<string[][]>;
+  process: (importResults: {[key: string]: any}, data: string[][]) => Promise<string[][]>;
 }
 
 /**
@@ -83,7 +83,6 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
   return {
    process: async function process(importResults: {[key: string]: any}, data: string[][]): Promise<string[][]> {
      if(importResults.idType.includes('GeneSymbol')) {
-       // TODO: return newConfig instead of changing it by reference?
        const idType = resolve(importResults.idType);
 
        const geneSymbols = data.map((row) => row[importResults.idColumn]);
@@ -105,7 +104,7 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
          }
        });
 
-
+       // TODO: return newConfig instead of changing it by reference?
        const newConfig = importResults;
 
        delete newConfig.columns[newConfig.idColumn].idType;
