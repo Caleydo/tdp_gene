@@ -117,6 +117,7 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
 
        newConfig.idType = GENE_IDTYPE;
        newConfig.idColumn = newConfig.columns.length - 1;
+       newConfig.notes.push('The column Ensembl was added based on the detected Gene Symbols. 1:n mappings between Gene Symbols and Ensembl IDs were resolved by showing all possible combinations.');
 
        return newData;
      } else {
