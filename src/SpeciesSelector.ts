@@ -74,7 +74,16 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     group.append('label')
       .attr('for', (d) => `speciesSelector_${d.value}`)
       .attr('data-title', (d:any) => d.name.charAt(0).toUpperCase() + d.name.slice(1))
-      .html(`<i class="fa fa-male fa-fw fa-3x" aria-hidden="true"></i>`);
+      .html((d) => {
+        const className = d.iconClass || '';
+        let text = '';
+
+        if(!className) {
+          text = d.name.substr(0, 1).toUpperCase();
+        }
+
+        return `<i class="fa ${className} fa-fw fa-3x" aria-hidden="true">${text}</i>`;
+      });
 
   }
 

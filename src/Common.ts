@@ -7,15 +7,19 @@ import IDType from 'phovea_core/src/idtype/IDType';
 import {IFormSelectOption} from 'ordino/src/FormBuilder';
 import {ISelection} from 'ordino/src/View';
 import {resolve} from 'phovea_core/src/idtype';
-
-
 import {GENE_IDTYPE} from './constants';
 
 // hast to work for all data sources (gene, tissue, cell line)
-export const availableSpecies = [
-  {name: 'Human', value: 'human'}//,
+interface IAvailableSpecies {
+  name: string;
+  value: string;
+  iconClass?: string;
+}
+
+export const availableSpecies: IAvailableSpecies[] = [
+  { name: 'Human', value: 'human', iconClass: 'fa-male' },
   //{ name: 'Rat', value: 'rat' },
-  //{ name: 'Mouse', value: 'mouse' }
+  { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' }
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
