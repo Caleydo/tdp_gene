@@ -116,6 +116,13 @@ module.exports = function (registry) {
   });
 
 
+  registry.push('importPostProcessor', 'GeneSymbol', function() {
+    return System.import('./src/Common');
+  }, {
+    'factory': 'convertGeneSymbolToEnsembl'
+  });
+
+
   // generator-phovea:end
 };
 
