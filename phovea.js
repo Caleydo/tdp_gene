@@ -122,6 +122,12 @@ module.exports = function (registry) {
     'factory': 'convertGeneSymbolToEnsembl'
   });
 
+  registry.push('listFilters', 'SpeciesFilter', function() {
+    return System.import('./src/Common');
+  }, {
+    'factory': 'filterSpecies'
+  });
+
 
   // generator-phovea:end
 };
