@@ -125,7 +125,8 @@ module.exports = function (registry) {
   registry.push('listFilters', 'SpeciesFilter', function() {
     return System.import('./src/Common');
   }, {
-    'factory': 'filterSpecies'
+    'factory': 'filterSpecies',
+    'keyToFilter': 'subTypeValue'
   });
 
 
