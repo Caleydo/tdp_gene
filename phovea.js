@@ -122,7 +122,7 @@ module.exports = function (registry) {
     'factory': 'convertGeneSymbolToEnsembl'
   });
 
-  registry.push('listFilters', 'SpeciesFilter', function() {
+  registry.push('ordinoListFilters', 'SpeciesFilter', function() {
     return System.import('./src/Common');
   }, {
     'factory': 'filterSpecies',
