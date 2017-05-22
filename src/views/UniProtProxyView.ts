@@ -101,7 +101,7 @@ export class UniProtProxyView extends GeneProxyView {
   private updateUniProtSelect(forceUseLastSelection = false) {
     const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM));
 
-    const ensg = this.getParameter(ProxyView.SELECTED_ITEM).data;
+    const ensg = this.getParameter(ProxyView.SELECTED_ITEM).value;
 
     //convert to uid
     return this.selection.idtype.map([ensg]).then((ids) => {
