@@ -61,7 +61,7 @@ export function createOptions(ensgs: string[], selection: ISelection): Promise<I
     return Promise.resolve([]);
   }
   const idType = selection.idtype;
-  return selectReadableIDType(idType).then((target) => {
+  return selectReadableIDType(idType).then((target): Promise<IFormSelectOption[]>|IFormSelectOption[] => {
     if (!target) {
       return ensgs.map((ensg) => ({value: ensg, name: ensg, data: ensg}));
     }
@@ -70,7 +70,7 @@ export function createOptions(ensgs: string[], selection: ISelection): Promise<I
       return names.map((name, i) => ({
         value: ensgs[i],
         name: name ? `${name} (${ensgs[i]})` : ensgs[i],
-        data: ensgs[i]
+        data: [ensgs[i], name]
       }));
     });
   });
