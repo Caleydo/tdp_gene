@@ -8,7 +8,7 @@ import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {defaultSpecies, getSelectedSpecies} from '../Common';
 import {INamedSet, ENamedSetType} from 'ordino/src/storage';
 import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
-import {FormBuilder, FormElementType, IFormSelect2Element} from 'ordino/src/FormBuilder';
+import {FormBuilder, FormElementType} from 'ordino/src/FormBuilder';
 import {generateDialog} from 'phovea_ui/src/dialogs';
 import {saveNamedSet} from 'ordino/src/storage';
 import {resolve} from 'phovea_core/src/idtype/manager';
@@ -83,9 +83,9 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
   protected searchOptions(): any {
     return {
+      return: 'id',
       optionsData: [],
       placeholder: `Search ${this.dataSource.name}`,
-      multiple: true,
       tags: true,
       tokenSeparators: [',', ' ', ';', '\t'],
       ajax: {
@@ -116,7 +116,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     formBuilder.appendElement({
       id: `search-${this.dataSource.idType}${this.dataSource.entityName}`,
       hideLabel: true,
-      type: FormElementType.SELECT2,
+      type: FormElementType.SELECT2_MULTIPLE,
       attributes: {
         style: 'width:100%',
       },
@@ -130,7 +130,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     $searchButton.on('click', () => {
       this.options.targid.initNewSession((<any>this.desc).viewId, {
           search: {
-            ids: (<IFormSelect2Element>searchField).values.map((d) => d.id),
+            ids: searchField.value,
             type: this.dataSource.tableName
           }
         }, this.getDefaultSessionValues());
@@ -157,7 +157,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       dialog.onSubmit(async () => {
         const name = (<HTMLInputElement>document.getElementById('namedset_name')).value;
         const description = (<HTMLInputElement>document.getElementById('namedset_description')).value;
-        const idStrings = (<IFormSelect2Element>searchField).values.map((d) => d.id);
+        const idStrings = searchField.value;
 
         const idType = resolve(this.dataSource.idType);
         const ids = await idType.map(idStrings);
