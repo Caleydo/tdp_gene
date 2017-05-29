@@ -82,7 +82,7 @@ export abstract class ACommonList extends ALineUpView2 {
     if(this.namedSet) {
       switch(this.namedSet.type) {
         case ENamedSetType.NAMEDSET:
-          param['filter_namedset4' + this.dataSource.entityName] = this.namedSet.id;
+          param['filter_namedset4' + ((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)] = this.namedSet.id;
           break;
         case ENamedSetType.PANEL:
           param.filter_panel = this.namedSet.id;

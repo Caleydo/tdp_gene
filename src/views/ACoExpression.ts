@@ -304,8 +304,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
       return;
     }
 
+    const base = this.getParameter(FORM_ID_REFERENCE_GENE);
     // hide small multiple co-expression plot because it would just project the ref gene on its own
-    if (this.getParameter(FORM_ID_REFERENCE_GENE) === geneName) {
+    if (base === geneName || base.id === geneName) {
       $parent.classed('hidden', true);
       return;
     }
