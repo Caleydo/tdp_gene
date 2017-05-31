@@ -94,8 +94,8 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
           return {
             column: this.dataSource.entityName,
             species: getSelectedSpecies(),
-            query: params.term,
-            page: params.page
+            query: params.term === undefined ? '' : params.term,
+            page: params.page === undefined ? 0 : params.page
           };
         }
       }
