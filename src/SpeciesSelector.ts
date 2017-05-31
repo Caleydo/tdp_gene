@@ -116,7 +116,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .text((d) => d.description)
       .on('click', function(d) {
         (<Event>d3.event).preventDefault();
-        session.store(tabSessionKey, d.idType);
+        session.store(tabSessionKey, d.id);
         $(this).tab('show');
       });
   }
