@@ -6,12 +6,13 @@ import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
 import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions, IStartFactory} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
-import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY, DEFAULT_ENTITY_TYPE} from './Common';
+import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
 
 
 const tabSessionKey = 'entityType';
+const defaultTabSessionValue = 'celllinedb_genes_start'; //ensembl
 export const extensionPoint = 'targidStartEntryPoint';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
@@ -92,7 +93,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
     if(!session.has(tabSessionKey)) {
-      session.store(tabSessionKey, DEFAULT_ENTITY_TYPE);
+      session.store(tabSessionKey, defaultTabSessionValue);
     }
 
     this.buildEntityTypeSelection($parent, views);
@@ -107,7 +108,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .data(views)
       .enter()
       .append('li')
-      .attr('class', (d) => d.idType === session.retrieve(tabSessionKey, DEFAULT_ENTITY_TYPE)? 'active' : null)
+      .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)? 'active' : null)
       .attr('role', 'presentation')
       .append('a')
       .attr('href', (d) => `#entity_${d.cssClass}`)
@@ -128,7 +129,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const $enter = $items.enter()
       .append('div')
       .attr('id', (d) => `entity_${d.cssClass}`)
-      .attr('class', (d) => d.idType === session.retrieve(tabSessionKey, DEFAULT_ENTITY_TYPE)? 'active' : '')
+      .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)? 'active' : '')
       .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually
