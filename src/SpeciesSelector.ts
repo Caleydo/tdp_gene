@@ -4,13 +4,15 @@
 
 import * as session from 'phovea_core/src/session';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions} from 'ordino/src/StartMenu';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions, IStartFactory} from 'ordino/src/StartMenu';
 import {Targid} from 'ordino/src/Targid';
-import {availableSpecies, defaultSpecies, ParameterFormIds} from './Common';
+import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
 import * as d3 from 'd3';
+import * as $ from 'jquery';
 
 
-const sessionKey = ParameterFormIds.SPECIES;
+const tabSessionKey = 'entityType';
+const defaultTabSessionValue = 'celllinedb_genes_start'; //ensembl
 export const extensionPoint = 'targidStartEntryPoint';
 
 class SpeciesSelector implements IStartMenuSectionEntry {
@@ -39,17 +41,17 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     $parent.html(''); // remove loading element or previous data
 
     this.buildSpeciesSelection($parent);
-    this.buildEntryPointList($parent);
+    this.buildEntityTypes($parent);
   }
 
-  private buildSpeciesSelection($parent) {
+  private buildSpeciesSelection($parent: d3.Selection<HTMLElement>) {
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
-    const selectedSpecies = session.retrieve(sessionKey, defaultSpecies);
+    const selectedSpecies = session.retrieve(SPECIES_SESSION_KEY, defaultSpecies);
 
     // store default option, if not available
-    if(!session.has(sessionKey)) {
-      session.store(sessionKey, selectedSpecies);
+    if(!session.has(SPECIES_SESSION_KEY)) {
+      session.store(SPECIES_SESSION_KEY, selectedSpecies);
     }
 
     const $group = $speciesSelection.selectAll('.species-group').data(availableSpecies);
@@ -64,7 +66,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .attr('type', 'radio')
       .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
       .on('change', function(d) {
-        session.store(sessionKey, d.value);
+        session.store(SPECIES_SESSION_KEY, d.value);
 
         $group.classed('active', false);
         d3.select(this.parentNode).classed('active', true);
@@ -73,22 +75,62 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     group.append('label')
       .attr('for', (d) => `speciesSelector_${d.value}`)
       .attr('data-title', (d:any) => d.name.charAt(0).toUpperCase() + d.name.slice(1))
-      .html(`<i class="fa fa-male fa-fw fa-3x" aria-hidden="true"></i>`);
+      .html((d) => {
+        const className = d.iconClass || '';
+        let text = '';
+
+        if(!className) {
+          text = d.name.substr(0, 1).toUpperCase();
+        }
+
+        return `<i class="fa ${className} fa-fw fa-3x" aria-hidden="true">${text}</i>`;
+      });
 
   }
 
-  private buildEntryPointList($parent) {
-    const that = this;
-
-    const $entryPoints = $parent.append('div').classed('entry-points-wrapper', true);
-
+  private buildEntityTypes($parent: d3.Selection<HTMLElement>) {
     // get start views for entry points and sort them by name ASC
     const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-    const $items = $entryPoints.selectAll('.item').data(views);
-    const $enter = $items.enter().append('div').classed('item', true);
+    if(!session.has(tabSessionKey)) {
+      session.store(tabSessionKey, defaultTabSessionValue);
+    }
 
-    $enter.append('div').classed('header', true).text((d) => d.name);
+    this.buildEntityTypeSelection($parent, views);
+    this.buildEntryPointList($parent, views);
+  }
+
+  private buildEntityTypeSelection($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
+    const $entityTypes = $parent.append('ul').classed('nav nav-tabs', true).attr('role', 'tablist');
+
+    $entityTypes
+      .selectAll('li')
+      .data(views)
+      .enter()
+      .append('li')
+      .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)? 'active' : null)
+      .attr('role', 'presentation')
+      .append('a')
+      .attr('href', (d) => `#entity_${d.cssClass}`)
+      .attr('id', (d) => `entityType_${d.cssClass}`)
+      .text((d) => d.description)
+      .on('click', function(d) {
+        (<Event>d3.event).preventDefault();
+        session.store(tabSessionKey, d.id);
+        $(this).tab('show');
+      });
+  }
+
+  private buildEntryPointList($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
+    const that = this;
+    const $entryPoints = $parent.append('div').classed('entry-points-wrapper tab-content', true);
+
+    const $items = $entryPoints.selectAll('.item').data(views);
+    const $enter = $items.enter()
+      .append('div')
+      .attr('id', (d) => `entity_${d.cssClass}`)
+      .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)? 'active' : '')
+      .classed('tab-pane', true);
 
     // append initial loading icon --> must be removed by each entry point individually
     $enter.append('div').classed('body', true)

@@ -1,75 +1,29 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import './style.scss';
+import '../style.scss';
 
-import * as ajax from 'phovea_core/src/ajax';
 import bindTooltip from 'phovea_d3/src/tooltip';
-import * as idtypes from 'phovea_core/src/idtype';
 import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {Range} from 'phovea_core/src/range';
-import {allTypes, dataSources, gene, expression, copyNumber, ParameterFormIds, getSelectedSpecies} from './Common';
+import {Range, list, none} from 'phovea_core/src/range';
+import {GENE_IDTYPE} from '../constants';
+import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
 import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 
 
-export class ExpressionVsCopyNumber extends ASmallMultipleView {
+export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
   private x = d3.scale.linear();
   private y = d3.scale.log();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
-  private paramForm:FormBuilder;
-  private paramDesc:IFormSelectDesc[] = [
-    {
-      type: FormElementType.SELECT,
-      label: 'Data Source',
-      id: ParameterFormIds.DATA_SOURCE,
-      options: {
-        optionsData: dataSources.map((ds) => {
-          return {name: ds.name, value: ds.name, data: ds};
-        })
-      },
-      useSession: true
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Expression',
-      id: ParameterFormIds.EXPRESSION_SUBTYPE,
-      options: {
-        optionsData: expression.dataSubtypes.map((ds) => {
-          return {name: ds.name, value: ds.id, data: ds};
-        })
-      },
-      useSession: false
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Copy Number',
-      id: ParameterFormIds.COPYNUMBER_SUBTYPE,
-      options: {
-        optionsData: copyNumber.dataSubtypes.map((ds) => {
-          return {name: ds.name, value: ds.id, data: ds};
-        })
-      },
-      useSession: false
-    },
-    {
-      type: FormElementType.SELECT,
-      label: 'Tumor Type',
-      id: ParameterFormIds.TUMOR_TYPE,
-      dependsOn: [ParameterFormIds.DATA_SOURCE],
-      options: {
-        optionsFnc: (selection) => selection[0].data.tumorTypesWithAll,
-        optionsData: []
-      },
-      useSession: true
-    }
-  ];
+  private paramForm: FormBuilder;
 
-  constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
+  constructor(context: IViewContext, private selection: ISelection, parent: Element, options?) {
     super(context, selection, parent, options);
   }
 
@@ -79,18 +33,45 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     this.update();
   }
 
-  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any) => Promise<any>) {
     this.paramForm = new FormBuilder($parent);
 
+    const paramDesc = this.buildParameterDescs();
     // map FormElement change function to provenance graph onChange function
-    this.paramDesc.forEach((p) => {
+    paramDesc.forEach((p) => {
       p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
     });
 
-    this.paramForm.build(this.paramDesc);
+    this.paramForm.build(paramDesc);
 
     // add other fields
     super.buildParameterUI($parent, onChange);
+  }
+
+  protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
+  protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
+
+  protected buildParameterDescs(): IFormSelectDesc[] {
+    return [
+      {
+        type: FormElementType.SELECT,
+        label: 'Expression',
+        id: FORM_EXPRESSION_SUBTYPE_ID,
+        options: {
+          optionsData: this.getExpressionValues()
+        },
+        useSession: false
+      },
+      {
+        type: FormElementType.SELECT,
+        label: 'Copy Number',
+        id: FORM_COPYNUMBER_SUBTYPE_ID,
+        options: {
+          optionsData: this.getCopyNumberValues()
+        },
+        useSession: false
+      }
+    ];
   }
 
   getParameter(name: string): any {
@@ -102,7 +83,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     this.update(true);
   }
 
-  changeSelection(selection:ISelection) {
+  changeSelection(selection: ISelection) {
     this.selection = selection;
     this.update();
   }
@@ -112,9 +93,9 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
    * @param rows
    * @returns {any}
    */
-  private filterZeroValues(rows) {
+  private filterZeroValues(rows: IDataFormatRow[]) {
     const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
-    console.log(`filtered ${rows.length-rows2.length} zero values`);
+    console.log(`filtered ${rows.length - rows2.length} zero values`);
     return rows2;
   }
 
@@ -125,7 +106,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const data:IDataFormat[] = ids.map((id) => {
+    const data: IDataFormat[] = ids.map((id) => {
       return {id, geneName: '', rows: []};
     });
 
@@ -136,26 +117,10 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
-    enterOrUpdateAll.each(function(d) {
+    enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, gene.idType)
-        .then((name) => {
-          return Promise.all([
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/expression_vs_copynumber${that.getParameter(ParameterFormIds.TUMOR_TYPE) === allTypes ? '_all' : ''}`, {
-              ensg: name,
-              schema: that.getParameter(ParameterFormIds.DATA_SOURCE).schema,
-              entity_name: that.getParameter(ParameterFormIds.DATA_SOURCE).entityName,
-              expression_subtype: that.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).id,
-              copynumber_subtype: that.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).id,
-              tumortype: that.getParameter(ParameterFormIds.TUMOR_TYPE),
-              species: getSelectedSpecies()
-            }),
-            ajax.getAPIJSON(`/targid/db/${that.getParameter(ParameterFormIds.DATA_SOURCE).db}/gene_map_ensgs`, {
-              ensgs: '\''+name+'\'',
-              species: getSelectedSpecies()
-            })
-          ]);
-        });
+      const promise = that.resolveId(idtype, d.id, GENE_IDTYPE)
+        .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
       promise.catch(showErrorModalDialog)
@@ -165,9 +130,9 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
         });
 
       // on success
-      promise.then((input) => {
-        d.geneName = input[1][0].symbol;
+      promise.then((input: any[]) => {
         d.rows = that.filterZeroValues(input[0]);
+        d.geneName = input[1];
 
         //console.log('loaded data for', d.geneName);
 
@@ -180,14 +145,18 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     });
 
     $ids.exit().remove()
-      .each(function(d) {
+      .each(function (d) {
         that.setBusy(false);
       });
   }
 
-  private initChart($parent) {
+  protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
+
+  protected abstract loadFirstName(ensg: string): Promise<string>;
+
+  private initChart($parent: d3.Selection<any>) {
     // already initialized svg node -> skip this part
-    if($parent.select('svg').size() > 0) {
+    if ($parent.select('svg').size() > 0) {
       return;
     }
 
@@ -210,7 +179,7 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     svg.append('text')
       .attr('class', 'x label')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
+      .text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
 
     svg.append('g')
       .attr('class', 'y axis');
@@ -220,10 +189,10 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
       .attr('transform', 'rotate(-90)')
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
+      .text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
   }
 
-  private resizeChart($parent) {
+  private resizeChart($parent: d3.Selection<any>) {
     this.x.range([0, this.width]);
     this.y.range([this.height, 0]);
 
@@ -242,15 +211,15 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     // shift also the points on resizing
     // causes the d3 error: `<circle> attribute cx: Expected length, "NaN".`
     /*svg.selectAll('.mark')
-      .transition().attr({
-      cx: (d) => this.x(d.expression),
-      cy: (d) => this.y(d.cn),
-    });*/
+     .transition().attr({
+     cx: (d) => this.x(d.expression),
+     cy: (d) => this.y(d.cn),
+     });*/
   }
 
-  private updateChartData($parent) {
+  private updateChartData($parent: d3.Selection<any>) {
 
-    const data:IDataFormat = $parent.datum();
+    const data: IDataFormat = $parent.datum();
     const geneName = data.geneName;
     const rows = data.rows;
 
@@ -259,14 +228,14 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
 
     const $g = $parent.select('svg g');
 
-    $g.select('text.x.label').text(this.getParameter(ParameterFormIds.COPYNUMBER_SUBTYPE).name);
-    $g.select('text.y.label').text(this.getParameter(ParameterFormIds.EXPRESSION_SUBTYPE).name);
+    $g.select('text.x.label').text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
+    $g.select('text.y.label').text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
 
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
     let title = 'No data for ' + geneName;
-    if(rows[0]) {
+    if (rows[0]) {
       title = geneName;
     }
     $g.select('text.title').text(title);
@@ -275,14 +244,35 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     marks.enter().append('circle')
       .classed('mark', true)
       .attr('r', 2)
-      .attr('title', (d) => d.celllinename)
+      .attr('title', (d) => d.samplename)
       .on('click', (d) => {
-        console.log('selected', d);
-        const r = new Range();
-        r.dim(0).setList((<any>[d.celllinename]));
-        this.setItemSelection({idtype: idtypes.resolve(this.getParameter(ParameterFormIds.DATA_SOURCE).idType), range: r});
+        const target: EventTarget = (<Event>d3.event).target;
+
+        const selectOperation = toSelectOperation(<MouseEvent>d3.event);
+
+        const id: number = d._id;
+        const r: Range = list([id]);
+
+        const oldSelection = this.getItemSelection();
+        let newSelection: Range = none();
+
+        switch(selectOperation) {
+          case SelectOperation.SET:
+            newSelection = r;
+            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+            break;
+          case SelectOperation.ADD:
+            newSelection = oldSelection.range.union(r);
+            break;
+          case SelectOperation.REMOVE:
+            newSelection = oldSelection.range.without(r);
+            break;
+        }
+
+        d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
+        this.select(newSelection);
       })
-      .call(bindTooltip((d:any) => d.celllinename));
+      .call(bindTooltip((d: any) => d.samplename));
 
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
@@ -292,22 +282,21 @@ export class ExpressionVsCopyNumber extends ASmallMultipleView {
     marks.exit().remove();
   }
 
+  protected abstract select(r: Range): void;
+
+}
+export default AExpressionVsCopyNumber;
+
+export interface IDataFormatRow {
+  samplename: string;
+  expression: number;
+  cn: number;
+  _id: number;
 }
 
-interface IDataFormat {
-  id:number;
+export interface IDataFormat {
+  id: number;
   geneName: string;
-  rows: {
-    id: string,
-    symbol: string,
-    celllinename: string,
-    expression: number,
-    cn: number
-  }[];
+  rows: IDataFormatRow[];
 }
-
-export function create(context:IViewContext, selection:ISelection, parent:Element, options?) {
-  return new ExpressionVsCopyNumber(context, selection, parent, options);
-}
-
 

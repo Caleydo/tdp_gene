@@ -47,6 +47,10 @@ $oncoprint_cell_mutation: 8px;
     }
   }
 
+  > .alert-info {
+    order: 2; // place at the bottom of gene list
+  }
+
   .geneTableWrapper {
     margin-left: 10em; // === .geneLabel width
     overflow-x: auto;

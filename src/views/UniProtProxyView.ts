@@ -4,7 +4,7 @@
 
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {IPluginDesc} from 'phovea_core/src/plugin';
-import {GeneProxyView} from './GeneProxyView';
+import GeneProxyView from './GeneProxyView';
 import {ProxyView} from 'ordino/src/ProxyView';
 import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'ordino/src/FormBuilder';
 
@@ -13,7 +13,7 @@ import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 
  */
 export class UniProtProxyView extends GeneProxyView {
 
-  protected static SELECTED_UNIPROT_ITEM = 'externalUniProt';
+  static SELECTED_UNIPROT_ITEM = 'externalUniProt';
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
     super(context, selection, parent, options, plugin);
@@ -101,8 +101,13 @@ export class UniProtProxyView extends GeneProxyView {
   private updateUniProtSelect(forceUseLastSelection = false) {
     const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM));
 
-    return this.resolveIdToNames(this.selection.idtype, this.getParameter(ProxyView.SELECTED_ITEM).data._id, this.options.idtype)
-      .then((uniProtIds:string[][]) => {
+    const ensg = this.getParameter(ProxyView.SELECTED_ITEM).value;
+
+    //convert to uid
+    return this.selection.idtype.map([ensg]).then((ids) => {
+      // convert to uniprot
+      return this.selection.idtype.mapToName(ids, this.options.idtype);
+    }).then((uniProtIds:string[][]) => {
         // use uniProtIds[0] since we passed only one selected _id
         if(uniProtIds[0] === null) {
           return Promise.reject('Empty list of UniProt IDs');
@@ -137,14 +142,12 @@ export class UniProtProxyView extends GeneProxyView {
       });
   }
 
-  private getUniProtSelectData(uniProtIds): Promise<{value: string, name: string, data: string}[]> {
+  private getUniProtSelectData(uniProtIds: string[]): {value: string, name: string, data: string}[] {
     if(uniProtIds === null) {
-      return Promise.resolve([]);
+      return [];
     }
 
-    return Promise.resolve(uniProtIds.map((d:string) => {
-      return {value: d, name: d, data: d};
-    }));
+    return uniProtIds.map((d:string) => ({value: d, name: d, data: d}));
   }
 
   protected updateProxyView() {
