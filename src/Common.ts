@@ -23,7 +23,7 @@ export const availableSpecies: IAvailableSpecies[] = [
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
-export const DEFAULT_ENTITY_TYPE = 'Ensembl';
+export const DEFAULT_ENTITY_TYPE = GENE_IDTYPE;
 
 export const SPECIES_SESSION_KEY = 'species';
 

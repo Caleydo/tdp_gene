@@ -294,7 +294,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, GENE_IDTYPE))
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
