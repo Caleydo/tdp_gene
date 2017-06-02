@@ -33,14 +33,14 @@ export function toFilter(param: any, filter: any) {
 /**
  * generator for a FormMap compatible badgeProvider based on the given database url
  */
-export function previewFilterHint(baseUrl: string) {
+export function previewFilterHint(baseUrl: string, extraParams?: ()=>any) {
   let total: Promise<number> = null;
   const cache = new Map<string, Promise<number>>();
 
 
   return (rows: any[]) => {
     if (total === null) { // compute all by no setting any filter
-      total = getAPIJSON(baseUrl + '/count', {});
+      total = getAPIJSON(baseUrl + '/count', (extraParams ? extraParams() : {}));
     }
     if (!rows) { //if no filter is set return all
       return total.then((count: number) => `${count} / ${count}`);
@@ -48,6 +48,9 @@ export function previewFilterHint(baseUrl: string) {
     //compute filtered ones
     const filter = convertRow2MultiMap(rows);
     const param: any = {};
+    if (extraParams) {
+      Object.assign(param, extraParams());
+    }
     toFilter(param, filter);
     const key = encodeParams(param);
     if (!cache.has(key)) {
