@@ -151,18 +151,24 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
           <label for="namedset_description">Description</label>
           <textarea class="form-control" id="namedset_description" rows="5" placeholder="Description"></textarea>
         </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="namedset_public"> Public (everybody can see and use it)
+          </label>
+        </div>
       </form>
       `;
 
       dialog.onSubmit(async () => {
         const name = (<HTMLInputElement>document.getElementById('namedset_name')).value;
         const description = (<HTMLInputElement>document.getElementById('namedset_description')).value;
+        const isPublic = (<HTMLInputElement>document.getElementById('namedset_public')).checked;
         const idStrings = searchField.value;
 
         const idType = resolve(this.dataSource.idType);
         const ids = await idType.map(idStrings);
 
-        const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description);
+        const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description, isPublic);
         super.addNamedSet(response);
         dialog.hide();
       });
