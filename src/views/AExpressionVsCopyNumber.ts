@@ -119,7 +119,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, GENE_IDTYPE)
+      const promise = that.resolveId(idtype, d.id, that.idType)
         .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
