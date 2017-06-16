@@ -14,6 +14,8 @@ import {SelectOperation} from 'phovea_core/src/idtype';
 import IDType from 'phovea_core/src/idtype/IDType';
 import Range from 'phovea_core/src/range/Range';
 import {none, list as rlist} from 'phovea_core/src/range';
+import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/sortable';
 
 export interface ISample {
   name: string;
@@ -346,6 +348,14 @@ export abstract class AOncoPrint extends AView {
     });
 
     $ids.exit().remove().each(() => this.setBusy(false));
+
+    //sortable
+    $(this.$table.node()) // jquery
+      .sortable({
+        handle: 'th.geneLabel',
+        axis: 'y',
+        items: '> :not(.nodrag)'
+    });
   }
 
   private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: ISample[]) {

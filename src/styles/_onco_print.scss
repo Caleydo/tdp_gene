@@ -64,6 +64,7 @@ $oncoprint_cell_mutation: 8px;
   }
 
   th.geneLabel {
+    cursor: move;
     position: absolute;
     left: 0;
     top: auto;
@@ -93,6 +94,10 @@ $oncoprint_cell_mutation: 8px;
 
     display: flex;
     align-items: center;
+
+    &.ui-sortable-helper th.geneLabel {
+      left: -10em;
+    }
 
     .cell {
       position: relative;
