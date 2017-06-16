@@ -105,6 +105,10 @@ $oncoprint_cell_mutation: 8px;
       width: $oncoprint_cell_width + $oncoprint_cell_padding;
       height: $oncoprint_cell_height + $oncoprint_cell_padding;
 
+      &.selected {
+        border-color: $select-color !important;
+      }
+
       .mut {
         width: 80%;
         border: 1px solid transparent;
