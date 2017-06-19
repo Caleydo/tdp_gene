@@ -6,7 +6,7 @@ import {IPluginDesc} from 'phovea_core/src/plugin';
 import {SPECIES_SESSION_KEY} from '../Common';
 import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
 import {defaultSpecies, getSelectedSpecies} from '../Common';
-import {INamedSet, ENamedSetType} from 'ordino/src/storage';
+import {INamedSet, ENamedSetType, editDialog} from 'ordino/src/storage';
 import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import {FormBuilder, FormElementType} from 'ordino/src/FormBuilder';
 import {generateDialog} from 'phovea_ui/src/dialogs';
@@ -137,38 +137,15 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     });
 
     $saveSetButton.on('click', () => {
-      const dialog = generateDialog('Save Named Set', 'Save');
-
-      const form = document.createElement('form');
-
-      form.innerHTML = `
-        <form id="namedset_form">
-        <div class="form-group">
-          <label for="namedset_name">Name</label>
-          <input type="text" class="form-control" id="namedset_name" placeholder="Name" required="required">
-        </div>
-        <div class="form-group">
-          <label for="namedset_description">Description</label>
-          <textarea class="form-control" id="namedset_description" rows="5" placeholder="Description"></textarea>
-        </div>
-      </form>
-      `;
-
-      dialog.onSubmit(async () => {
-        const name = (<HTMLInputElement>document.getElementById('namedset_name')).value;
-        const description = (<HTMLInputElement>document.getElementById('namedset_description')).value;
+      editDialog(null, async (name, description, isPublic) => {
         const idStrings = searchField.value;
 
         const idType = resolve(this.dataSource.idType);
         const ids = await idType.map(idStrings);
 
-        const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description);
+        const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description, isPublic);
         super.addNamedSet(response);
-        dialog.hide();
       });
-
-      dialog.body.appendChild(form);
-      dialog.show();
     });
   }
 }
