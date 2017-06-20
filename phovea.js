@@ -53,10 +53,12 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'UniProt_human',
     'selection': 'multiple',
-    'species': 'human',
     'group': {
       'name': 'External resources'
       // 'order': 60
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -82,10 +84,12 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
-    'species': 'human',
     'group': {
       'name': 'External resources'
       // 'order': 40
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -97,10 +101,12 @@ module.exports = function (registry) {
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
-    'species': 'human',
     'group': {
       'name': 'External resources'
       // 'order': 50
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -112,10 +118,12 @@ module.exports = function (registry) {
     'argument': 'cellline',
     'idtype': 'Cellline',
     'selection': 'multiple',
-    'species': 'human',
     'group': {
       'name': 'External resources'
       // 'order': 0
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
