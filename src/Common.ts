@@ -145,12 +145,15 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
 
 /**
  * Filters elements containing the selected species from the given data array by using the provided accessor function
- * @param species string
+ * @param filter Object
  * @returns Boolean
  */
-export function filterSpecies(species: string) {
-  if(!species) {
-    return true;
-  }
-  return species === getSelectedSpecies();
+
+interface ISpeciesFilterObject {
+  species: string;
+  [key: string]: any;
+}
+
+export function filterSpecies(filter: ISpeciesFilterObject) {
+  return !filter.species || filter.species === getSelectedSpecies();
 }
