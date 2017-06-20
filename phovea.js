@@ -54,8 +54,11 @@ module.exports = function (registry) {
     'idtype': 'UniProt_human',
     'selection': 'multiple',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 60
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -82,8 +85,11 @@ module.exports = function (registry) {
     'idtype': 'Ensembl',
     'selection': 'multiple',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 40
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -96,8 +102,11 @@ module.exports = function (registry) {
     'idtype': 'Ensembl',
     'selection': 'multiple',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 50
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -110,8 +119,11 @@ module.exports = function (registry) {
     'idtype': 'Cellline',
     'selection': 'multiple',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 0
+    },
+    'filter': {
+      'species': 'human'
     }
   });
 
@@ -122,6 +134,11 @@ module.exports = function (registry) {
     'factory': 'convertGeneSymbolToEnsembl'
   });
 
+  registry.push('ordinoListFilters', 'SpeciesFilter', function() {
+    return System.import('./src/Common');
+  }, {
+    'factory': 'filterSpecies'
+  });
 
   // generator-phovea:end
 };

@@ -60,6 +60,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
       .classed('species-group', true)
       .classed('active', (d) => d.value === selectedSpecies);
 
+    const that = this;
     group.append('input')
       .attr('name', 'species')
       .attr('id', (d) => `speciesSelector_${d.value}`)
@@ -70,6 +71,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
         $group.classed('active', false);
         d3.select(this.parentNode).classed('active', true);
+        that.entryPointLists.forEach((list) => list.updateList());
       });
 
     group.append('label')
