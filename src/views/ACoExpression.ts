@@ -114,7 +114,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
   }
 
   private updateRefGeneSelect() {
-    return this.resolveIds(this.selection.idtype, this.selection.range, GENE_IDTYPE)
+    return this.resolveIds(this.selection.idtype, this.selection.range, this.idType)
       .then((genesEnsembl) => {
         //console.log('Ensembl', genesEnsembl);
 
@@ -196,7 +196,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function(this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, GENE_IDTYPE)
+      const promise = that.resolveId(idtype, d.id, that.idType)
         .then((name) => {
           return Promise.all([
             that.loadData(name),
@@ -304,8 +304,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
       return;
     }
 
+    const base = this.getParameter(FORM_ID_REFERENCE_GENE);
     // hide small multiple co-expression plot because it would just project the ref gene on its own
-    if (this.getParameter(FORM_ID_REFERENCE_GENE) === geneName) {
+    if (base === geneName || base.id === geneName) {
       $parent.classed('hidden', true);
       return;
     }

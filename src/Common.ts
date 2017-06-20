@@ -8,6 +8,7 @@ import {IFormSelectOption} from 'ordino/src/FormBuilder';
 import {ISelection} from 'ordino/src/View';
 import {resolve} from 'phovea_core/src/idtype';
 import {GENE_IDTYPE} from './constants';
+import {list as asRange} from 'phovea_core/src/range';
 
 // hast to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {
@@ -23,7 +24,7 @@ export const availableSpecies: IAvailableSpecies[] = [
 ];
 
 export const defaultSpecies = availableSpecies[0].value;
-export const DEFAULT_ENTITY_TYPE = 'Ensembl';
+export const DEFAULT_ENTITY_TYPE = GENE_IDTYPE;
 
 export const SPECIES_SESSION_KEY = 'species';
 
@@ -55,22 +56,34 @@ export async function selectReadableIDType(idType: IDType): Promise<IDType|null>
   return null;
 }
 
+function mapToId(selection: ISelection, target: IDType = null) {
+  if (target === null || selection.idtype.id === target.id) {
+    // same just unmap to name
+    return selection.range;
+  }
+  // assume mappable
+  return selection.idtype.mapToFirstID(selection.range, target).then((r) => asRange(r));
+}
 
-export function createOptions(ensgs: string[], selection: ISelection): Promise<IFormSelectOption[]> {
-  if (ensgs === null || ensgs.length === 0) {
+
+export function createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]> {
+  if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {
     return Promise.resolve([]);
   }
-  const idType = selection.idtype;
-  return selectReadableIDType(idType).then((target) => {
+
+  return Promise.all([mapToId(selection, base), selectReadableIDType(base)]).then((results): Promise<IFormSelectOption[]>|IFormSelectOption[] => {
+    const ids = results[0];
+    const target = results[1];
+
     if (!target) {
-      return ensgs.map((ensg) => ({value: ensg, name: ensg, data: ensg}));
+      return ensgs.map((ensg) => ({value: ensg, name: ensg, data: [ensg, ensg]}));
     }
     // map and use names
-    return idType.mapToFirstName(selection.range, target).then((names) => {
+    return base.mapToFirstName(ids, target).then((names) => {
       return names.map((name, i) => ({
         value: ensgs[i],
         name: name ? `${name} (${ensgs[i]})` : ensgs[i],
-        data: ensgs[i]
+        data: [ensgs[i], name]
       }));
     });
   });

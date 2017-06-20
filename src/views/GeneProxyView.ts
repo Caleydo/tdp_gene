@@ -15,7 +15,7 @@ import {getSelectedSpecies} from '../Common';
 export default class GeneProxyView extends ProxyView {
 
   protected getSelectionSelectData(ensgs: string[]): Promise<IFormSelectOption[]> {
-    return createOptions(ensgs, this.selection);
+    return createOptions(ensgs, this.selection, this.idType);
   }
 
   protected updateProxyView() {

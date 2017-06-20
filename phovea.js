@@ -25,7 +25,7 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Ensembl',
-    'site': '//feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
+    'site': 'http://feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
@@ -49,7 +49,7 @@ module.exports = function (registry) {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'canSAR',
-    'site': '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
+    'site': 'http://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
     'selection': 'multiple',
@@ -63,7 +63,7 @@ module.exports = function (registry) {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'UniProt',
-    'site': '//www.uniprot.org/uniprot/{gene}/',
+    'site': 'http://www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
     'idtype': 'UniProt_human',
     'selection': 'multiple',
@@ -91,7 +91,7 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Human Protein Atlas',
-    'site': '//proteinatlas.org/{gene}',
+    'site': 'http://proteinatlas.org/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'multiple',
