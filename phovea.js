@@ -55,6 +55,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
+      'species': 'human'
       // 'order': 60
     }
   });
@@ -83,6 +84,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
+      'species': 'human'
       // 'order': 40
     }
   });
@@ -97,6 +99,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
+      'species': 'human'
       // 'order': 50
     }
   });
@@ -111,6 +114,7 @@ module.exports = function (registry) {
     'selection': 'multiple',
     'group': {
       'name': 'External resources',
+      'species': 'human'
       // 'order': 0
     }
   });
@@ -125,10 +129,8 @@ module.exports = function (registry) {
   registry.push('ordinoListFilters', 'SpeciesFilter', function() {
     return System.import('./src/Common');
   }, {
-    'factory': 'filterSpecies',
-    'keyToFilter': 'subTypeValue'
+    'factory': 'filterSpecies'
   });
-
 
   // generator-phovea:end
 };
