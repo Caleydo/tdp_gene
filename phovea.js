@@ -68,10 +68,10 @@ module.exports = function (registry) {
     'name': 'UniProt',
     'site': 'http://www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
-    'idtype': 'UniProt_human',
+    'idtype': 'Ensembl',
     'selection': 'multiple',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 70
     }
   });
