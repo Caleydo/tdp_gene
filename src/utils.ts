@@ -3,6 +3,9 @@
  */
 import {convertRow2MultiMap} from 'ordino/src/form/internal/FormMap';
 import {encodeParams, getAPIJSON} from 'phovea_core/src/ajax';
+import {RangeLike, parse} from 'phovea_core/src/range';
+import {INamedSet, ENamedSetType} from 'ordino/src/storage';
+import IDType from 'phovea_core/src/idtype/IDType';
 
 /**
  * converts the field in the given array 2^<value>
@@ -90,4 +93,27 @@ export function previewFilterHint(baseUrl: string, extraParams?: ()=>any) {
       return `? / ?`;
     });
   };
+}
+
+
+/**
+ * limit the number of score rows if it doesn't exceed some criteria
+ */
+export function limitScoreRows(param: any, ids: RangeLike, idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet) {
+  const range = parse(ids);
+  if (range.dim(0).length < maxDirectRows) {
+    param[`filter_rangeOf${idTypeOfIDs.id}4${entity}`] = range.toString();
+    return;
+  }
+  if (namedSet) {
+    // propagate named sets
+    switch(namedSet.type) {
+      case ENamedSetType.PANEL:
+        param[`filter_panel_${entity}`] = namedSet.id;
+        break;
+      case ENamedSetType.NAMEDSET:
+        param[`filter_namedset4${entity}`] = namedSet.id;
+        break;
+    }
+  }
 }
