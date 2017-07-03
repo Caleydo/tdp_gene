@@ -24,11 +24,38 @@ export function convertLog2ToLinear(rows: any[], field: string) {
  * @param filter input filter
  */
 export function toFilter(param: any, filter: any) {
+  const clean = (v: any) => {
+    if (Array.isArray(v)) {
+      return v.map(clean);
+    }
+    if (typeof v === 'object' && v.id !== undefined && v.text !== undefined) {
+      return v.id;
+    }
+    return v;
+  };
   Object.keys(filter).forEach((k) => {
     const v = filter[k];
-    param['filter_' + k] = filter[k];
+    param['filter_' + k] = clean(filter[k]);
   });
 }
+
+export function toFilterString(filter: any, key2name?: Map<string, string>) {
+  const keys = Object.keys(filter);
+  if (keys.length === 0) {
+    return '<None>';
+  }
+  const toString = (v: any) => {
+    if (typeof v === 'object' && v.id !== undefined && v.text !== undefined) {
+      return v.text;
+    }
+    return v.toString();
+  };
+  return keys.map((d) => {
+    const v = filter[d];
+    const label = key2name && key2name.has(d) ? key2name.get(d) : d;
+    const vn = Array.isArray(v) ? '["' + v.map(toString).join('","') + '"]' : '"' + toString(v) + '"';
+    return `${label}=${vn}`;
+  }).join(' & ');}
 
 /**
  * generator for a FormMap compatible badgeProvider based on the given database url
