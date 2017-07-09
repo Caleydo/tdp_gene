@@ -8,7 +8,7 @@ export interface IResult {
 }
 
 export interface ISearchProvider {
-  search(query: string, page: number, pageSize: number): Promise<{ total: number, items: IResult[] }>;
+  search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }>;
 
   validate(query: string[]): Promise<IResult[]>;
 
@@ -21,17 +21,17 @@ export default class SearchProvider implements ISearchProvider {
 
   }
 
-  search(query: string, page: number, pageSize: number): Promise<{ total: number, items: IResult[] }> {
+  search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }> {
     return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_items/lookup`, {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
       query,
-      page,
+      page: page + 1, //required to start with 1 instead of 0
       limit: pageSize
     }).then((data) => {
       return {
-        items: data.items.map((d) => Object.assign(d, {id: d.targidid, extra: d.id})),
-        total: data.total_count
+        results: data.items.map((d) => Object.assign(d, {id: d.targidid, extra: d.id})),
+        more: ((page-1) * pageSize + data.items.length) < data.total_count
       };
     });
   }
