@@ -28,9 +28,9 @@ module.exports = function (registry) {
     'site': 'http://feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
-      'name': 'External resources',
+      'name': 'External resources'
       // 'order': 0
     }
   });
@@ -52,7 +52,7 @@ module.exports = function (registry) {
     'site': 'http://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
       'name': 'External resources'
       // 'order': 60
@@ -69,7 +69,7 @@ module.exports = function (registry) {
     'site': 'http://www.uniprot.org/uniprot/{gene}/',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
       'name': 'External resources'
       // 'order': 70
@@ -83,7 +83,7 @@ module.exports = function (registry) {
     'site': '//targetvalidation.org/target/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
       'name': 'External resources'
       // 'order': 40
@@ -100,7 +100,7 @@ module.exports = function (registry) {
     'site': 'http://proteinatlas.org/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
       'name': 'External resources'
       // 'order': 50
@@ -117,7 +117,7 @@ module.exports = function (registry) {
     'site': '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
     'argument': 'cellline',
     'idtype': 'Cellline',
-    'selection': 'multiple',
+    'selection': 'chooser',
     'group': {
       'name': 'External resources'
       // 'order': 0
