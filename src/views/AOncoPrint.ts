@@ -303,7 +303,9 @@ export abstract class AOncoPrint extends AView {
       if (this.manuallyResorted) {
         //different strategy if already resorted try to keep the original sorting as good as possible
         //keep old + newly added ones
-        return old.filter((d) => ids.indexOf(d.id) >= 0).concat(ids.filter((id) => !lookup.has(id)).map((id) => empty(id)));
+        const existing = old.filter((d) => ids.indexOf(d.id) >= 0);
+        const added = ids.filter((id) => !lookup.has(id)).map((id) => empty(id));
+        return existing.concat(added);
       }
       return ids.map((id) => lookup.get(id) || empty(id));
     };
