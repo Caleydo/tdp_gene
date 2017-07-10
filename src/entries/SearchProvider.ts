@@ -31,7 +31,7 @@ export default class SearchProvider implements ISearchProvider {
     }).then((data) => {
       return {
         results: data.items.map((d) => Object.assign(d, {id: d.targidid, extra: d.id})),
-        more: ((page-1) * pageSize + data.items.length) < data.total_count
+        more: data.more
       };
     });
   }
