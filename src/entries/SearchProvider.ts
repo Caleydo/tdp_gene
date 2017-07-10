@@ -26,7 +26,7 @@ export default class SearchProvider implements ISearchProvider {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
       query,
-      page: page + 1, //required to start with 1 instead of 0
+      page,
       limit: pageSize
     }).then((data) => {
       return {
