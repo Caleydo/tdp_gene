@@ -51,7 +51,7 @@ module.exports = function (registry) {
     'name': 'canSAR',
     'site': 'http://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     'argument': 'gene',
-    'idtype': 'UniProt_human',
+    'idtype': 'Ensembl',
     'selection': 'multiple',
     'group': {
       'name': 'External resources'
