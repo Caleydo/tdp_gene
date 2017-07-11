@@ -185,6 +185,12 @@ export abstract class AOncoPrint extends AView {
 
   private paramForm:FormBuilder;
 
+  /**
+   * flag if the user specified the gene sorting order
+   * @type {boolean}
+   */
+  private manuallyResorted: boolean = false;
+
   constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
   }
@@ -292,9 +298,16 @@ export abstract class AOncoPrint extends AView {
       if (old.length === 0) {
         return ids.map(empty);
       }
-      const lookup: any = {};
-      old.forEach((d) => lookup[d.id] = d);
-      return ids.map((id) => lookup[id] || empty(id));
+      const lookup = new Map<number, IDataFormat>();
+      old.forEach((d) => lookup.set(d.id, d));
+      if (this.manuallyResorted) {
+        //different strategy if already resorted try to keep the original sorting as good as possible
+        //keep old + newly added ones
+        const existing = old.filter((d) => ids.indexOf(d.id) >= 0);
+        const added = ids.filter((id) => !lookup.has(id)).map((id) => empty(id));
+        return existing.concat(added);
+      }
+      return ids.map((id) => lookup.get(id) || empty(id));
     };
 
     const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
@@ -342,9 +355,15 @@ export abstract class AOncoPrint extends AView {
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
       const samples : string[] = result.shift().map((d) => d.name);
       const rows =<IDataFormat[]>result;
-      rows.sort(byAlterationFrequency);
+      if (!this.manuallyResorted) {
+        rows.sort(byAlterationFrequency);
+      }
       const sortedSamples = sort(samples, rows.map((r) => r.rows));
-      this.sortCells(sortedSamples);
+      const $genes = this.sortCells(sortedSamples);
+      if (!this.manuallyResorted) {
+        //sort genes=row by frequency
+        $genes.sort(byAlterationFrequency);
+      }
     });
 
     $ids.exit().remove().each(() => this.setBusy(false));
@@ -354,7 +373,17 @@ export abstract class AOncoPrint extends AView {
       .sortable({
         handle: 'th.geneLabel',
         axis: 'y',
-        items: '> :not(.nodrag)'
+        items: '> :not(.nodrag)',
+        update: () => {
+          this.manuallyResorted = true;
+          //order has changed trigger a resort
+          this.sampleListPromise.then((samples) => {
+            const rows = <IDataFormat[]>this.$table.selectAll('tr.gene').data();
+            const sortedSamples = sort(samples.map((d) => d.name), rows.map((r) => r.rows));
+
+            this.sortCells(sortedSamples);
+          });
+        }
     });
   }
 
@@ -457,7 +486,7 @@ export abstract class AOncoPrint extends AView {
       // assume both exist
       return aIndex - bIndex;
     });
-    $genes.sort(byAlterationFrequency);
+    return $genes;
   }
 
   private alignData(rows: IDataFormatRow[], samples: ISample[]) {
