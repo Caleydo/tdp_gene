@@ -59,6 +59,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const group = $group.enter()
       .append('div')
       .classed('species-group', true)
+      .attr('data-species', (d) => d.value)
       .classed('active', (d) => d.value === selectedSpecies);
 
     const that = this;
@@ -77,7 +78,7 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
     group.append('label')
       .attr('for', (d) => `speciesSelector_${d.value}`)
-      .attr('data-title', (d:any) => d.name.charAt(0).toUpperCase() + d.name.slice(1))
+      .attr('data-title', (d) => d.name)
       .html((d) => {
         const className = d.iconClass || '';
         let text = '';

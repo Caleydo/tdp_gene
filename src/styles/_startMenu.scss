@@ -64,6 +64,7 @@
           left: 4%;
           opacity: 0;
           content: attr(data-title);
+          text-transform: capitalize;
           height: auto;
           padding: 5px 8px;
           z-index: 999;
