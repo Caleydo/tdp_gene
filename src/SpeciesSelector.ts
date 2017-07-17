@@ -9,6 +9,7 @@ import {Targid} from 'ordino/src/Targid';
 import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
+import './style.scss';
 
 
 const tabSessionKey = 'entityType';
