@@ -257,8 +257,8 @@ export abstract class ACoExpression extends ASmallMultipleView {
         //console.log('loaded data for', d.geneName);
 
         that.initChart($id);
-        that.updateChartData(refGene.data, refGeneExpression, d, $id);
         that.resizeChart($id);
+        that.updateChartData(refGene.data, refGeneExpression, d, $id);
 
         that.setBusy(false);
       });
