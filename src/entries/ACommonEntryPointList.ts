@@ -9,7 +9,6 @@ import {defaultSpecies, getSelectedSpecies} from '../Common';
 import {INamedSet, ENamedSetType, editDialog} from 'ordino/src/storage';
 import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
 import {FormBuilder, FormElementType} from 'ordino/src/FormBuilder';
-import {generateDialog} from 'phovea_ui/src/dialogs';
 import {saveNamedSet} from 'ordino/src/storage';
 import {resolve} from 'phovea_core/src/idtype/manager';
 
@@ -88,6 +87,8 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       placeholder: `Search ${this.dataSource.name}`,
       tags: true,
       tokenSeparators: [',', ' ', ';', '\t'],
+      tokenizer: this.tokenize.bind(this),
+      createTag: () => null,
       ajax: {
         url: api2absURL(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_items/lookup`),
         data: (params: any) => {
@@ -99,6 +100,32 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
           };
         }
       }
+    };
+  }
+
+  protected validate(terms: string[]): Promise<{id: string, text: string}[]> {
+    return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_items_verfiy/filter`, {
+      column: this.dataSource.entityName,
+      species: getSelectedSpecies(),
+      [`filter_${this.dataSource.entityName}`]: terms,
+    });
+  }
+
+  private tokenize(query: { term: string}, options: any, addSelection: (item: {id: string, text: string})=>void) {
+    const term = query.term;
+    if (term.length === 0) {
+      return query;
+    }
+    const arr = term.split(new RegExp(`[${(options.tokenSeparators || [' ']).join(',')}]+`));
+    const last = arr[arr.length-1];
+    const valid = arr.map((a) => a.trim()).filter((a) => a.length > 0);
+    if (valid.length > 1) {
+      this.validate(valid).then((items) => {
+        items.forEach((item) => addSelection(item));
+      });
+    }
+    return {
+      term: last
     };
   }
 
