@@ -14,6 +14,7 @@ import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 
 export class UniProtProxyView extends GeneProxyView {
 
   static SELECTED_UNIPROT_ITEM = 'externalUniProt';
+  static readonly OUTPUT_IDTYPE = 'UniProt_human';
 
   constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
     super(context, selection, parent, options, plugin);
@@ -106,7 +107,7 @@ export class UniProtProxyView extends GeneProxyView {
     //convert to uid
     return this.selection.idtype.map([ensg]).then((ids) => {
       // convert to uniprot
-      return this.selection.idtype.mapToName(ids, this.options.idtype);
+      return this.selection.idtype.mapToName(ids, UniProtProxyView.OUTPUT_IDTYPE);
     }).then((uniProtIds:string[][]) => {
         // use uniProtIds[0] since we passed only one selected _id
         if(uniProtIds[0] === null) {

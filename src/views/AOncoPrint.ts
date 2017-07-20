@@ -5,17 +5,29 @@
 import '../style.scss';
 
 import {IViewContext, ISelection, AView, IView} from 'ordino/src/View';
-import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue, GENE_IDTYPE} from '../constants';
+import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue} from '../constants';
 import {FormBuilder, IFormSelectDesc} from 'ordino/src/FormBuilder';
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
+import {toSelectOperation} from 'phovea_core/src/idtype/IIDType';
+import {SelectOperation} from 'phovea_core/src/idtype';
+import IDType from 'phovea_core/src/idtype/IDType';
+import Range from 'phovea_core/src/range/Range';
+import {none, list as rlist} from 'phovea_core/src/range';
+import * as $ from 'jquery';
+import 'jquery-ui/ui/widgets/sortable';
 
+export interface ISample {
+  name: string;
+  id: number;
+}
 
 export interface IDataFormatRow {
   name: string;
   cn: number;
   expr: number;
   aa_mutated: boolean;
+  sampleId: number;
 }
 
 export interface IDataFormat {
@@ -28,9 +40,10 @@ export interface IDataFormat {
   rows: IDataFormatRow[];
 }
 
-function unknownSample(sample: string): IDataFormatRow {
+function unknownSample(sample: string, sampleId: number): IDataFormatRow {
   return {
     name: sample,
+    sampleId,
     cn: unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
     aa_mutated: unknownMutationValue // unknown
@@ -168,9 +181,15 @@ export abstract class AOncoPrint extends AView {
       .range(mutationCat.map((d) => d.border))
   };
 
-  private sampleListPromise: Promise<string[]> = null;
+  private sampleListPromise: Promise<ISample[]> = null;
 
   private paramForm:FormBuilder;
+
+  /**
+   * flag if the user specified the gene sorting order
+   * @type {boolean}
+   */
+  private manuallyResorted: boolean = false;
 
   constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
     super(context, parent, options);
@@ -257,7 +276,7 @@ export abstract class AOncoPrint extends AView {
     `);
   }
 
-  protected abstract loadSampleList(): Promise<string[]>;
+  protected abstract loadSampleList(): Promise<ISample[]>;
   protected abstract loadRows(ensg: string): Promise<IDataFormatRow[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
@@ -279,9 +298,16 @@ export abstract class AOncoPrint extends AView {
       if (old.length === 0) {
         return ids.map(empty);
       }
-      const lookup: any = {};
-      old.forEach((d) => lookup[d.id] = d);
-      return ids.map((id) => lookup[id] || empty(id));
+      const lookup = new Map<number, IDataFormat>();
+      old.forEach((d) => lookup.set(d.id, d));
+      if (this.manuallyResorted) {
+        //different strategy if already resorted try to keep the original sorting as good as possible
+        //keep old + newly added ones
+        const existing = old.filter((d) => ids.indexOf(d.id) >= 0);
+        const added = ids.filter((id) => !lookup.has(id)).map((id) => empty(id));
+        return existing.concat(added);
+      }
+      return ids.map((id) => lookup.get(id) || empty(id));
     };
 
     const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
@@ -294,7 +320,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, GENE_IDTYPE))
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
@@ -327,17 +353,41 @@ export abstract class AOncoPrint extends AView {
     //assume that all data will have a promise
     // wait for all data and then sort the things
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
-      const samples : string[] = result.shift();
+      const samples : string[] = result.shift().map((d) => d.name);
       const rows =<IDataFormat[]>result;
-      rows.sort(byAlterationFrequency);
+      if (!this.manuallyResorted) {
+        rows.sort(byAlterationFrequency);
+      }
       const sortedSamples = sort(samples, rows.map((r) => r.rows));
-      this.sortCells(sortedSamples);
+      const $genes = this.sortCells(sortedSamples);
+      if (!this.manuallyResorted) {
+        //sort genes=row by frequency
+        $genes.sort(byAlterationFrequency);
+      }
     });
 
     $ids.exit().remove().each(() => this.setBusy(false));
+
+    //sortable
+    $(this.$table.node()) // jquery
+      .sortable({
+        handle: 'th.geneLabel',
+        axis: 'y',
+        items: '> :not(.nodrag)',
+        update: () => {
+          this.manuallyResorted = true;
+          //order has changed trigger a resort
+          this.sampleListPromise.then((samples) => {
+            const rows = <IDataFormat[]>this.$table.selectAll('tr.gene').data();
+            const sortedSamples = sort(samples.map((d) => d.name), rows.map((r) => r.rows));
+
+            this.sortCells(sortedSamples);
+          });
+        }
+    });
   }
 
-  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: string[]) {
+  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: ISample[]) {
     const style = AOncoPrint.STYLE;
     //console.log(data.geneName);
     let rows: IDataFormatRow[] = data.rows;
@@ -354,18 +404,23 @@ export abstract class AOncoPrint extends AView {
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
+      .on('click', (row) => {
+        this.selectSample(row.sampleId, toSelectOperation(<MouseEvent>d3.event));
+      })
       .append('div')
       .classed('mut', true);
 
     $cells
-      .attr('data-title', (d:any) => d.name) //JSON.stringify(d))
-      .style('background-color', (d:any) => style.color(d.cn))
-      .style('border-color', (d:any) => style.colorBorder(d.cn));
+      .attr('data-title', (d) => d.name) //JSON.stringify(d))
+      .attr('data-id', (d) => d.sampleId)
+      .style('background-color', (d) => style.color(String(d.cn)))
+      .style('border-color',(d) => style.colorBorder(String(d.cn)))
+      .classed('selected', (d) => this.isSampleSelected(d.sampleId));
       //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
 
     $cells.select('.mut')
-      .style('background-color', (d:any) => style.colorMut(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)))
-      .style('border-color', (d:any) => style.colorMutBorder(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)));
+      .style('background-color', (d) => style.colorMut(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)))
+      .style('border-color', (d) => style.colorMutBorder(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)));
 
     $cells.exit().remove();
 
@@ -373,6 +428,51 @@ export abstract class AOncoPrint extends AView {
       $parent.append('td').classed('cell', true);
     }
   }
+
+  private isSampleSelected(sampleId: number) {
+    const {range} = this.getItemSelection();
+    return range.dim(0).contains(sampleId);
+  }
+
+  private selectSample(sampleId: number, op: SelectOperation) {
+    const {range} = this.getItemSelection();
+    const current = range.dim(0);
+    let newSelection: Range = null;
+    const single = rlist([sampleId]);
+    switch(op) {
+      case SelectOperation.SET:
+        if (current.contains(sampleId)) {
+          newSelection = none();
+        } else {
+          newSelection = single;
+        }
+        break;
+      case SelectOperation.REMOVE:
+        newSelection = range.without(single);
+        break;
+      case SelectOperation.ADD:
+        newSelection = range.union(single);
+        break;
+    }
+    this.updateSelectionHighlight(newSelection);
+    this.setItemSelection({range: newSelection, idtype: this.getSampleIdType()});
+  }
+
+  protected updateSelectionHighlight(range: Range) {
+    //use plain version to avoid data binding issues
+    const table = <HTMLTableElement>this.$table.node();
+    if (range.isAll) {
+      Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
+      return;
+    }
+
+    Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.remove('selected'));
+    range.dim(0).forEach((sampleId: number) => {
+      Array.from(table.querySelectorAll(`td.cell[data-id="${sampleId}"]`)).forEach((c) => c.classList.add('selected'));
+    });
+  }
+
+  protected abstract getSampleIdType(): IDType;
 
   private sortCells(sortedSamples: string[]) {
     //name to index
@@ -386,10 +486,10 @@ export abstract class AOncoPrint extends AView {
       // assume both exist
       return aIndex - bIndex;
     });
-    $genes.sort(byAlterationFrequency);
+    return $genes;
   }
 
-  private alignData(rows: IDataFormatRow[], samples: string[]) {
+  private alignData(rows: IDataFormatRow[], samples: ISample[]) {
     // build hash map first for faster access
     const hash : any= {};
     rows.forEach((r) => hash[r.name] = r);
@@ -397,10 +497,12 @@ export abstract class AOncoPrint extends AView {
     // align items --> fill missing values up to match sample list
     return samples.map((sample) => {
       // no data found --> add unknown sample
-      if (!(sample in hash)) {
-        return unknownSample(sample);
+      if (!(sample.name in hash)) {
+        return unknownSample(sample.name, sample.id);
       }
-      return hash[sample];
+      const r = hash[sample.name];
+      r.sampleId = sample.id;
+      return r;
     });
   }
 }

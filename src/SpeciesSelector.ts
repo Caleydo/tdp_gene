@@ -9,6 +9,7 @@ import {Targid} from 'ordino/src/Targid';
 import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
+import './style.scss';
 
 
 const tabSessionKey = 'entityType';
@@ -58,8 +59,10 @@ class SpeciesSelector implements IStartMenuSectionEntry {
     const group = $group.enter()
       .append('div')
       .classed('species-group', true)
+      .attr('data-species', (d) => d.value)
       .classed('active', (d) => d.value === selectedSpecies);
 
+    const that = this;
     group.append('input')
       .attr('name', 'species')
       .attr('id', (d) => `speciesSelector_${d.value}`)
@@ -70,11 +73,12 @@ class SpeciesSelector implements IStartMenuSectionEntry {
 
         $group.classed('active', false);
         d3.select(this.parentNode).classed('active', true);
+        that.entryPointLists.forEach((list) => list.updateList());
       });
 
     group.append('label')
       .attr('for', (d) => `speciesSelector_${d.value}`)
-      .attr('data-title', (d:any) => d.name.charAt(0).toUpperCase() + d.name.slice(1))
+      .attr('data-title', (d) => d.name)
       .html((d) => {
         const className = d.iconClass || '';
         let text = '';
