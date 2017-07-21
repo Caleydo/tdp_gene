@@ -3,7 +3,8 @@ import {getAPIJSON} from 'phovea_core/src/ajax';
 import {getSelectedSpecies} from '../Common';
 
 export interface IResult {
-  readonly id: string;
+  readonly id: number;
+  readonly name: string;
   readonly text: string;
 }
 
@@ -30,7 +31,7 @@ export default class SearchProvider implements ISearchProvider {
   }
 
   protected mapItems(result: any): IResult {
-    return Object.assign(result, {id: result.targidid, extra: result.id});
+    return Object.assign(result, {id: result.targidid, name: result.id});
   }
 
   search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }> {
