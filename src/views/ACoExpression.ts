@@ -25,13 +25,13 @@ function filterZeroValues(rows: IDataFormatRow[]) {
   return rows2;
 }
 
-interface IGeneOption extends IFormSelectOption {
+export interface IGeneOption extends IFormSelectOption {
   data: { id: string, symbol: string, _id: number };
 }
 
 export abstract class ACoExpression extends ASmallMultipleView {
 
-  protected $insufficientSelection;
+  protected $errorMessage;
 
   private refGene: IGeneOption = null;
   private refGeneExpression: IDataFormatRow[] = [];
@@ -52,10 +52,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     this.$node.classed('coExpression', true);
 
-    this.$insufficientSelection = this.$node.append('p')
+    this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
-      .classed('hidden', true)
-      .text('Select two or more genes.');
+      .classed('hidden', true);
 
     // update the refGene select first, then update ref expression data and as last the charts
     this.updateRefGeneSelect(this.selection)
@@ -208,10 +207,17 @@ export abstract class ACoExpression extends ASmallMultipleView {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const isEmpty = refGene == null || refGeneExpression == null || refGeneExpression.length === 0;
+    const isEmpty = refGene == null || this.selection.range.dim(0).asList().length < 2;
+    const noData = refGeneExpression == null || refGeneExpression.length === 0;
 
     if (isEmpty) {
-      this.$insufficientSelection.classed('hidden', false);
+      this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
+      this.$node.selectAll('div.plots').remove();
+      return;
+    }
+
+    if(noData) {
+      this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       return;
     }
@@ -222,8 +228,8 @@ export abstract class ACoExpression extends ASmallMultipleView {
         return {id, geneName: '', rows: []};
       });
 
-    // show/hidde message and loading indicator if two less genes are selected
-    this.$insufficientSelection.classed('hidden', (data.length > 0));
+    // show/hide message and loading indicator if two less genes are selected
+    this.$errorMessage.classed('hidden', (data.length > 0));
     this.setBusy(data.length > 0);
 
     const $plots = this.$node.selectAll('div.plots').data(data, (d) => d.id.toString());
@@ -422,6 +428,8 @@ export abstract class ACoExpression extends ASmallMultipleView {
 
     marks.exit().remove();
   }
+
+  protected abstract getNoDataErrorMessage(refGene: IGeneOption): string;
 
   protected abstract getAttributeName(): string;
 
