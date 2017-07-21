@@ -207,7 +207,7 @@ export abstract class ACoExpression extends ASmallMultipleView {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const isEmpty = refGene == null || this.selection.range.dim(0).asList().length < 2;
+    const isEmpty = refGene == null || ids.length < 2;
     const noData = refGeneExpression == null || refGeneExpression.length === 0;
 
     if (isEmpty) {
