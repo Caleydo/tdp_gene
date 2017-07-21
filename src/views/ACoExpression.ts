@@ -429,7 +429,9 @@ export abstract class ACoExpression extends ASmallMultipleView {
     marks.exit().remove();
   }
 
-  protected abstract getNoDataErrorMessage(refGene: IGeneOption): string;
+  protected getNoDataErrorMessage(refGene: IGeneOption): string {
+    return `No data for the selected reference gene ${refGene.data.symbol} (${refGene.data.id}) available.`;
+  }
 
   protected abstract getAttributeName(): string;
 
