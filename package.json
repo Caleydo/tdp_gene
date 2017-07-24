@@ -2,7 +2,7 @@
   "name": "targid_common",
   "description": "",
   "homepage": "https://phovea.caleydo.org",
-  "version": "2.1.1-SNAPSHOT",
+  "version": "2.1.1",
   "private": true,
   "author": {
     "name": "The Caleydo Team",
@@ -51,7 +51,7 @@
     "dist": "mkdirp dist && cd build && tar cvzf ../dist/targid_common.tar.gz *"
   },
   "dependencies": {
-    "ordino": "github:Caleydo/ordino#develop",
+    "ordino": "github:Caleydo/ordino#2.1.1",
     "jquery-ui": "1.12.1"
   },
   "devDependencies": {
