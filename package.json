@@ -50,7 +50,7 @@
     "dist": "mkdirp dist && cd build && tar cvzf ../dist/targid_common.tar.gz *"
   },
   "dependencies": {
-    "ordino": "github:Caleydo/ordino#bob",
+    "ordino": "github:Caleydo/ordino#develop",
     "jquery-ui": "1.12.1"
   },
   "devDependencies": {
