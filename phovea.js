@@ -80,7 +80,7 @@ module.exports = function (registry) {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Open Targets',
-    'site': '//targetvalidation.org/target/{gene}',
+    'site': '//www.targetvalidation.org/target/{gene}',
     'argument': 'gene',
     'idtype': 'Ensembl',
     'selection': 'chooser',
