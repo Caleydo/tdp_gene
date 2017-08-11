@@ -9,7 +9,7 @@ import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
 import {mixin} from 'phovea_core/src';
-import {categoricalCol, numberCol2, stringCol} from '../../../ordino/src/lineup/desc';
+import {categoricalCol, numberCol2, stringCol} from 'ordino/src/lineup/desc';
 
 
 export interface IACommonListOptions {
