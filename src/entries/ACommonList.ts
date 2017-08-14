@@ -9,7 +9,6 @@ import * as session from 'phovea_core/src/session';
 import {IViewContext, ISelection} from 'ordino/src/View';
 import {ALineUpView2} from 'ordino/src/LineUpView';
 import {mixin} from 'phovea_core/src';
-import {categoricalCol, numberCol2, stringCol} from '../../../ordino/src/lineup/desc';
 
 
 export interface IACommonListOptions {
@@ -34,6 +33,7 @@ export abstract class ACommonList extends ALineUpView2 {
   constructor(context:IViewContext, selection: ISelection, parent:Element, private dataSource: ICommonDBConfig, options: IACommonListOptions) {
     super(context, selection, parent, options);
 
+    //this.idAccessor = (d) => d._id;
     this.additionalScoreParameter = dataSource;
     this.namedSet = options.namedSet;
     if(!this.namedSet) { this.search = options.search; }
@@ -64,22 +64,6 @@ export abstract class ACommonList extends ALineUpView2 {
     super.initColumns(desc);
 
     const columns = this.defineColumns(desc);
-
-    const niceName = (label: string) => label.split('_').map((l) => l[0].toUpperCase() + l.slice(1)).join(' ');
-
-    desc.columnList.filter((d) => !columns.some((r) => r.column === d.column)).forEach((col) => {
-      switch(col.type) {
-        case 'categorical':
-          columns.push(categoricalCol(col.column, col.categories, niceName(col.label), false));
-          break;
-        case 'number':
-          columns.push(numberCol2(col.column, col.min, col.max, niceName(col.label), false));
-          break;
-        case 'string':
-          columns.push(stringCol(col.column, niceName(col.label), false));
-          break;
-      }
-    });
 
     this.build([], columns);
     return columns;
