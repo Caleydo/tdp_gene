@@ -171,7 +171,7 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         const ids = await idType.map(idStrings);
 
         const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description, isPublic);
-        super.addNamedSet(response);
+        this.addNamedSet(response);
       });
     });
   }
