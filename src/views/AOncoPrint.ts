@@ -16,6 +16,7 @@ import Range from 'phovea_core/src/range/Range';
 import {none, list as rlist} from 'phovea_core/src/range';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
+import {IFormSerializedElement} from 'ordino/src/form/interfaces';
 
 export interface ISample {
   name: string;
@@ -228,6 +229,10 @@ export abstract class AOncoPrint extends AView {
     this.paramForm.getElementById(name).value = value;
     this.sampleListPromise = this.loadSampleList();
     this.sampleListPromise.then(this.update.bind(this,true));
+  }
+
+  getAllParameters():IFormSerializedElement[] {
+    return this.paramForm.getSerializedElements();
   }
 
   changeSelection(selection:ISelection) {

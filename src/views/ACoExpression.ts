@@ -11,6 +11,7 @@ import * as d3 from 'd3';
 import {Range, list, none} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 import {default as FormSelect, IFormSelectOption} from 'ordino/src/form/internal/FormSelect';
+import {IFormSerializedElement} from 'ordino/src/form/interfaces';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -120,6 +121,10 @@ export abstract class ACoExpression extends ASmallMultipleView {
         this.update(this.refGene, this.refGeneExpression, true);
       });
     }
+  }
+
+  getAllParameters():IFormSerializedElement[] {
+    return this.paramForm.getSerializedElements();
   }
 
   changeSelection(selection: ISelection) {

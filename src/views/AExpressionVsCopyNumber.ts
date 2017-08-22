@@ -12,6 +12,7 @@ import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuil
 import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
+import {IFormSerializedElement} from 'ordino/src/form/interfaces';
 
 
 export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
@@ -81,6 +82,10 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
     this.update(true);
+  }
+
+  getAllParameters():IFormSerializedElement[] {
+    return this.paramForm.getSerializedElements();
   }
 
   changeSelection(selection: ISelection) {
