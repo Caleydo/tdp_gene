@@ -50,10 +50,6 @@
     "predist": "npm run build && npm run docs",
     "dist": "mkdirp dist && cd build && tar cvzf ../dist/tdp_gene.tar.gz *"
   },
-  "dependencies": {
-    "ordino": "github:Caleydo/ordino#develop",
-    "jquery-ui": "1.12.1"
-  },
   "devDependencies": {
     "@types/jasmine": "2.5.41",
     "awesome-typescript-loader": "3.0.3",
@@ -85,5 +81,13 @@
     "webpack-dev-server": "2.3.0",
     "extract-loader": "0.1.0",
     "tslib": "1.5.0"
+  },
+  "dependencies": {
+    "tdp_core": "github:datavisyn/tdp_core#develop",
+    "jquery-ui": "1.12.1"
+  },
+  "optionalDependencies": {
+    "ordino": "github:Caleydo/ordino#develop",
+    "bob": "github:datavisyn/bob"
   }
 }

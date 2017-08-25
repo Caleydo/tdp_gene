@@ -1,6 +1,6 @@
 //redeclare to avoid dependency
 import {getAPIJSON} from 'phovea_core/src/ajax';
-import {getSelectedSpecies} from '../common';
+import {getSelectedSpecies} from './common';
 import {IResult, ISearchProvider} from 'bob/src/extensions';
 
 export default class SearchProvider implements ISearchProvider {
