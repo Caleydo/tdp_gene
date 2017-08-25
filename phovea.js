@@ -8,20 +8,20 @@
 module.exports = function (registry) {
   //registry.push('extension-type', 'extension-id', function() { return System.import('./src/extension_impl'); }, {});
   // generator-phovea:begin
-  registry.push('targidStartMenuSection', 'targid_start_species', function () {
-    return System.import('./src/SpeciesSelector');
+  /// #if include('ordino')
+  registry.push('ordinoStartMenuSection', 'section_species', function () {
+    return System.import('./src/menu/SpeciesSelectorMenuSection');
   }, {
     'name': 'Predefined Datasets',
     'cssClass': 'speciesSelector',
-    'factory': 'create',
+    'factory': 'new',
     'priority': 10
   });
-
-
+  /// #endif
 
   // proxy pages
 
-  registry.push('targidView', 'ensembl_org', function () {
+  registry.push('tdpView', 'ensembl_org', function () {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Ensembl',
@@ -45,7 +45,7 @@ module.exports = function (registry) {
   //   'selection': 'multiple'
   // });
 
-  registry.push('targidView', 'cansar', function () {
+  registry.push('tdpView', 'cansar', function () {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'canSAR',
@@ -62,7 +62,7 @@ module.exports = function (registry) {
     }
   });
 
-  registry.push('targidView', 'uniprot', function () {
+  registry.push('tdpView', 'uniprot', function () {
     return System.import('./src/views/UniProtProxyView');
   }, {
     'name': 'UniProt',
@@ -76,7 +76,7 @@ module.exports = function (registry) {
     }
   });
 
-  registry.push('targidView', 'targetvalidation', function () {
+  registry.push('tdpView', 'targetvalidation', function () {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Open Targets',
@@ -93,7 +93,7 @@ module.exports = function (registry) {
     }
   });
 
-  registry.push('targidView', 'proteinatlas_org', function () {
+  registry.push('tdpView', 'proteinatlas_org', function () {
     return System.import('./src/views/GeneProxyView');
   }, {
     'name': 'Human Protein Atlas',
@@ -110,7 +110,7 @@ module.exports = function (registry) {
     }
   });
 
-  registry.push('targidView', 'cosmic', function () {
+  registry.push('tdpView', 'cosmic', function () {
     return System.import('ordino/src/ProxyView');
   }, {
     'name': 'COSMIC',
@@ -129,13 +129,13 @@ module.exports = function (registry) {
 
 
   registry.push('importPostProcessor', 'GeneSymbol', function() {
-    return System.import('./src/Common');
+    return System.import('./src/common');
   }, {
     'factory': 'convertGeneSymbolToEnsembl'
   });
 
-  registry.push('ordinoListFilters', 'SpeciesFilter', function() {
-    return System.import('./src/Common');
+  registry.push('tdpListFilters', 'SpeciesFilter', function() {
+    return System.import('./src/common');
   }, {
     'factory': 'filterSpecies'
   });
