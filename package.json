@@ -1,5 +1,5 @@
 {
-  "name": "targid_common",
+  "name": "tdp_gene",
   "description": "",
   "homepage": "https://phovea.caleydo.org",
   "version": "2.1.2-SNAPSHOT",
@@ -11,13 +11,13 @@
   },
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/caleydo/targid_common/issues"
+    "url": "https://github.com/caleydo/tdp_gene/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/caleydo/targid_common.git"
+    "url": "https://github.com/caleydo/tdp_gene.git"
   },
-  "main": "build/targid_common.js",
+  "main": "build/tdp_gene.js",
   "files": [
     "src",
     "index.js",
@@ -48,7 +48,7 @@
     "release:minor": "npm version minor && npm publish && git push --follow-tags",
     "release:patch": "npm version patch && npm publish && git push --follow-tags",
     "predist": "npm run build && npm run docs",
-    "dist": "mkdirp dist && cd build && tar cvzf ../dist/targid_common.tar.gz *"
+    "dist": "mkdirp dist && cd build && tar cvzf ../dist/tdp_gene.tar.gz *"
   },
   "dependencies": {
     "ordino": "github:Caleydo/ordino#develop",

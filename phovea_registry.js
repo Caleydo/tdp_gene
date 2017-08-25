@@ -12,4 +12,4 @@ import {register} from 'phovea_core/src/plugin';
 //other modules
 import 'ordino/phovea_registry.js';
 //self
-register('targid_common',require('./phovea.js'));
+register('tdp_gene',require('./phovea.js'));
