@@ -180,6 +180,7 @@ export default class CancerAlteration extends AView {
     .attr('x', (d) => this.x(d.x))
     .attr('width', this.x.rangeBand());
 
+    bars.exit().remove();
     categories.exit().remove();
   }
 
