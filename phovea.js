@@ -148,15 +148,6 @@ module.exports = function (registry) {
     'idType': 'Ensembl'
   });
 
-  registry.push('targidView', 'cancer_alteration', function() {
-    return import('./src/views/CancerAlteration');
-  }, {
-    'name': 'Combined Alteration',
-    'factory': 'new',
-    'idtype': 'Ensembl',
-    'selection': 'multiple'
-  });
-
   // generator-phovea:end
 };
 

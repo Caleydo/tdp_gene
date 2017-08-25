@@ -7,13 +7,11 @@ import {convertRow2MultiMap} from 'ordino/src/form/internal/FormMap';
 import {getAPIJSON} from 'phovea_core/src/ajax';
 import {scale, layout, svg as d3svg} from 'd3';
 
-export default class CancerAlteration extends AView {
-  private paramForm: FormBuilder;
-
+abstract class ACancerAlteration extends AView {
   static readonly MARGINS = {
     top: 20,
     right: 30,
-    bottom: 40,
+    bottom: 60,
     left: 40
   };
 
@@ -22,11 +20,11 @@ export default class CancerAlteration extends AView {
 
   private x = scale
     .ordinal()
-    .rangeRoundBands([0, CancerAlteration.CHART_WIDTH - CancerAlteration.MARGINS.left - CancerAlteration.MARGINS.right], .01);
+    .rangeRoundBands([0, ACancerAlteration.CHART_WIDTH - ACancerAlteration.MARGINS.left - ACancerAlteration.MARGINS.right], .01);
 
   private y = scale
     .linear()
-    .rangeRound([CancerAlteration.CHART_HEIGHT - CancerAlteration.MARGINS.top - CancerAlteration.MARGINS.bottom, 0]);
+    .rangeRound([ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.top - ACancerAlteration.MARGINS.bottom, 0]);
 
 
   private z = scale
@@ -36,15 +34,10 @@ export default class CancerAlteration extends AView {
   private xAxis = d3svg.axis().orient('bottom');
   private yAxis = d3svg.axis().orient('left');
 
+  private paramForm: FormBuilder;
+
   constructor(context: IViewContext, private selection: ISelection, parent: Element, options?) {
     super(context, parent);
-  }
-
-  protected getParameterFormDescs(): IFormElementDesc[] {
-    return [
-      FORM_DATA_SOURCE,
-      FORM_TISSUE_OR_CELLLINE_FILTER
-    ];
   }
 
   buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
@@ -64,24 +57,14 @@ export default class CancerAlteration extends AView {
 
   init() {
     this.$node.append('svg')
-      .attr('width', CancerAlteration.CHART_WIDTH)
-      .attr('height', CancerAlteration.CHART_HEIGHT)
+      .attr('width', ACancerAlteration.CHART_WIDTH)
+      .attr('height', ACancerAlteration.CHART_HEIGHT)
       .attr('class', 'cancer-alteration')
       .append('g')
       .attr('class', 'chart-view')
-      .attr('transform', `translate(${CancerAlteration.MARGINS.left}, ${CancerAlteration.MARGINS.top})`);
+      .attr('transform', `translate(${ACancerAlteration.MARGINS.left}, ${ACancerAlteration.MARGINS.top})`);
 
     this.update().then(() => this.addAxes());
-  }
-
-  protected loadRows(ensg: string): Promise<any[]> {
-    const ds= this.getParameter(ParameterFormIds.DATA_SOURCE);
-    const param: any = {
-      ensg,
-      species: 'human'
-    };
-    toFilter(param, convertRow2MultiMap(this.getParameter('filter')));
-    return getAPIJSON(`/targid/db/bioinfodb/cellline_onco_print/filter`, param);
   }
 
   changeSelection(selection: ISelection) {
@@ -89,8 +72,11 @@ export default class CancerAlteration extends AView {
     this.update().then(() => this.addAxes());
   }
 
-  private computeStats(data: any[][]) {
+  getParameter(name: string): any {
+    return this.paramForm.getElementById(name).value.data;
+  }
 
+  private computeStats(data: any[][]) {
     const incrementMapValue = (map: Map<string, number>, key: string, increment: number = 1) => map.set(key, map.get(key) + increment);
 
     const stats = data.map((rows) => {
@@ -134,9 +120,8 @@ export default class CancerAlteration extends AView {
     const data = await Promise.all(ensgs.map((ensg) => this.loadRows(ensg)));
 
     console.log('DATA: ', data);
-    const stats = this.computeStats(data);
-    console.log('STATS: ', stats);
 
+    const stats = this.computeStats(data);
     const keys = Array.from(stats[0].keys()).filter((key) => key !== 'ensg');
 
     this.x.domain(ensgs);
@@ -193,7 +178,7 @@ export default class CancerAlteration extends AView {
     view
       .append('g')
       .attr('class', 'axis x-axis')
-      .attr('transform', `translate(0, ${CancerAlteration.CHART_HEIGHT - CancerAlteration.MARGINS.bottom - CancerAlteration.MARGINS.top})`)
+      .attr('transform', `translate(0, ${ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.bottom - ACancerAlteration.MARGINS.top})`)
       .call(this.xAxis);
 
     view
@@ -202,5 +187,9 @@ export default class CancerAlteration extends AView {
       .call(this.yAxis);
   }
 
+
+  protected abstract loadRows(ensg: string);
+  protected abstract getParameterFormDescs();
 }
 
+export default ACancerAlteration;
