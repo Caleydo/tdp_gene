@@ -1,7 +1,9 @@
 //redeclare to avoid dependency
-import {getAPIJSON} from 'phovea_core/src/ajax';
 import {getSelectedSpecies} from './common';
 import {IResult, ISearchProvider} from 'bob/src/extensions';
+import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
+
+export {IResult} from 'bob/src/extensions';
 
 export default class SearchProvider implements ISearchProvider {
 
@@ -9,20 +11,20 @@ export default class SearchProvider implements ISearchProvider {
 
   }
 
-  get searchUrl() {
-    return `/targid/db/${this.dataSource.db}/${this.dataSource.base}_items/lookup`;
+  get searchView() {
+    return `${this.dataSource.base}_items`;
   }
 
-  get verifyUrl() {
-    return `/targid/db/${this.dataSource.db}/${this.dataSource.base}_items_verfiy/filter`;
+  get verifyView() {
+    return `${this.dataSource.base}_items_verfiy`;
   }
 
-  protected mapItems(result: any): IResult {
+  protected static mapItems(result: any): IResult {
     return Object.assign(result, {id: result.targidid, name: result.id});
   }
 
   search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }> {
-    return getAPIJSON(this.searchUrl, {
+    return getTDPLookup(this.dataSource.db, this.searchView , {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
       query,
@@ -30,7 +32,7 @@ export default class SearchProvider implements ISearchProvider {
       limit: pageSize
     }).then((data) => {
       return {
-        results: data.items.map(this.mapItems.bind(this)),
+        results: data.items.map(SearchProvider.mapItems),
         more: data.more
       };
     });
@@ -38,10 +40,10 @@ export default class SearchProvider implements ISearchProvider {
 
 
   validate(query: string[]): Promise<IResult[]> {
-    return getAPIJSON(this.verifyUrl, {
+    return getTDPData(this.dataSource.db, `${this.verifyView}/filter`, {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
       [`filter_${this.dataSource.entityName}`]: query,
-    }).then((data) => data.map(this.mapItems.bind(this)));
+    }).then((data) => data.map(SearchProvider.mapItems));
   }
 }

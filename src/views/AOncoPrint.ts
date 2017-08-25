@@ -5,7 +5,7 @@
 import '../style.scss';
 
 import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue} from '../constants';
-import {select, scale, format, event as d3event} from 'd3';
+import {select, scale, format, event as d3event, Selection} from 'd3';
 import {toSelectOperation} from 'phovea_core/src/idtype/IIDType';
 import {SelectOperation} from 'phovea_core/src/idtype';
 import IDType from 'phovea_core/src/idtype/IDType';
@@ -163,7 +163,7 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
 
 export abstract class AOncoPrint extends AView {
 
-  private $table:d3.Selection<IView>;
+  private $table:Selection<IView>;
 
   private static STYLE = {
     color: scale.ordinal<string>()
@@ -196,12 +196,14 @@ export abstract class AOncoPrint extends AView {
     this.sampleListPromise.then(this.update.bind(this, false));
   }
 
-  protected parameterChanged() {
+  protected parameterChanged(name: string) {
+    super.parameterChanged(name);
     this.sampleListPromise = this.loadSampleList();
     this.sampleListPromise.then(this.update.bind(this,true));
   }
 
-  selectionChanged() {
+  protected selectionChanged() {
+    super.selectionChanged();
     this.update();
   }
 
@@ -289,7 +291,7 @@ export abstract class AOncoPrint extends AView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
-    const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
+    const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
       const promise = (d.ensg ? Promise.resolve(d.ensg) : resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
@@ -357,7 +359,7 @@ export abstract class AOncoPrint extends AView {
     });
   }
 
-  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: ISample[]) {
+  private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
     const style = AOncoPrint.STYLE;
     //console.log(data.geneName);
     let rows: IDataFormatRow[] = data.rows;

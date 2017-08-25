@@ -56,11 +56,13 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     ];
   }
 
-  parameterChanged() {
+  parameterChanged(name: string) {
+    super.parameterChanged(name);
     this.update(true);
   }
 
   selectionChanged() {
+    super.selectionChanged();
     this.update();
   }
 

@@ -82,7 +82,8 @@ export abstract class ACoExpression extends AD3View {
     ];
   }
 
-  parameterChanged() {
+  parameterChanged(name: string) {
+    super.parameterChanged(name);
     if (!this.refGene) {
       this.refGeneExpression = null;
       this.update(null, null, true);
@@ -95,6 +96,7 @@ export abstract class ACoExpression extends AD3View {
   }
 
   selectionChanged() {
+    super.selectionChanged();
     // update the refGene select first, then update the charts
     const bak = this.refGene;
     this.updateRefGeneSelect(this.selection)

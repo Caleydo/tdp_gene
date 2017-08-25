@@ -54,6 +54,7 @@ export default class UniProtProxyView extends GeneProxyView {
   }
 
   protected parameterChanged(name: string) {
+    super.parameterChanged(name);
     if(name === FORM_ID_SELECTED_ITEM) {
       this.updateUniProtSelect()
         .catch(() => {
@@ -69,6 +70,7 @@ export default class UniProtProxyView extends GeneProxyView {
   }
 
   selectionChanged() {
+    super.selectionChanged();
     // update the selection first, then update the proxy view
     this.updateSelectedItemSelect(true) // true = force use last selection
       .then(() => this.updateUniProtSelect(true)) // true = force use last selection
