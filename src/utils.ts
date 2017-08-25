@@ -1,10 +1,10 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import {convertRow2MultiMap} from 'ordino/src/form/internal/FormMap';
+import {convertRow2MultiMap} from 'tdp_core/src/form';
 import {encodeParams, getAPIJSON} from 'phovea_core/src/ajax';
 import {RangeLike, parse} from 'phovea_core/src/range';
-import {INamedSet, ENamedSetType} from 'ordino/src/storage';
+import {INamedSet, ENamedSetType} from 'tdp_core/src/storage';
 import IDType from 'phovea_core/src/idtype/IDType';
 
 /**

@@ -3,14 +3,12 @@
  */
 
 import bindTooltip from 'phovea_d3/src/tooltip';
-import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {GENE_IDTYPE} from '../constants';
-import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
-import {showErrorModalDialog} from 'ordino/src/Dialogs';
+import {IViewContext, ISelection} from 'tdp_core/src/views';
+import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'tdp_core/src/form';
+import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
 import {Range, list, none} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
-import {default as FormSelect, IFormSelectOption} from 'ordino/src/form/internal/FormSelect';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 

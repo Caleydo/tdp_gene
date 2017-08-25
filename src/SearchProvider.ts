@@ -1,20 +1,7 @@
 //redeclare to avoid dependency
 import {getAPIJSON} from 'phovea_core/src/ajax';
-import {getSelectedSpecies} from '../Common';
-
-export interface IResult {
-  readonly id: number;
-  readonly name: string;
-  readonly text: string;
-}
-
-export interface ISearchProvider {
-  search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }>;
-
-  validate(query: string[]): Promise<IResult[]>;
-
-  format?(item: IResult): string;
-}
+import {getSelectedSpecies} from '../common';
+import {IResult, ISearchProvider} from 'bob/src/extensions';
 
 export default class SearchProvider implements ISearchProvider {
 

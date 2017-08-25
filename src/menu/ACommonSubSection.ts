@@ -2,15 +2,18 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {IPluginDesc} from 'phovea_core/src/plugin';
-import {SPECIES_SESSION_KEY} from '../Common';
-import {AEntryPointList, IEntryPointOptions} from 'ordino/src/StartMenu';
-import {defaultSpecies, getSelectedSpecies} from '../Common';
-import {INamedSet, ENamedSetType, editDialog} from 'ordino/src/storage';
-import {getAPIJSON, api2absURL} from 'phovea_core/src/ajax';
-import {FormBuilder, FormElementType} from 'ordino/src/FormBuilder';
-import {saveNamedSet} from 'ordino/src/storage';
-import {resolve} from 'phovea_core/src/idtype/manager';
+import {SPECIES_SESSION_KEY} from '../common';
+import {defaultSpecies, getSelectedSpecies} from '../common';
+import {api2absURL} from 'phovea_core/src/ajax';
+import {resolve, IDType} from 'phovea_core/src/idtype';
+import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
+import {IStartMenuSectionOptions} from 'ordino/src/extensions';
+import NamedSetList from 'tdp_core/src/storage/NamedSetList';
+import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
+import {getTDPData} from 'tdp_core/src/rest';
+import {FormElementType, FormBuilder} from 'tdp_core/src/form';
+import editDialog from 'tdp_core/src/storage/editDialog';
+import {select} from 'd3';
 
 export interface ICommonDBConfig {
   idType: string;
@@ -21,22 +24,28 @@ export interface ICommonDBConfig {
   tableName: string;
 }
 
-export abstract class ACommonEntryPointList extends AEntryPointList {
+export abstract class ACommonSubSection implements IStartMenuSubSection {
+  private readonly data: NamedSetList;
+  private readonly idType: IDType;
 
   /**
    * Set the idType and the default data and build the list
-   * @param parent
-   * @param desc
-   * @param options
    */
-  constructor(protected parent: HTMLElement, public desc: IPluginDesc, protected dataSource: ICommonDBConfig, protected options: IEntryPointOptions) {
-    super(parent, desc, options);
+  constructor(parent: HTMLElement, public readonly desc: IStartMenuSubSectionDesc, protected readonly dataSource: ICommonDBConfig, protected readonly options: IStartMenuSectionOptions) {
+    this.idType = resolve(desc.idType);
+    const createSession = (namedSet: INamedSet) => {
+      if (options.session) {
+        options.session((<any>this.desc).viewId, {namedSet}, this.getDefaultSessionValues());
+      } else {
+        console.error('no targid object given to push new view');
+      }
+    };
+    this.data = new NamedSetList(resolve(desc.idType), createSession, parent.ownerDocument);
 
-    this.idType = dataSource.idType;
-
+    parent.appendChild(this.data.node);
 
     // convert species to namedset
-    this.data.unshift(<INamedSet>{
+    this.data.push(<INamedSet>{
       name: 'All',
       type: ENamedSetType.CUSTOM,
       subTypeKey: SPECIES_SESSION_KEY,
@@ -48,12 +57,24 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
       ids: '',
       creator: ''
     });
+    this.loadPanels().then((panels) => this.data.push(...panels));
 
-    const startMenu = this.build();
-    startMenu.then(() => this.addSearchField());
+    this.addSearchField();
   }
 
-  private static panel2NamedSet({id, description}: {id: string, description: string}): INamedSet {
+  update() {
+    this.data.update();
+  }
+
+  push(namedSet: INamedSet) {
+    if (namedSet.idType !== this.idType.id) {
+      return false;
+    }
+    this.data.push(namedSet);
+    return true;
+  }
+
+  private static panel2NamedSet({id, description}: { id: string, description: string }): INamedSet {
     return {
       type: ENamedSetType.PANEL,
       id,
@@ -69,15 +90,9 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   }
 
   protected loadPanels(): Promise<INamedSet[]> {
-    const baseURL = `/targid/db/${this.dataSource.db}/${this.dataSource.base}_panel`;
-    return getAPIJSON(baseURL).then((panels: {id: string, description: string}[]) => {
-      return panels.map(ACommonEntryPointList.panel2NamedSet);
+    return getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels: { id: string, description: string }[]) => {
+      return panels.map(ACommonSubSection.panel2NamedSet);
     });
-  }
-
-  protected getNamedSets(): Promise<INamedSet[]> {
-    return Promise.all([this.loadPanels(), super.getNamedSets()])
-      .then((sets: INamedSet[][]) => [].concat(...sets));
   }
 
   protected searchOptions(): any {
@@ -103,21 +118,21 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
     };
   }
 
-  protected validate(terms: string[]): Promise<{id: string, text: string}[]> {
-    return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_items_verfiy/filter`, {
+  protected validate(terms: string[]): Promise<{ id: string, text: string }[]> {
+    return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verfiy`, { //FIXME typo in verify?
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
-      [`filter_${this.dataSource.entityName}`]: terms,
+      [`filter_${this.dataSource.entityName}`]: terms
     });
   }
 
-  private tokenize(query: { term: string}, options: any, addSelection: (item: {id: string, text: string})=>void) {
+  private tokenize(query: { term: string }, options: any, addSelection: (item: { id: string, text: string }) => void) {
     const term = query.term;
     if (term.length === 0) {
       return query;
     }
     const arr = term.split(new RegExp(`[${(options.tokenSeparators || [' ']).join(',')}]+`));
-    const last = arr[arr.length-1];
+    const last = arr[arr.length - 1];
     const valid = arr.map((a) => a.trim()).filter((a) => a.length > 0);
     if (valid.length > 1) {
       this.validate(valid).then((items) => {
@@ -137,9 +152,9 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
   }
 
   private addSearchField() {
-    const $searchWrapper = this.$node.insert('div', ':first-child').attr('class', 'startMenuSearch');
+    const $searchWrapper = select(this.data.node).insert('div', ':first-child').attr('class', 'startMenuSearch');
 
-    const formBuilder: FormBuilder = new FormBuilder($searchWrapper);
+    const formBuilder = new FormBuilder($searchWrapper);
     formBuilder.appendElement({
       id: `search-${this.dataSource.idType}${this.dataSource.entityName}`,
       hideLabel: true,
@@ -155,12 +170,12 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
     $searchButton.on('click', () => {
-      this.options.targid.initNewSession((<any>this.desc).viewId, {
-          search: {
-            ids: searchField.value,
-            type: this.dataSource.tableName
-          }
-        }, this.getDefaultSessionValues());
+      this.options.session((<any>this.desc).viewId, {
+        search: {
+          ids: searchField.value,
+          type: this.dataSource.tableName
+        }
+      }, this.getDefaultSessionValues());
     });
 
     $saveSetButton.on('click', () => {
@@ -170,10 +185,14 @@ export abstract class ACommonEntryPointList extends AEntryPointList {
         const idType = resolve(this.dataSource.idType);
         const ids = await idType.map(idStrings);
 
-        const response = await saveNamedSet(name, idType, ids, {key: SPECIES_SESSION_KEY, value: getSelectedSpecies()}, description, isPublic);
-        super.addNamedSet(response);
+        const response = await saveNamedSet(name, idType, ids, {
+          key: SPECIES_SESSION_KEY,
+          value: getSelectedSpecies()
+        }, description, isPublic);
+        this.push(response);
       });
     });
   }
 }
-export default ACommonEntryPointList;
+
+export default ACommonSubSection;
