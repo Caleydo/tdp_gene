@@ -1,10 +1,5 @@
 import {AView, ISelection, IViewContext} from 'ordino/src/View';
-import {toFilter} from 'targid_common/src/utils';
-import {FORM_DATA_SOURCE, FORM_TISSUE_OR_CELLLINE_FILTER, ParameterFormIds} from 'targid_boehringer/src/forms';
-import {IFormElementDesc} from 'ordino/src/form/interfaces';
 import FormBuilder from 'ordino/src/form/FormBuilder';
-import {convertRow2MultiMap} from 'ordino/src/form/internal/FormMap';
-import {getAPIJSON} from 'phovea_core/src/ajax';
 import {scale, layout, svg as d3svg} from 'd3';
 
 abstract class ACancerAlteration extends AView {
