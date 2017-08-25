@@ -2,18 +2,12 @@
  * Created by sam on 06.03.2017.
  */
 
-import {ICommonDBConfig} from './ACommonEntryPointList';
-import {INamedSet, ENamedSetType} from 'ordino/src/storage';
-import {getAPIJSON} from 'phovea_core/src/ajax';
-import * as session from 'phovea_core/src/session';
-import {IViewContext, ISelection} from 'ordino/src/View';
-import {ALineUpView2} from 'ordino/src/LineUpView';
-import {mixin} from 'phovea_core/src';
-import {categoricalCol, numberCol2, stringCol} from 'ordino/src/lineup/desc';
+import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
+import {ISelection, IViewContext} from 'tdp_core/src/views';
+import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
+import {ICommonDBConfig} from '../menu/ACommonSubSection';
 
-
-export interface IACommonListOptions {
-  namedSet?: INamedSet;
+export interface IACommonListOptions extends IAStartListOptions {
   search?: ISearchResult;
 }
 
@@ -22,111 +16,41 @@ interface ISearchResult {
   type: string;
 }
 
-export abstract class ACommonList extends ALineUpView2 {
-
-  /**
-   * Initialize LineUp view with named set
-   * Override in constructor of extended class
-   */
-  private namedSet : INamedSet;
+export abstract class ACommonList extends AStartList {
   private search: ISearchResult;
 
-  constructor(context:IViewContext, selection: ISelection, parent:Element, private dataSource: ICommonDBConfig, options: IACommonListOptions) {
-    super(context, selection, parent, options);
+  constructor(context:IViewContext, selection: ISelection, parent:HTMLElement, private readonly dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>) {
+    super(context, selection, parent, Object.assign({
+      additionalScoreParameter: dataSource,
+      itemName: dataSource.name
+    }, options));
 
-    this.additionalScoreParameter = dataSource;
-    this.namedSet = options.namedSet;
-    if(!this.namedSet) { this.search = options.search; }
-  }
-
-  protected extraComputeScoreParam(): any {
-    return this.namedSet;
-  }
-
-  /**
-   * Get sub type for named sets
-   * @returns {{key: string, value: string}}
-   */
-  protected getSubType() {
-    return {
-      key: this.namedSet.subTypeKey,
-      value: this.namedSet.subTypeValue
-    };
+    if(!this.namedSet) {
+      this.search = options.search;
+    }
   }
 
   protected loadColumnDesc() {
-    return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/desc`);
+    return getTDPDesc(this.dataSource.db, this.dataSource.base);
   }
 
-  protected abstract defineColumns(desc: any) : any[];
+  protected buildFilter(): IParams {
+    const filter: IParams = {};
 
-  protected initColumns(desc) {
-    super.initColumns(desc);
-
-    const columns = this.defineColumns(desc);
-
-    const niceName = (label: string) => label.split('_').map((l) => l[0].toUpperCase() + l.slice(1)).join(' ');
-
-    desc.columnList.filter((d) => !columns.some((r) => r.column === d.column)).forEach((col) => {
-      switch(col.type) {
-        case 'categorical':
-          columns.push(categoricalCol(col.column, col.categories, niceName(col.label), false));
-          break;
-        case 'number':
-          columns.push(numberCol2(col.column, col.min, col.max, niceName(col.label), false));
-          break;
-        case 'string':
-          columns.push(stringCol(col.column, niceName(col.label), false));
-          break;
-      }
-    });
-
-    this.build([], columns);
-    return columns;
-  }
-
-  protected assignIds() {
-    return false;
+    Object.assign(filter, this.buildNamedSetFilters(`namedset4${((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)}`, (key) => this.isValidFilter(key)));
+    if(this.search) {
+      filter[this.dataSource.entityName] = this.search.ids;
+    }
+    return filter;
   }
 
   protected loadRows() {
-    const param: any = {};
-    if (this.assignIds()) {
-      param._assignids = true; //assign globally ids on the server side
-    }
-
-    if(this.namedSet) {
-      switch(this.namedSet.type) {
-        case ENamedSetType.NAMEDSET:
-          param['filter_namedset4' + ((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)] = this.namedSet.id;
-          break;
-        case ENamedSetType.PANEL:
-          param.filter_panel = this.namedSet.id;
-          break;
-        case ENamedSetType.FILTER:
-          mixin(param, this.namedSet.filter);
-      }
-      if(this.namedSet.subTypeKey && this.isValidFilter(this.namedSet.subTypeKey) && this.namedSet.subTypeValue !== 'all') {
-        if(this.namedSet.subTypeFromSession) {
-          param['filter_' + this.namedSet.subTypeKey] = session.retrieve(this.namedSet.subTypeKey, this.namedSet.subTypeValue);
-        } else {
-          param['filter_' + this.namedSet.subTypeKey] = this.namedSet.subTypeValue;
-        }
-      }
-    } else if(this.search) {
-      param['filter_' + this.dataSource.entityName] = this.search.ids;
-    }
-    return getAPIJSON(`/targid/db/${this.dataSource.db}/${this.dataSource.base}/filter`, param);
+    return getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
   }
-
 
   protected isValidFilter(key: string) {
     return key !== '';
   }
-
-
-  getItemName(count) {
-    return (count === 1) ? this.dataSource.name.toLowerCase() : this.dataSource.name.toLowerCase() + 's';
-  }
 }
+
 export default ACommonList;

@@ -2,26 +2,20 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 
-import {IViewContext, ISelection} from 'ordino/src/View';
-import {IPluginDesc} from 'phovea_core/src/plugin';
 import GeneProxyView from './GeneProxyView';
-import {ProxyView} from 'ordino/src/ProxyView';
-import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'ordino/src/FormBuilder';
+import {FormElementType, IFormSelectElement} from 'tdp_core/src/form';
+import {FORM_ID_SELECTED_ITEM} from 'tdp_core/src/views/ProxyView';
 
 /**
  * helper view for proxying an existing external website
  */
-export class UniProtProxyView extends GeneProxyView {
+export default class UniProtProxyView extends GeneProxyView {
 
   static SELECTED_UNIPROT_ITEM = 'externalUniProt';
   static readonly OUTPUT_IDTYPE = 'UniProt_human';
 
-  constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
-    super(context, selection, parent, options, plugin);
-  }
-
-  init() {
-    super.init();
+  protected initImpl() {
+    super.initImpl();
 
     this.$node.classed('proxy_view', true);
 
@@ -36,14 +30,12 @@ export class UniProtProxyView extends GeneProxyView {
       });
   }
 
-  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
-    this.paramForm = new FormBuilder($parent);
-
-    const paramDesc:IFormSelectDesc[] = [
+  protected getParameterFormDescs() {
+    return [
       {
         type: FormElementType.SELECT,
         label: 'Gene',
-        id: ProxyView.SELECTED_ITEM,
+        id: FORM_ID_SELECTED_ITEM,
         options: {
           optionsData: [],
         },
@@ -59,19 +51,10 @@ export class UniProtProxyView extends GeneProxyView {
         useSession: true
       }
     ];
-
-    // map FormElement change function to provenance graph onChange function
-    paramDesc.forEach((p) => {
-      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
-    });
-
-    this.paramForm.build(paramDesc);
   }
 
-  setParameter(name: string, value: any) {
-    this.paramForm.getElementById(name).value = value;
-
-    if(name === ProxyView.SELECTED_ITEM) {
+  protected parameterChanged(name: string) {
+    if(name === FORM_ID_SELECTED_ITEM) {
       this.updateUniProtSelect()
         .catch(() => {
           this.updateProxyView();
@@ -85,9 +68,7 @@ export class UniProtProxyView extends GeneProxyView {
     }
   }
 
-  changeSelection(selection:ISelection) {
-    this.selection = selection;
-
+  selectionChanged() {
     // update the selection first, then update the proxy view
     this.updateSelectedItemSelect(true) // true = force use last selection
       .then(() => this.updateUniProtSelect(true)) // true = force use last selection
@@ -100,9 +81,9 @@ export class UniProtProxyView extends GeneProxyView {
   }
 
   private updateUniProtSelect(forceUseLastSelection = false) {
-    const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM));
+    const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.getParameterElement(UniProtProxyView.SELECTED_UNIPROT_ITEM));
 
-    const ensg = this.getParameter(ProxyView.SELECTED_ITEM).value;
+    const ensg = this.getParameter(FORM_ID_SELECTED_ITEM).value;
 
     //convert to uid
     return this.selection.idtype.map([ensg]).then((ids) => {
@@ -154,9 +135,4 @@ export class UniProtProxyView extends GeneProxyView {
   protected updateProxyView() {
     this.loadProxyPage(this.getParameter(UniProtProxyView.SELECTED_UNIPROT_ITEM).value);
   }
-
-}
-
-export function create(context:IViewContext, selection: ISelection, parent:Element, options, plugin: IPluginDesc) {
-  return new UniProtProxyView(context, selection, parent, options, plugin);
 }

@@ -4,54 +4,36 @@
 import '../style.scss';
 
 import bindTooltip from 'phovea_d3/src/tooltip';
-import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
 import {Range, list, none} from 'phovea_core/src/range';
-import {GENE_IDTYPE} from '../constants';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
-import {showErrorModalDialog} from 'ordino/src/Dialogs';
+import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
+import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
+import {resolveId} from 'tdp_core/src/views';
+import {AD3View} from 'tdp_core/src/views/AD3View';
 
 
-export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
+export abstract class AExpressionVsCopyNumber extends AD3View {
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly width = 280 - this.margin.left - this.margin.right;
+  private readonly height = 320 - this.margin.top - this.margin.bottom;
 
   private x = d3.scale.linear();
   private y = d3.scale.log();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
-  private paramForm: FormBuilder;
-
-  constructor(context: IViewContext, private selection: ISelection, parent: Element, options?) {
-    super(context, selection, parent, options);
-  }
-
-  init() {
-    super.init();
-    this.$node.classed('expressionVsCopyNumber', true);
+  protected initImpl() {
+    super.initImpl();
+    this.node.classList.add('expressionVsCopyNumber');
     this.update();
-  }
-
-  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any) => Promise<any>) {
-    this.paramForm = new FormBuilder($parent);
-
-    const paramDesc = this.buildParameterDescs();
-    // map FormElement change function to provenance graph onChange function
-    paramDesc.forEach((p) => {
-      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
-    });
-
-    this.paramForm.build(paramDesc);
-
-    // add other fields
-    super.buildParameterUI($parent, onChange);
   }
 
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
   protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
 
-  protected buildParameterDescs(): IFormSelectDesc[] {
+  protected getParameterFormDescs(): IFormSelectDesc[] {
     return [
       {
         type: FormElementType.SELECT,
@@ -74,17 +56,11 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     ];
   }
 
-  getParameter(name: string): any {
-    return this.paramForm.getElementById(name).value.data;
-  }
-
-  setParameter(name: string, value: any) {
-    this.paramForm.getElementById(name).value = value;
+  parameterChanged() {
     this.update(true);
   }
 
-  changeSelection(selection: ISelection) {
-    this.selection = selection;
+  selectionChanged() {
     this.update();
   }
 
@@ -119,7 +95,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, that.idType)
+      const promise = resolveId(idtype, d.id, that.idType)
         .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
