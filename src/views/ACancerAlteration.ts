@@ -71,16 +71,22 @@ abstract class ACancerAlteration extends AView {
     return this.paramForm.getElementById(name).value.data;
   }
 
-  private computeStats(data: any[][]) {
-    const incrementMapValue = (map: Map<string, number>, key: string, increment: number = 1) => map.set(key, map.get(key) + increment);
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
+    this.$node.selectAll('.chart-view g').remove();
+    this.update().then(() => this.addAxes());
+  }
 
-    const stats = data.map((rows) => {
-      const stat = new Map<string, number>([
+  private computeStats(data: any[][], ensgs: string[]) {
+    const incrementMapValue = (map: Map<string, number|string>, key: string, increment: number = 1) => map.set(key, <number>map.get(key) + increment);
+
+    const stats = data.map((rows, i) => {
+      const stat = new Map<string, number|string>([
         ['mutations', 0],
         ['amplifications', 0],
         ['deletions', 0],
         ['unknown', 0],
-        ['ensg', rows[0].id]
+        ['ensg', ensgs[i]]
       ]);
 
       rows.forEach((item) => {
@@ -98,7 +104,7 @@ abstract class ACancerAlteration extends AView {
 
       stat.forEach((entry, key) => {
         if(typeof entry === 'number' && key !== 'total') {
-          const percentage = entry / rows.length;
+          const percentage = rows.length > 0? entry / rows.length : 0; // avoid division by 0
           stat.set(key, percentage);
           // incrementMapValue(stat, 'total', percentage);
         }
@@ -114,9 +120,7 @@ abstract class ACancerAlteration extends AView {
     const ensgs = await this.selection.idtype.unmap(this.selection.range);
     const data = await Promise.all(ensgs.map((ensg) => this.loadRows(ensg)));
 
-    console.log('DATA: ', data);
-
-    const stats = this.computeStats(data);
+    const stats = this.computeStats(data, ensgs);
     const keys = Array.from(stats[0].keys()).filter((key) => key !== 'ensg');
 
     this.x.domain(ensgs);
