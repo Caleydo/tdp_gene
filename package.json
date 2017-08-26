@@ -89,6 +89,6 @@
   },
   "optionalDependencies": {
     "ordino": "github:Caleydo/ordino#tdp",
-    "bob": "github:datavisyn/bob"
+    "bob": "github:datavisyn/bob#tdp"
   }
 }
