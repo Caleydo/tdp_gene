@@ -13,7 +13,7 @@ import {INamedSet} from 'tdp_core/src/storage';
 import {
   EXTENSION_POINT_STARTMENU_SUBSECTION, IStartMenuSubSection,
   IStartMenuSubSectionDesc
-} from 'tdp_gene/src/extensions';
+} from '../extensions';
 
 
 const tabSessionKey = 'entityType';
