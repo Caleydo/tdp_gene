@@ -7,7 +7,7 @@ import {IPluginDesc, list as listPlugins} from 'phovea_core/src/plugin';
 import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from '../common';
 import {select, event as d3event, Selection} from 'd3';
 import * as $ from 'jquery';
-import './style.scss';
+import '../style.scss';
 import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino/src/extensions';
 import {INamedSet} from 'tdp_core/src/storage';
 import {
