@@ -25,7 +25,7 @@ export interface ICommonDBConfig {
 }
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
-  private readonly data: NamedSetList;
+  protected readonly data: NamedSetList;
   private readonly idType: IDType;
 
   /**

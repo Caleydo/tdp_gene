@@ -3,6 +3,8 @@ import {IPluginDesc} from 'phovea_core/src/plugin';
 import {INamedSet} from 'tdp_core/src/storage';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 
+export {IStartMenuSectionOptions} from 'ordino/src/extensions';
+
 export const EXTENSION_POINT_STARTMENU_SUBSECTION = 'ordinoStartMenuSubSection';
 
 export interface IStartMenuSubSectionDesc extends IPluginDesc {

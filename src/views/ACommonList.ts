@@ -19,7 +19,7 @@ interface ISearchResult {
 export abstract class ACommonList extends AStartList {
   private search: ISearchResult;
 
-  constructor(context:IViewContext, selection: ISelection, parent:HTMLElement, private readonly dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>) {
+  constructor(context:IViewContext, selection: ISelection, parent:HTMLElement, protected readonly dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>) {
     super(context, selection, parent, Object.assign({
       additionalScoreParameter: dataSource,
       itemName: dataSource.name
