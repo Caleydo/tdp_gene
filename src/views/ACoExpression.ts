@@ -4,7 +4,7 @@
 
 import bindTooltip from 'phovea_d3/src/tooltip';
 import {ISelection, resolveId} from 'tdp_core/src/views';
-import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
+import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
 import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
 import {Range, list, none} from 'phovea_core/src/range';
@@ -42,8 +42,6 @@ export abstract class ACoExpression extends AD3View {
   private y = d3.scale.log();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
-
-  private paramForm: FormBuilder;
 
   protected initImpl() {
     super.initImpl();
@@ -144,7 +142,7 @@ export abstract class ACoExpression extends AD3View {
           });
           //console.log('gene symbols', data);
 
-          const refGeneSelect = <IFormSelectElement>this.paramForm.getElementById(FORM_ID_REFERENCE_GENE);
+          const refGeneSelect = <IFormSelectElement>this.getParameterElement(FORM_ID_REFERENCE_GENE);
 
           // backup entry and restore the selectedIndex by value afterwards again,
           // because the position of the selected element might change
