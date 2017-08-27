@@ -4,13 +4,12 @@
 
 import {SPECIES_SESSION_KEY} from '../common';
 import {defaultSpecies, getSelectedSpecies} from '../common';
-import {api2absURL} from 'phovea_core/src/ajax';
 import {resolve, IDType} from 'phovea_core/src/idtype';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import NamedSetList from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData} from 'tdp_core/src/rest';
+import {getTDPData, getTDPLookupUrl} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select} from 'd3';
@@ -105,7 +104,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       tokenizer: this.tokenize.bind(this),
       createTag: () => null,
       ajax: {
-        url: api2absURL(`/targid/db/${this.dataSource.db}/${this.dataSource.base}_items/lookup`),
+        url: getTDPLookupUrl(this.dataSource.db, `${this.dataSource.base}_items`),
         data: (params: any) => {
           return {
             column: this.dataSource.entityName,
