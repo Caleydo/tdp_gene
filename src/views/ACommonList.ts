@@ -5,7 +5,15 @@
 import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
 import {ISelection, IViewContext} from 'tdp_core/src/views';
 import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
-import {ICommonDBConfig} from '../menu/ACommonSubSection';
+
+export interface ICommonDBConfig {
+  idType: string;
+  name: string;
+  db: string;
+  base: string;
+  entityName: string;
+  tableName: string;
+}
 
 export interface IACommonListOptions extends IAStartListOptions {
   search?: ISearchResult;

@@ -13,15 +13,7 @@ import {getTDPData, getTDPLookupUrl} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select} from 'd3';
-
-export interface ICommonDBConfig {
-  idType: string;
-  name: string;
-  db: string;
-  base: string;
-  entityName: string;
-  tableName: string;
-}
+import {ICommonDBConfig} from '../views/ACommonList';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
