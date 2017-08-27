@@ -143,6 +143,7 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
       .each(function (this: HTMLElement, desc) {
         const elem = this;
         desc.load().then((i) => {
+          elem.innerHTML = ''; //clear loading
           if (i.factory) {
             return <IStartMenuSubSection>i.factory(elem, desc, that.options);
           }

@@ -152,7 +152,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   }
 
   private addSearchField() {
-    const $searchWrapper = select(this.data.node).insert('div', ':first-child').attr('class', 'startMenuSearch');
+    const $searchWrapper = select(this.data.node.parentElement!).insert('div', ':first-child').attr('class', 'startMenuSearch');
 
     const formBuilder = new FormBuilder($searchWrapper);
     formBuilder.appendElement({
