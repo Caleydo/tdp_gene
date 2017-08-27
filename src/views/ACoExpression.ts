@@ -47,6 +47,7 @@ export abstract class ACoExpression extends AD3View {
     super.initImpl();
 
     this.$node.classed('coExpression', true);
+    this.$node.classed('multiple', true);
 
     this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
