@@ -193,7 +193,7 @@ export abstract class AOncoPrint extends AView {
     this.build();
     // load sample list with all available ids, then update the onco print
     this.sampleListPromise = this.loadSampleList();
-    this.sampleListPromise.then(this.update.bind(this, false));
+    return this.sampleListPromise.then(this.update.bind(this, false));
   }
 
   protected parameterChanged(name: string) {

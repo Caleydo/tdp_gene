@@ -53,7 +53,7 @@ export abstract class ACoExpression extends AD3View {
       .classed('hidden', true);
 
     // update the refGene select first, then update ref expression data and as last the charts
-    this.updateRefGeneSelect(this.selection)
+    return this.updateRefGeneSelect(this.selection)
       .then((refGene: IGeneOption) => {
         this.refGene = refGene;
         if (refGene) {

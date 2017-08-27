@@ -27,7 +27,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   protected initImpl() {
     super.initImpl();
     this.node.classList.add('expressionVsCopyNumber');
-    this.update();
+    return this.update();
   }
 
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];

@@ -20,7 +20,7 @@ export default class UniProtProxyView extends GeneProxyView {
     this.$node.classed('proxy_view', true);
 
     // update the selection first, then update the proxy view
-    this.updateSelectedItemSelect()
+    return this.updateSelectedItemSelect()
       .then(() => this.updateUniProtSelect())
       .catch(() => {
         this.updateProxyView();
