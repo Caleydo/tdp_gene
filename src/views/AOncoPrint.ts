@@ -430,6 +430,10 @@ export abstract class AOncoPrint extends AView {
     this.setItemSelection({range: newSelection, idtype: this.getSampleIdType()});
   }
 
+  get itemIDType() {
+    return this.getSampleIdType();
+  }
+
   protected updateSelectionHighlight(range: Range) {
     //use plain version to avoid data binding issues
     const table = <HTMLTableElement>this.$table.node();
