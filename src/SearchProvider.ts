@@ -23,7 +23,7 @@ export default class SearchProvider implements ISearchProvider {
     return Object.assign(result, {_id: result.targidid});
   }
 
-  search(query: string, page: number, pageSize: number): Promise<{ more: boolean, results: IResult[] }> {
+  search(query: string, page: number, pageSize: number) {
     return getTDPLookup(this.dataSource.db, this.searchView , {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
@@ -32,7 +32,7 @@ export default class SearchProvider implements ISearchProvider {
       limit: pageSize
     }).then((data) => {
       return {
-        results: data.items.map(SearchProvider.mapItems),
+        items: data.items.map(SearchProvider.mapItems),
         more: data.more
       };
     });
