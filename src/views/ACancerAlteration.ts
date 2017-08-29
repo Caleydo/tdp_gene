@@ -3,6 +3,20 @@ import FormBuilder from 'ordino/src/form/FormBuilder';
 import {scale, layout, svg as d3svg} from 'd3';
 import {IFormElementDesc} from 'ordino/src/form/interfaces';
 
+interface IStat {
+  mutations: number;
+  amplifications: number;
+  deletions: number;
+  unknown: number;
+  ensg: string;
+}
+
+interface IStackElement {
+  x: any;
+  y: number;
+  y0?: number;
+}
+
 abstract class ACancerAlteration extends AView {
   static readonly MARGINS = {
     top: 20,
@@ -85,42 +99,36 @@ abstract class ACancerAlteration extends AView {
   }
 
   private computeStats(data: any[][], ensgs: string[]) {
-    const incrementMapValue = (map: Map<string, number|string>, key: string, increment: number = 1) => map.set(key, <number>map.get(key) + increment);
-
-    const keys = [
-      'mutations',
-      'amplifications',
-      'deletions',
-      'unknown'
-    ];
-
     const stats = data.map((rows, i) => {
-      const stat = new Map<string, number|string>([ // TODO: Convert to Object
-        ['mutations', 0],
-        ['amplifications', 0],
-        ['deletions', 0],
-        ['unknown', 0],
-        ['ensg', ensgs[i]]
-      ]);
+      const stat: IStat = {
+        mutations: 0,
+        amplifications: 0,
+        deletions: 0,
+        unknown: 0,
+        ensg: ensgs[i]
+      };
+
+      if(rows.length === 0) {
+        return stat;
+      }
 
       rows.forEach((item) => {
 
         if(item.aa_mutated) {
-          incrementMapValue(stat, 'mutations');
+          stat.mutations++;
         } else if(item.cn === 2) { // TODO: > 0 ?
-          incrementMapValue(stat, 'amplifications');
+          stat.amplifications++;
         } else if(item.cn === -2) { // TODO: < 0?
-          incrementMapValue(stat, 'deletions');
+          stat.deletions++;
         } else if(item.cn === null || item.aa_mutated === null) {
-          incrementMapValue(stat, 'unknown');
+          stat.unknown++;
         }
       });
 
-      stat.forEach((entry, key) => {
-        if(typeof entry === 'number' && key !== 'total') {
-          const percentage = rows.length > 0? entry / rows.length : 0; // avoid division by 0
-          stat.set(key, percentage);
-          // incrementMapValue(stat, 'total', percentage);
+      Object.keys(stat).forEach((key) => {
+        const entry = stat[key];
+        if(typeof entry === 'number') {
+          stat[key] = entry / rows.length;
         }
       });
 
@@ -129,7 +137,7 @@ abstract class ACancerAlteration extends AView {
 
     return {
       stats,
-      keys
+      keys: Object.keys(stats[0]).filter((key) => key !== 'ensg')
     };
   }
 
@@ -137,17 +145,17 @@ abstract class ACancerAlteration extends AView {
     const ensgs = await this.selection.idtype.unmap(this.selection.range);
     const data = await Promise.all(ensgs.map((ensg) => this.loadRows(ensg)));
 
-    const { stats, keys } = this.computeStats(data, ensgs);
+    const { stats, keys }: { stats: IStat[], keys: string[] } = this.computeStats(data, ensgs);
 
     this.x.domain(ensgs);
     this.y.domain([0, 1]);
     this.z.domain(keys);
 
-    const layers: {x: any, y: number, y0?: number}[][] = layout.stack()(keys.map((key) => {
-      return stats.map((stat: Map<string, number>) => {
+    const layers: IStackElement[][] = layout.stack()(keys.map((key): IStackElement[] => {
+      return stats.map((stat: IStat): IStackElement => {
         return {
-          x: stat.get('ensg'),
-          y: stat.get(key)
+          x: stat.ensg,
+          y: stat[key]
         };
       });
     }));
@@ -166,7 +174,7 @@ abstract class ACancerAlteration extends AView {
 
     const bars = categories
       .selectAll('rect')
-      .data((d) => <{x: any, y: number, y0?: number}[]>d);
+      .data((d) => d);
 
     bars // ENTER
       .enter()
