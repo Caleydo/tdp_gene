@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "ordino": "github:Caleydo/ordino#develop",
+    "phovea_d3": "github:phovea/phovea_d3#develop",
     "jquery-ui": "1.12.1"
   },
   "devDependencies": {
