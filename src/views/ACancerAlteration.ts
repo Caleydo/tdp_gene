@@ -80,12 +80,12 @@ abstract class ACancerAlteration extends AView {
       .attr('class', 'chart-legend')
       .attr('transform', `translate(${ACancerAlteration.CHART_WIDTH - 150}, ${ACancerAlteration.MARGINS.top})`);
 
-    this.update().then(() => this.addAxes());
+    this.update();
   }
 
   changeSelection(selection: ISelection) {
     this.selection = selection;
-    this.update().then(() => this.addAxes());
+    this.update();
   }
 
   getParameter(name: string): any {
@@ -95,7 +95,7 @@ abstract class ACancerAlteration extends AView {
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
     this.$node.selectAll('.chart-view g').remove();
-    this.update().then(() => this.addAxes());
+    this.update();
   }
 
   private computeStats(data: any[][], ensgs: string[]) {
@@ -215,6 +215,7 @@ abstract class ACancerAlteration extends AView {
       .append('text')
       .text((d) => d);
 
+    this.addAxes();
   }
 
   private addAxes() {
