@@ -1,16 +1,17 @@
 import {AView, ISelection, IViewContext} from 'ordino/src/View';
 import FormBuilder from 'ordino/src/form/FormBuilder';
 import {scale, layout, svg as d3svg} from 'd3';
+import {IFormElementDesc} from 'ordino/src/form/interfaces';
 
 abstract class ACancerAlteration extends AView {
   static readonly MARGINS = {
     top: 20,
-    right: 30,
+    right: 200,
     bottom: 60,
-    left: 40
+    left: 60
   };
 
-  static readonly CHART_WIDTH: number = 960;
+  static readonly CHART_WIDTH: number = 980;
   static readonly CHART_HEIGHT: number = 570;
 
   private x = scale
@@ -51,13 +52,19 @@ abstract class ACancerAlteration extends AView {
   }
 
   init() {
-    this.$node.append('svg')
+    const svg = this.$node.append('svg')
       .attr('width', ACancerAlteration.CHART_WIDTH)
       .attr('height', ACancerAlteration.CHART_HEIGHT)
-      .attr('class', 'cancer-alteration')
+      .attr('class', 'cancer-alteration');
+
+    svg
       .append('g')
       .attr('class', 'chart-view')
       .attr('transform', `translate(${ACancerAlteration.MARGINS.left}, ${ACancerAlteration.MARGINS.top})`);
+
+    svg.append('g')
+      .attr('class', 'chart-legend')
+      .attr('transform', `translate(${ACancerAlteration.CHART_WIDTH - 150}, ${ACancerAlteration.MARGINS.top})`);
 
     this.update().then(() => this.addAxes());
   }
@@ -80,8 +87,15 @@ abstract class ACancerAlteration extends AView {
   private computeStats(data: any[][], ensgs: string[]) {
     const incrementMapValue = (map: Map<string, number|string>, key: string, increment: number = 1) => map.set(key, <number>map.get(key) + increment);
 
+    const keys = [
+      'mutations',
+      'amplifications',
+      'deletions',
+      'unknown'
+    ];
+
     const stats = data.map((rows, i) => {
-      const stat = new Map<string, number|string>([
+      const stat = new Map<string, number|string>([ // TODO: Convert to Object
         ['mutations', 0],
         ['amplifications', 0],
         ['deletions', 0],
@@ -113,15 +127,17 @@ abstract class ACancerAlteration extends AView {
       return stat;
     });
 
-    return stats;
+    return {
+      stats,
+      keys
+    };
   }
 
   private async update() {
     const ensgs = await this.selection.idtype.unmap(this.selection.range);
     const data = await Promise.all(ensgs.map((ensg) => this.loadRows(ensg)));
 
-    const stats = this.computeStats(data, ensgs);
-    const keys = Array.from(stats[0].keys()).filter((key) => key !== 'ensg');
+    const { stats, keys } = this.computeStats(data, ensgs);
 
     this.x.domain(ensgs);
     this.y.domain([0, 1]);
@@ -150,7 +166,7 @@ abstract class ACancerAlteration extends AView {
 
     const bars = categories
       .selectAll('rect')
-      .data((d) => <{x: any, y: number, y0?: number}[]>d)
+      .data((d) => <{x: any, y: number, y0?: number}[]>d);
 
     bars // ENTER
       .enter()
@@ -166,6 +182,31 @@ abstract class ACancerAlteration extends AView {
 
     bars.exit().remove();
     categories.exit().remove();
+
+    const legend = this.$node.select('.chart-legend');
+
+    const entries = legend
+      .selectAll('g')
+      .attr('text-anchor', 'end')
+      .data(keys);
+
+    const legendGroup = entries
+      .enter()
+      .append('g')
+      .attr('transform', (d, i) => `translate(0, ${ i * 20 })`);
+
+    legendGroup
+      .append('rect')
+      .attr('x', -20)
+      .attr('y', -10)
+      .attr('width', 15)
+      .attr('height', 15)
+      .attr('fill', (d) => <string>this.z(d));
+
+    legendGroup
+      .append('text')
+      .text((d) => d);
+
   }
 
   private addAxes() {
@@ -186,9 +227,8 @@ abstract class ACancerAlteration extends AView {
       .call(this.yAxis);
   }
 
-
-  protected abstract loadRows(ensg: string);
-  protected abstract getParameterFormDescs();
+  protected abstract loadRows(ensg: string): Promise<any[]>;
+  protected abstract getParameterFormDescs(): IFormElementDesc[];
 }
 
 export default ACancerAlteration;
