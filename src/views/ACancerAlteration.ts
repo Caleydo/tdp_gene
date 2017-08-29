@@ -195,7 +195,6 @@ abstract class ACancerAlteration extends AView {
 
     const entries = legend
       .selectAll('g')
-      .attr('text-anchor', 'end')
       .data(keys);
 
     const legendGroup = entries
