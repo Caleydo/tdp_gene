@@ -1,6 +1,6 @@
 import {AView, ISelection, IViewContext} from 'ordino/src/View';
 import FormBuilder from 'ordino/src/form/FormBuilder';
-import {scale, layout, svg as d3svg} from 'd3';
+import {scale, layout, svg as d3svg, format as d3Format} from 'd3';
 import {IFormElementDesc} from 'ordino/src/form/interfaces';
 
 interface IStat {
@@ -42,7 +42,7 @@ abstract class ACancerAlteration extends AView {
     .range(['#FF0000', '#00FF00', '#0000FF', '#AAA']);
 
   private xAxis = d3svg.axis().orient('bottom');
-  private yAxis = d3svg.axis().orient('left');
+  private yAxis = d3svg.axis().orient('left').tickFormat(d3Format('.0%'));
 
   private paramForm: FormBuilder;
 
@@ -76,9 +76,16 @@ abstract class ACancerAlteration extends AView {
       .attr('class', 'chart-view')
       .attr('transform', `translate(${ACancerAlteration.MARGINS.left}, ${ACancerAlteration.MARGINS.top})`);
 
+    // position legend 150px away from the right border of the SVG element
     svg.append('g')
       .attr('class', 'chart-legend')
       .attr('transform', `translate(${ACancerAlteration.CHART_WIDTH - 150}, ${ACancerAlteration.MARGINS.top})`);
+
+    svg // y axis label
+      .append('text')
+      .attr('transform', `rotate(-90) translate(${-(ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.bottom - ACancerAlteration.MARGINS.top)/2}, 10)`)
+      .attr('text-anchor', 'middle')
+      .text('Cancer Alteration');
 
     this.update();
   }
