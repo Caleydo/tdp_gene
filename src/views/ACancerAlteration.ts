@@ -101,7 +101,7 @@ abstract class ACancerAlteration extends AView {
       .append('text')
       .attr('transform', `rotate(-90) translate(${-(ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.bottom - ACancerAlteration.MARGINS.top)/2}, 10)`)
       .attr('text-anchor', 'middle')
-      .text('Cancer Alteration');
+      .text('Alteration Frequency');
 
     // add axes
     chartView
