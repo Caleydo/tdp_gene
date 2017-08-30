@@ -3,13 +3,14 @@
  */
 
 import bindTooltip from 'phovea_d3/src/tooltip';
-import {ISelection, resolveId} from 'tdp_core/src/views';
-import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
-import {showErrorModalDialog} from 'tdp_core/src/dialogs';
+import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
+import {GENE_IDTYPE} from '../constants';
+import {FormBuilder, FormElementType, IFormSelectDesc, IFormSelectElement} from 'ordino/src/FormBuilder';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
 import * as d3 from 'd3';
 import {Range, list, none} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
-import {AD3View} from 'tdp_core/src/views/AD3View';
+import {default as FormSelect, IFormSelectOption} from 'ordino/src/form/internal/FormSelect';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -28,10 +29,7 @@ export interface IGeneOption extends IFormSelectOption {
   data: { id: string, symbol: string, _id: number };
 }
 
-export abstract class ACoExpression extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
-  private readonly width = 280 - this.margin.left - this.margin.right;
-  private readonly height = 320 - this.margin.top - this.margin.bottom;
+export abstract class ACoExpression extends ASmallMultipleView {
 
   protected $errorMessage;
 
@@ -43,18 +41,23 @@ export abstract class ACoExpression extends AD3View {
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
-  protected initImpl() {
-    super.initImpl();
+  private paramForm: FormBuilder;
+
+  constructor(context: IViewContext, private selection: ISelection, parent: Element, options?) {
+    super(context, selection, parent, options);
+  }
+
+  init() {
+    super.init();
 
     this.$node.classed('coExpression', true);
-    this.$node.classed('multiple', true);
 
     this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
       .classed('hidden', true);
 
     // update the refGene select first, then update ref expression data and as last the charts
-    return this.updateRefGeneSelect(this.selection)
+    this.updateRefGeneSelect(this.selection)
       .then((refGene: IGeneOption) => {
         this.refGene = refGene;
         if (refGene) {
@@ -68,7 +71,22 @@ export abstract class ACoExpression extends AD3View {
     });
   }
 
-  protected getParameterFormDescs(): IFormSelectDesc[] {
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any) => Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    const paramDesc = this.buildParameterDescs();
+    // map FormElement change function to provenance graph onChange function
+    paramDesc.forEach((p) => {
+      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
+    });
+
+    this.paramForm.build(paramDesc);
+
+    // add other fields
+    super.buildParameterUI($parent, onChange);
+  }
+
+  protected buildParameterDescs(): IFormSelectDesc[] {
     return [
       {
         type: FormElementType.SELECT,
@@ -81,8 +99,18 @@ export abstract class ACoExpression extends AD3View {
     ];
   }
 
-  parameterChanged(name: string) {
-    super.parameterChanged(name);
+  getParameter(name: string): any {
+    if (this.paramForm.getElementById(name).value === null) {
+      return '';
+    }
+
+    return this.paramForm.getElementById(name).value.data;
+  }
+
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
+
+    this.refGene = this.paramForm.getElementById(FORM_ID_REFERENCE_GENE).value;
     if (!this.refGene) {
       this.refGeneExpression = null;
       this.update(null, null, true);
@@ -94,11 +122,12 @@ export abstract class ACoExpression extends AD3View {
     }
   }
 
-  selectionChanged() {
-    super.selectionChanged();
+  changeSelection(selection: ISelection) {
+    this.selection = selection;
+
     // update the refGene select first, then update the charts
     const bak = this.refGene;
-    this.updateRefGeneSelect(this.selection)
+    this.updateRefGeneSelect(selection)
       .then((refGene: IGeneOption) => {
         this.refGene = refGene;
         const refChanged = bak === null || refGene === null || bak.value !== refGene.value;
@@ -116,9 +145,8 @@ export abstract class ACoExpression extends AD3View {
       });
   }
 
-
   private updateRefGeneSelect(selection: ISelection): Promise<IGeneOption> {
-    return this.resolveSelection()
+    return this.resolveIds(selection.idtype, selection.range, this.idType)
       .then((genesEnsembl): Promise<IGeneOption> => {
         //console.log('Ensembl', genesEnsembl);
 
@@ -143,7 +171,7 @@ export abstract class ACoExpression extends AD3View {
           });
           //console.log('gene symbols', data);
 
-          const refGeneSelect = <IFormSelectElement>this.getParameterElement(FORM_ID_REFERENCE_GENE);
+          const refGeneSelect = <IFormSelectElement>this.paramForm.getElementById(FORM_ID_REFERENCE_GENE);
 
           // backup entry and restore the selectedIndex by value afterwards again,
           // because the position of the selected element might change
@@ -213,7 +241,7 @@ export abstract class ACoExpression extends AD3View {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d: IDataFormat) {
       const $id = d3.select(this);
-      const promise = resolveId(idtype, d.id, that.idType)
+      const promise = that.resolveId(idtype, d.id, that.idType)
         .then((name) => {
           return Promise.all([
             that.loadData(name),

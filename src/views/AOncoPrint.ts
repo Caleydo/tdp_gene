@@ -4,8 +4,11 @@
 
 import '../style.scss';
 
+import {IViewContext, ISelection, AView, IView} from 'ordino/src/View';
 import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue} from '../constants';
-import {select, scale, format, event as d3event, Selection} from 'd3';
+import {FormBuilder, IFormSelectDesc} from 'ordino/src/FormBuilder';
+import {showErrorModalDialog} from 'ordino/src/Dialogs';
+import * as d3 from 'd3';
 import {toSelectOperation} from 'phovea_core/src/idtype/IIDType';
 import {SelectOperation} from 'phovea_core/src/idtype';
 import IDType from 'phovea_core/src/idtype/IDType';
@@ -13,8 +16,6 @@ import Range from 'phovea_core/src/range/Range';
 import {none, list as rlist} from 'phovea_core/src/range';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import {AView, IView, resolveId} from 'tdp_core/src/views';
-import {showErrorModalDialog} from 'phovea_ui/src/errors';
 
 export interface ISample {
   name: string;
@@ -163,24 +164,26 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
 
 export abstract class AOncoPrint extends AView {
 
-  private $table:Selection<IView>;
+  private $table:d3.Selection<IView>;
 
   private static STYLE = {
-    color: scale.ordinal<string>()
+    color: d3.scale.ordinal<string>()
       .domain(copyNumberCat.map((d) => String(d.value)))
       .range(copyNumberCat.map((d) => d.color)),
-    colorBorder: scale.ordinal<string>()
+    colorBorder: d3.scale.ordinal<string>()
       .domain(copyNumberCat.map((d) => String(d.value)))
       .range(copyNumberCat.map((d) => d.border)),
-    colorMut: scale.ordinal<string>()
+    colorMut: d3.scale.ordinal<string>()
       .domain(mutationCat.map((d) => d.value))
       .range(mutationCat.map((d) => d.color)),
-    colorMutBorder: scale.ordinal<string>()
+    colorMutBorder: d3.scale.ordinal<string>()
       .domain(mutationCat.map((d) => String(d.value)))
       .range(mutationCat.map((d) => d.border))
   };
 
   private sampleListPromise: Promise<ISample[]> = null;
+
+  private paramForm:FormBuilder;
 
   /**
    * flag if the user specified the gene sorting order
@@ -188,35 +191,60 @@ export abstract class AOncoPrint extends AView {
    */
   private manuallyResorted: boolean = false;
 
-  protected initImpl() {
-    super.initImpl();
+  constructor(context:IViewContext, private selection: ISelection, parent:Element, options?) {
+    super(context, parent, options);
+  }
+
+  init() {
+    super.init();
     this.build();
     // load sample list with all available ids, then update the onco print
     this.sampleListPromise = this.loadSampleList();
-    return this.sampleListPromise.then(this.update.bind(this, false));
+    this.sampleListPromise.then(this.update.bind(this, false));
   }
 
-  protected parameterChanged(name: string) {
-    super.parameterChanged(name);
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    const paramDesc = this.buildParameterConfig();
+    // map FormElement change function to provenance graph onChange function
+    paramDesc.forEach((p) => {
+      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
+    });
+
+    this.paramForm.build(paramDesc);
+
+    // add other fields
+    super.buildParameterUI($parent, onChange);
+  }
+
+  protected abstract buildParameterConfig(): IFormSelectDesc[];
+
+  getParameter(name: string): any {
+    return this.paramForm.getElementById(name).value.data;
+  }
+
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
     this.sampleListPromise = this.loadSampleList();
     this.sampleListPromise.then(this.update.bind(this,true));
   }
 
-  protected selectionChanged() {
-    super.selectionChanged();
-    this.update();
+  changeSelection(selection:ISelection) {
+    this.selection = selection;
+    return this.update();
   }
 
   private build() {
-    const $node = select(this.node);
-    $node.classed('oncoPrint', true);
 
-    this.$table = $node
+    this.$node.classed('oncoPrint', true);
+
+    this.$table = this.$node
       .append('div').classed('geneTableWrapper', true)
       .append('table')
       .append('tbody');
 
-    const $legend = $node.append('div').classed('legend', true);
+    const $legend = this.$node.append('div').classed('legend', true);
 
     const $cnLegend = $legend.append('ul');
     $cnLegend.append('li').classed('title', true).text('Copy Number');
@@ -238,7 +266,7 @@ export abstract class AOncoPrint extends AView {
         $li.append('span').text(d.name);
       });
 
-    $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
+    this.$node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <p>Please note:</p> 
       <ul>
@@ -291,8 +319,8 @@ export abstract class AOncoPrint extends AView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
-    const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : resolveId(idtype, d.id, this.idType))
+    const renderRow = ($id: d3.Selection<IDataFormat>, d: IDataFormat) => {
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : this.resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
@@ -319,7 +347,7 @@ export abstract class AOncoPrint extends AView {
     };
 
     enterOrUpdateAll.each(function(d: IDataFormat) {
-      renderRow(select(this), d);
+      renderRow(d3.select(this), d);
     });
 
     //assume that all data will have a promise
@@ -359,7 +387,7 @@ export abstract class AOncoPrint extends AView {
     });
   }
 
-  private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
+  private updateChartData(data: IDataFormat, $parent: d3.Selection<IDataFormat>, samples: ISample[]) {
     const style = AOncoPrint.STYLE;
     //console.log(data.geneName);
     let rows: IDataFormatRow[] = data.rows;
@@ -370,14 +398,14 @@ export abstract class AOncoPrint extends AView {
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
-    $th.html((d:any) => `<span class="alterationFreq">${format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
+    $th.html((d:any) => `<span class="alterationFreq">${d3.format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
     $th.exit().remove();
 
     const $cells = $parent.selectAll('td.cell').data(rows);
     $cells.enter().append('td')
       .classed('cell', true)
       .on('click', (row) => {
-        this.selectSample(row.sampleId, toSelectOperation(<MouseEvent>d3event));
+        this.selectSample(row.sampleId, toSelectOperation(<MouseEvent>d3.event));
       })
       .append('div')
       .classed('mut', true);
@@ -428,10 +456,6 @@ export abstract class AOncoPrint extends AView {
     }
     this.updateSelectionHighlight(newSelection);
     this.setItemSelection({range: newSelection, idtype: this.getSampleIdType()});
-  }
-
-  get itemIDType() {
-    return this.getSampleIdType();
   }
 
   protected updateSelectionHighlight(range: Range) {

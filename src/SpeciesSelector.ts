@@ -3,43 +3,49 @@
  */
 
 import * as session from 'phovea_core/src/session';
-import {IPluginDesc, list as listPlugins} from 'phovea_core/src/plugin';
-import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from '../common';
-import {select, event as d3event, Selection} from 'd3';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {IStartMenuSectionEntry, findViewCreators, IEntryPointList, IStartMenuOptions, IStartFactory} from 'ordino/src/StartMenu';
+import {Targid} from 'ordino/src/Targid';
+import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from './Common';
+import * as d3 from 'd3';
 import * as $ from 'jquery';
-import '../style.scss';
-import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino/src/extensions';
-import {INamedSet} from 'tdp_core/src/storage';
-import {
-  EXTENSION_POINT_STARTMENU_SUBSECTION, IStartMenuSubSection,
-  IStartMenuSubSectionDesc
-} from '../extensions';
+import './style.scss';
 
 
 const tabSessionKey = 'entityType';
 const defaultTabSessionValue = 'celllinedb_genes_start'; //ensembl
+export const extensionPoint = 'targidStartEntryPoint';
 
-export default class SpeciesSelectorMenuSection implements IStartMenuSection {
+class SpeciesSelector implements IStartMenuSectionEntry {
 
-  private readonly subSections: IStartMenuSubSection[] = [];
+  private readonly targid:Targid;
+  private readonly entryPointLists:IEntryPointList[] = [];
 
-  constructor(private readonly parent: HTMLElement, public readonly desc: IPluginDesc, private readonly options:IStartMenuSectionOptions) {
+  /**
+   * Set the idType and the default data and build the list
+   * @param parent
+   * @param desc
+   * @param options
+   */
+  constructor(private readonly parent: HTMLElement, public readonly desc: IPluginDesc,  private readonly options:IStartMenuOptions) {
+    this.targid = options.targid;
     this.build();
   }
 
+  getEntryPointLists() {
+    return this.entryPointLists;
+  }
+
+
   private build() {
-    const $parent = select(this.parent);
+    const $parent = d3.select(this.parent);
     $parent.html(''); // remove loading element or previous data
 
     this.buildSpeciesSelection($parent);
     this.buildEntityTypes($parent);
   }
 
-  push(namedSet: INamedSet) {
-    return this.subSections.some((d) => d.push(namedSet));
-  }
-
-  private buildSpeciesSelection($parent: Selection<HTMLElement>) {
+  private buildSpeciesSelection($parent: d3.Selection<HTMLElement>) {
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
     const selectedSpecies = session.retrieve(SPECIES_SESSION_KEY, defaultSpecies);
@@ -66,8 +72,8 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
         session.store(SPECIES_SESSION_KEY, d.value);
 
         $group.classed('active', false);
-        select(this.parentNode).classed('active', true);
-        that.subSections.forEach((list) => list.update());
+        d3.select(this.parentNode).classed('active', true);
+        that.entryPointLists.forEach((list) => list.updateList());
       });
 
     group.append('label')
@@ -86,9 +92,9 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
 
   }
 
-  private buildEntityTypes($parent: Selection<HTMLElement>) {
+  private buildEntityTypes($parent: d3.Selection<HTMLElement>) {
     // get start views for entry points and sort them by name ASC
-    const views = <IStartMenuSubSectionDesc[]>listPlugins(EXTENSION_POINT_STARTMENU_SUBSECTION).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    const views = findViewCreators(extensionPoint).sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
     if(!session.has(tabSessionKey)) {
       session.store(tabSessionKey, defaultTabSessionValue);
@@ -98,7 +104,7 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
     this.buildEntryPointList($parent, views);
   }
 
-  private buildEntityTypeSelection($parent: Selection<HTMLElement>, views: IStartMenuSubSectionDesc[]): void {
+  private buildEntityTypeSelection($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
     const $entityTypes = $parent.append('ul').classed('nav nav-tabs', true).attr('role', 'tablist');
 
     $entityTypes
@@ -113,13 +119,13 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
       .attr('id', (d) => `entityType_${d.cssClass}`)
       .text((d) => d.description)
       .on('click', function(d) {
-        (<Event>d3event).preventDefault();
+        (<Event>d3.event).preventDefault();
         session.store(tabSessionKey, d.id);
         $(this).tab('show');
       });
   }
 
-  private buildEntryPointList($parent: Selection<HTMLElement>, views: IStartMenuSubSectionDesc[]): void {
+  private buildEntryPointList($parent: d3.Selection<HTMLElement>, views: IStartFactory[]): void {
     const that = this;
     const $entryPoints = $parent.append('div').classed('entry-points-wrapper tab-content', true);
 
@@ -140,20 +146,15 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
       `);
 
     $enter.selectAll('div.body')
-      .each(function (this: HTMLElement, desc) {
-        const elem = this;
-        desc.load().then((i) => {
-          elem.innerHTML = ''; //clear loading
-          if (i.factory) {
-            return <IStartMenuSubSection>i.factory(elem, desc, that.options);
-          }
-          console.log(`No viewId and/or factory method found for '${i.desc.id}'`);
-          return null;
-        }).then((instance: IStartMenuSubSection) => {
-          if (instance) {
-            that.subSections.push(instance);
-          }
+      .each(function(entryPointDesc:any) {
+        entryPointDesc.build(this, {targid: that.targid})
+          .then((entryPoint) => {
+            that.entryPointLists.push(<IEntryPointList>entryPoint);
           });
       });
   }
+}
+
+export function create(parent: HTMLElement, desc: IPluginDesc, options:IStartMenuOptions) {
+  return new SpeciesSelector(parent, desc, options);
 }

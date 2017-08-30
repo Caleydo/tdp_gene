@@ -10,9 +10,6 @@ import {register} from 'phovea_core/src/plugin';
  * build a registry by registering all phovea modules
  */
 //other modules
-import 'tdp_core/phovea_registry.js';
-/// #if include('ordino')
 import 'ordino/phovea_registry.js';
-/// #endif
 //self
-register('tdp_gene',require('./phovea.js'));
+register('targid_common',require('./phovea.js'));

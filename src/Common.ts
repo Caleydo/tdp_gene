@@ -4,8 +4,8 @@
 
 import * as session from 'phovea_core/src/session';
 import IDType from 'phovea_core/src/idtype/IDType';
-import {IFormSelectOption} from 'tdp_core/src/form';
-import {ISelection} from 'tdp_core/src/views';
+import {IFormSelectOption} from 'ordino/src/FormBuilder';
+import {ISelection} from 'ordino/src/View';
 import {resolve} from 'phovea_core/src/idtype';
 import {GENE_IDTYPE} from './constants';
 import {list as asRange} from 'phovea_core/src/range';

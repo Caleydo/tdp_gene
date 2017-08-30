@@ -1,12 +1,11 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import {convertRow2MultiMap} from 'tdp_core/src/form';
+import {convertRow2MultiMap} from 'ordino/src/form/internal/FormMap';
 import {encodeParams, getAPIJSON} from 'phovea_core/src/ajax';
 import {RangeLike, parse} from 'phovea_core/src/range';
-import {INamedSet, ENamedSetType} from 'tdp_core/src/storage';
+import {INamedSet, ENamedSetType} from 'ordino/src/storage';
 import IDType from 'phovea_core/src/idtype/IDType';
-import {getTDPCount} from 'tdp_core/src/rest';
 
 /**
  * converts the field in the given array 2^<value>
@@ -64,14 +63,14 @@ export function toFilterString(filter: any, key2name?: Map<string, string>) {
 /**
  * generator for a FormMap compatible badgeProvider based on the given database url
  */
-export function previewFilterHint(database: string, view: string, extraParams?: ()=>any) {
+export function previewFilterHint(baseUrl: string, extraParams?: ()=>any) {
   let total: Promise<number> = null;
   const cache = new Map<string, Promise<number>>();
 
 
   return (rows: any[]) => {
     if (total === null) { // compute all by no setting any filter
-      total = getTDPCount(database, view, (extraParams ? extraParams() : {}));
+      total = getAPIJSON(baseUrl + '/count', (extraParams ? extraParams() : {}));
     }
     if (!rows) { //if no filter is set return all
       return total.then((count: number) => `${count} / ${count}`);
@@ -85,7 +84,7 @@ export function previewFilterHint(database: string, view: string, extraParams?: 
     toFilter(param, filter);
     const key = encodeParams(param);
     if (!cache.has(key)) {
-      cache.set(key, getTDPCount(database, view, param));
+      cache.set(key, getAPIJSON(baseUrl + '/count', param));
     }
     return Promise.all([total, cache.get(key)]).then((results: number[]) => {
       return `${results[1]} / ${results[0]}`;

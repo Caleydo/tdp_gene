@@ -2,25 +2,31 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {IPluginDesc} from 'phovea_core/src/plugin';
 import GeneProxyView from './GeneProxyView';
-import {FormElementType, IFormSelectElement} from 'tdp_core/src/form';
-import {FORM_ID_SELECTED_ITEM} from 'tdp_core/src/views/ProxyView';
+import {ProxyView} from 'ordino/src/ProxyView';
+import {FormElementType, IFormSelectDesc, FormBuilder, IFormSelectElement} from 'ordino/src/FormBuilder';
 
 /**
  * helper view for proxying an existing external website
  */
-export default class UniProtProxyView extends GeneProxyView {
+export class UniProtProxyView extends GeneProxyView {
 
   static SELECTED_UNIPROT_ITEM = 'externalUniProt';
   static readonly OUTPUT_IDTYPE = 'UniProt_human';
 
-  protected initImpl() {
-    super.initImpl();
+  constructor(context:IViewContext, selection: ISelection, parent:Element, options:any, plugin: IPluginDesc) {
+    super(context, selection, parent, options, plugin);
+  }
+
+  init() {
+    super.init();
 
     this.$node.classed('proxy_view', true);
 
     // update the selection first, then update the proxy view
-    return this.updateSelectedItemSelect()
+    this.updateSelectedItemSelect()
       .then(() => this.updateUniProtSelect())
       .catch(() => {
         this.updateProxyView();
@@ -30,12 +36,14 @@ export default class UniProtProxyView extends GeneProxyView {
       });
   }
 
-  protected getParameterFormDescs() {
-    return [
+  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any)=>Promise<any>) {
+    this.paramForm = new FormBuilder($parent);
+
+    const paramDesc:IFormSelectDesc[] = [
       {
         type: FormElementType.SELECT,
         label: 'Gene',
-        id: FORM_ID_SELECTED_ITEM,
+        id: ProxyView.SELECTED_ITEM,
         options: {
           optionsData: [],
         },
@@ -51,11 +59,19 @@ export default class UniProtProxyView extends GeneProxyView {
         useSession: true
       }
     ];
+
+    // map FormElement change function to provenance graph onChange function
+    paramDesc.forEach((p) => {
+      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
+    });
+
+    this.paramForm.build(paramDesc);
   }
 
-  protected parameterChanged(name: string) {
-    super.parameterChanged(name);
-    if(name === FORM_ID_SELECTED_ITEM) {
+  setParameter(name: string, value: any) {
+    this.paramForm.getElementById(name).value = value;
+
+    if(name === ProxyView.SELECTED_ITEM) {
       this.updateUniProtSelect()
         .catch(() => {
           this.updateProxyView();
@@ -69,8 +85,9 @@ export default class UniProtProxyView extends GeneProxyView {
     }
   }
 
-  selectionChanged() {
-    super.selectionChanged();
+  changeSelection(selection:ISelection) {
+    this.selection = selection;
+
     // update the selection first, then update the proxy view
     this.updateSelectedItemSelect(true) // true = force use last selection
       .then(() => this.updateUniProtSelect(true)) // true = force use last selection
@@ -83,9 +100,9 @@ export default class UniProtProxyView extends GeneProxyView {
   }
 
   private updateUniProtSelect(forceUseLastSelection = false) {
-    const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.getParameterElement(UniProtProxyView.SELECTED_UNIPROT_ITEM));
+    const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.paramForm.getElementById(UniProtProxyView.SELECTED_UNIPROT_ITEM));
 
-    const ensg = this.getParameter(FORM_ID_SELECTED_ITEM).value;
+    const ensg = this.getParameter(ProxyView.SELECTED_ITEM).value;
 
     //convert to uid
     return this.selection.idtype.map([ensg]).then((ids) => {
@@ -137,4 +154,9 @@ export default class UniProtProxyView extends GeneProxyView {
   protected updateProxyView() {
     this.loadProxyPage(this.getParameter(UniProtProxyView.SELECTED_UNIPROT_ITEM).value);
   }
+
+}
+
+export function create(context:IViewContext, selection: ISelection, parent:Element, options, plugin: IPluginDesc) {
+  return new UniProtProxyView(context, selection, parent, options, plugin);
 }

@@ -1,9 +1,7 @@
-@import '~tdp_core/src/styles/vars';
-
-$oncoprint_cell_height: 25px !default;
-$oncoprint_cell_width: 7px !default;
-$oncoprint_cell_padding: 2px !default;
-$oncoprint_cell_mutation: 8px !default;
+$oncoprint_cell_height: 25px;
+$oncoprint_cell_width: 7px;
+$oncoprint_cell_padding: 2px;
+$oncoprint_cell_mutation: 8px;
 
 .oncoPrint {
   display: flex;

@@ -2,9 +2,12 @@
  * Created by Holger Stitz on 06.12.2016.
  */
 
-import ProxyView from 'tdp_core/src/views/ProxyView';
-import {createOptions, getSelectedSpecies} from '../common';
-import {IFormSelectOption} from 'tdp_core/src/form';
+import {IViewContext, ISelection} from 'ordino/src/View';
+import {ProxyView} from 'ordino/src/ProxyView';
+import {IPluginDesc} from 'phovea_core/src/plugin';
+import {createOptions} from '../Common';
+import {IFormSelectOption} from 'ordino/src/FormBuilder';
+import {getSelectedSpecies} from '../Common';
 
 /**
  * helper view for proxying an existing external website
@@ -20,4 +23,8 @@ export default class GeneProxyView extends ProxyView {
     extra.species = getSelectedSpecies();
     super.updateProxyView();
   }
+}
+
+export function create(context: IViewContext, selection: ISelection, parent: Element, options, plugin: IPluginDesc) {
+  return new GeneProxyView(context, selection, parent, options, plugin);
 }
