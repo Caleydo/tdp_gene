@@ -72,6 +72,7 @@ abstract class ACancerAlteration extends AView {
   }
 
   init() {
+    // TODO: refactor (e.g. save calculations of translate functions to variables, remove magic numbers, ...)
     const svg = this.$node.append('svg')
       .attr('width', ACancerAlteration.CHART_WIDTH)
       .attr('height', ACancerAlteration.CHART_HEIGHT)
@@ -102,6 +103,12 @@ abstract class ACancerAlteration extends AView {
       .attr('transform', `rotate(-90) translate(${-(ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.bottom - ACancerAlteration.MARGINS.top)/2}, 10)`)
       .attr('text-anchor', 'middle')
       .text('Alteration Frequency');
+
+    // circles label
+    svg
+      .append('text')
+      .attr('transform', `translate(0, ${ACancerAlteration.CHART_HEIGHT - ACancerAlteration.MARGINS.bottom + ACancerAlteration.CHART_MARGIN + 5})`) // circle radius / 2
+      .text('Tumor type');
 
     // add axes
     chartView
