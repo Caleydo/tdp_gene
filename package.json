@@ -88,7 +88,7 @@
     "jquery-ui": "1.12.1"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#tdp",
-    "bob": "github:datavisyn/bob#tdp"
+    "ordino": "github:Caleydo/ordino#develop",
+    "bob": "github:datavisyn/bob#develop"
   }
 }
