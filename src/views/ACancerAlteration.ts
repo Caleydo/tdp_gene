@@ -134,8 +134,8 @@ abstract class ACancerAlteration extends AView {
 
   setParameter(name: string, value: any) {
     this.paramForm.getElementById(name).value = value;
-    this.$node.selectAll('.chart-view g').remove();
-    this.update();
+    this.$node.select('svg.cancer-alteration').remove();
+    this.init();
   }
 
   private computeStats(data: any[][], ensgs: string[]) {
