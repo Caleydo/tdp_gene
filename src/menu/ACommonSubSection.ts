@@ -28,7 +28,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       if (options.session) {
         options.session((<any>this.desc).viewId, {namedSet}, this.getDefaultSessionValues());
       } else {
-        console.error('no targid object given to push new view');
+        console.error('no session factory object given to push new view');
       }
     };
     this.data = new NamedSetList(resolve(desc.idType), createSession, parent.ownerDocument);
