@@ -5,6 +5,7 @@
 import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
 import {ISelection, IViewContext} from 'tdp_core/src/views';
 import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
+import {getSelectedSpecies, SPECIES_SESSION_KEY} from '../common';
 
 export interface ICommonDBConfig {
   idType: string;
@@ -31,7 +32,11 @@ export abstract class ACommonList extends AStartList {
     super(context, selection, parent, Object.assign({
       additionalScoreParameter: dataSource,
       itemName: dataSource.name,
-      itemIDType: dataSource.idType
+      itemIDType: dataSource.idType,
+      subType: {
+        key: SPECIES_SESSION_KEY,
+        value: getSelectedSpecies()
+      }
     }, options));
 
     if(!this.namedSet) {

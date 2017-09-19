@@ -165,10 +165,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
         search: {
           ids: searchField.value,
           type: this.dataSource.tableName
-        },
-        subType: {
-          key: SPECIES_SESSION_KEY,
-          value: getSelectedSpecies()
         }
       }, this.getDefaultSessionValues());
     });
