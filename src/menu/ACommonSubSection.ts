@@ -159,8 +159,8 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
 
 
 
-    const $searchButton = this.createButton($searchWrapper, 'Go');
-    const $saveSetButton = this.createButton($searchWrapper, 'Save');
+    const $searchButton = ACommonSubSection.createButton($searchWrapper, 'Go');
+    const $saveSetButton = ACommonSubSection.createButton($searchWrapper, 'Save');
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
 
@@ -195,7 +195,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     });
   }
 
-  private createButton($parent: Selection<any>, text: string): Selection<HTMLButtonElement> {
+  private static createButton($parent: Selection<any>, text: string): Selection<HTMLButtonElement> {
     return $parent
       .append('div')
       .append('button')
