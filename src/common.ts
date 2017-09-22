@@ -99,8 +99,7 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
        const idType = resolve(importResults.idType);
 
        const geneSymbols = data.map((row) => row[importResults.idColumn]);
-       const systemIDs = await idType.map(geneSymbols);
-       const ensgs = await idType.mapToName(systemIDs, GENE_IDTYPE);
+       const ensgs = await idType.mapNameToName(geneSymbols, GENE_IDTYPE);
 
        // append converted ENSGs to each row
        // ensgs is an Array of Arrays
