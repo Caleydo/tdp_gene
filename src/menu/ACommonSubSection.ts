@@ -124,7 +124,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     }
     const arr = term.split(new RegExp(`[${(options.tokenSeparators || [' ']).join(',')}]+`));
     const last = arr[arr.length - 1];
-    const valid = arr.map((a) => a.trim()).filter((a) => a.length > 0);
+    const valid = arr.map((a) => a.trim().toLowerCase()).filter((a) => a.length > 0);
     if (valid.length > 1) {
       this.validate(valid).then((items) => {
         items.forEach((item) => addSelection(item));
