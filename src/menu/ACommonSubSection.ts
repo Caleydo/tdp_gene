@@ -12,8 +12,9 @@ import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
 import {getTDPData, getTDPLookupUrl} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
-import {select} from 'd3';
+import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
+import FormSelect2 from 'tdp_core/src/form/internal/FormSelect2';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -156,10 +157,19 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       options: this.searchOptions()
     });
 
-    const $searchButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Go');
-    const $saveSetButton = $searchWrapper.append('div').append('button').classed('btn btn-primary', true).text('Save');
+
+
+    const $searchButton = ACommonSubSection.createButton($searchWrapper, 'Go');
+    const $saveSetButton = ACommonSubSection.createButton($searchWrapper, 'Save');
 
     const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
+
+    searchField.on('change', () => {
+      const state = (<FormSelect2>searchField).hasValue()? null : 'disabled';
+      $searchButton.attr('disabled', state);
+      $saveSetButton.attr('disabled', state);
+    });
+
     $searchButton.on('click', () => {
       this.options.session((<any>this.desc).viewId, {
         search: {
@@ -183,6 +193,15 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
         this.push(response);
       });
     });
+  }
+
+  private static createButton($parent: Selection<any>, text: string): Selection<HTMLButtonElement> {
+    return $parent
+      .append('div')
+      .append('button')
+      .classed('btn btn-primary', true)
+      .attr('disabled', 'disabled')
+      .text(text);
   }
 }
 

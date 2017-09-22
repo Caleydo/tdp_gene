@@ -49,12 +49,15 @@ export abstract class ACommonList extends AStartList {
   }
 
   protected buildFilter(): IParams {
-    const filter: IParams = {};
+    const filter: IParams = {
+      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+    };
 
     Object.assign(filter, this.buildNamedSetFilters(`namedset4${((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)}`, (key) => this.isValidFilter(key)));
     if(this.search) {
       filter[this.dataSource.entityName] = this.search.ids;
     }
+
     return filter;
   }
 
