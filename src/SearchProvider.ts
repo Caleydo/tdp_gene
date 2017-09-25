@@ -20,7 +20,7 @@ export default class SearchProvider implements ISearchProvider {
   }
 
   protected static mapItems(result: any): IResult {
-    return Object.assign(result, {_id: result.tdpid});
+    return result;
   }
 
   search(query: string, page: number, pageSize: number) {
