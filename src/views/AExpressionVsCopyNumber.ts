@@ -12,6 +12,7 @@ import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views';
 import {AD3View} from 'tdp_core/src/views/AD3View';
+import {colorScale, integrateColors, legend} from './utils';
 
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
@@ -19,14 +20,18 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
+  private $legend: d3.Selection<any>;
+
   private x = d3.scale.linear();
   private y = d3.scale.log();
+  private readonly color = colorScale();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
   protected initImpl() {
     super.initImpl();
     this.node.classList.add('expressionVsCopyNumber', 'multiple');
+    this.$legend = this.$node.append('div').classed('tdp-legend', true);
     return this.update();
   }
 
@@ -58,6 +63,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
   parameterChanged(name: string) {
     super.parameterChanged(name);
+    this.color.domain([]); // reset colors
     this.update(true);
   }
 
@@ -203,6 +209,8 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
+    integrateColors(this.color, rows.map((d) => d.color));
+    legend(<HTMLElement>this.$legend.node(), this.color);
 
     const $g = $parent.select('svg g');
 
@@ -255,7 +263,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
       cy: (d) => this.y(d.expression),
-    });
+    }).style('fill', (d) => d.color ? this.color(d.color) : null);
 
     marks.exit().remove();
   }
@@ -268,6 +276,7 @@ export default AExpressionVsCopyNumber;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
+  color?: string;
   cn: number;
   _id: number;
 }
