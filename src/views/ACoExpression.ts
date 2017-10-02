@@ -56,7 +56,7 @@ export abstract class ACoExpression extends AD3View {
       .classed('nodata', true)
       .classed('hidden', true);
 
-    this.$legend = this.$node.append('div').classed('tdp-legend', true);
+    this.$legend = this.$node.append('div');
 
     // update the refGene select first, then update ref expression data and as last the charts
     return this.updateRefGeneSelect(this.selection)

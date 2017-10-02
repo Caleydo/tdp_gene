@@ -31,7 +31,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   protected initImpl() {
     super.initImpl();
     this.node.classList.add('expressionVsCopyNumber', 'multiple');
-    this.$legend = this.$node.append('div').classed('tdp-legend', true);
+    this.$legend = this.$node.append('div');
     return this.update();
   }
 
