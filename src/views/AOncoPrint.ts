@@ -15,9 +15,6 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import {AView, IView, resolveId} from 'tdp_core/src/views';
 import {showErrorModalDialog} from 'phovea_ui/src/errors';
-import {FORM_SCALE_FACTOR_ID} from './forms';
-
-export {FORM_SCALE_FACTOR} from './forms';
 
 export interface ISample {
   name: string;
@@ -176,6 +173,34 @@ export abstract class AOncoPrint extends AView {
    */
   private manuallyResorted: boolean = false;
 
+  private scaleFactor : ''|'s'|'ss'|'sss' = '';
+
+  init(params: HTMLElement, onParameterChange: (name: string, value: any) => Promise<any>) {
+    super.init(params, onParameterChange);
+
+    // inject stats
+    const base = <HTMLElement>params.querySelector('form') || params;
+    base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
+  <button class="fa fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fa fa-search-plus"></button>
+</div>`);
+    let s = 0;
+    const scaleElem = <HTMLElement>base.lastElementChild!;
+
+    scaleElem.firstElementChild!.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      s = Math.min(s + 1, 3);
+      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+    });
+    scaleElem.lastElementChild!.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      s = Math.max(s - 1, 0);
+      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+    });
+
+  }
+
   protected initImpl() {
     super.initImpl();
     this.build();
@@ -186,16 +211,8 @@ export abstract class AOncoPrint extends AView {
 
   protected parameterChanged(name: string) {
     super.parameterChanged(name);
-    if (name === FORM_SCALE_FACTOR_ID) {
-      this.updateScale();
-      return;
-    }
     this.sampleListPromise = this.loadSampleList();
     this.sampleListPromise.then(this.update.bind(this,true));
-  }
-
-  private updateScale() {
-    // TODO
   }
 
   protected selectionChanged() {

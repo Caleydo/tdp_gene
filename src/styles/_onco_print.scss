@@ -31,6 +31,67 @@ $oncoprint_mut_unknown: 'null';
 $oncoprint_mut_unknown_color: transparent;
 $oncoprint_mut_unknown_border: #999;
 
+$oncoprint_label_width: 10em;
+
+div.parameters .oncoPrintScale {
+  display: inline-flex;
+
+  &[data-scale^='sss'] > button:first-of-type {
+    cursor: not-allowed;
+  }
+  &[data-scale^='s'] {
+    button:last-of-type {
+      cursor: pointer;
+    }
+  }
+  &[data-scale^='s'] > div {
+    div:nth-of-type(3) {
+      background: none;
+    }
+    button:last-of-type {
+      cursor: not-allowed;
+    }
+  }
+  &[data-scale^='ss'] > div {
+    div:nth-of-type(2) {
+      background: none;
+    }
+  }
+  &[data-scale^='sss'] > div {
+    div:nth-of-type(1) {
+      background: none;
+    }
+  }
+  > div {
+    display: flex;
+    align-items: flex-end;
+
+    > div {
+      border: 1px solid #aaa;
+      width: 5px;
+      margin: 1px;
+      background: #dcdcdc;
+
+      &:first-of-type {
+        height: 33%;
+      }
+      &:nth-of-type(2) {
+        height: 66%;
+      }
+      &:last-of-type {
+        height: 100%;
+      }
+    }
+  }
+  button {
+    border: none;
+    background: none;
+  }
+  > button:last-of-type {
+    cursor: not-allowed;
+  }
+}
+
 .oncoPrint {
   display: flex;
   flex-direction: column;
@@ -118,7 +179,7 @@ $oncoprint_mut_unknown_border: #999;
   }
 
   .geneTableWrapper {
-    margin-left: 10em; // === .geneLabel width
+    margin-left: $oncoprint_label_width;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 10px; // space for gene tooltip on hover
@@ -135,7 +196,7 @@ $oncoprint_mut_unknown_border: #999;
     left: 0;
     top: auto;
     color: $core_colour_text;
-    width: 10em;
+    width: $oncoprint_label_width;
     text-align: left;
 
     .ensg {
@@ -153,16 +214,16 @@ $oncoprint_mut_unknown_border: #999;
 
   .gene {
     margin-top: 10px;
+    display: flex;
+    align-items: center;
+    height: $oncoprint_cell_height + $oncoprint_cell_padding;
 
     &:first-child {
       margin-top: 0;
     }
 
-    display: flex;
-    align-items: center;
-
     &.ui-sortable-helper th.geneLabel {
-      left: -10em;
+      left: -$oncoprint_label_width;
     }
 
     .cell {
@@ -171,10 +232,9 @@ $oncoprint_mut_unknown_border: #999;
       align-items: center;
       justify-content: center;
       margin: 2px;
-
-      border: 1px solid transparent;
       width: $oncoprint_cell_width + $oncoprint_cell_padding;
-      height: $oncoprint_cell_height + $oncoprint_cell_padding;
+      height: 100%;
+      border: 1px solid transparent;
 
       &.selected {
         border-color: $select-color !important;
@@ -301,22 +361,32 @@ $oncoprint_mut_unknown_border: #999;
       }
     }
   }
-
-  [data-scale=small] {
+  &[data-scale^='s'] {
     .cell {
-      margin: 0 2px;
-      border: 1px solid transparent;
-      width: $oncoprint_cell_width + $oncoprint_cell_padding;
-      height: $oncoprint_cell_height + $oncoprint_cell_padding;
-
-      &.selected {
-        border-color: $select-color !important;
-      }
+      margin-left: 1px;
+      margin-right: 1px;
+      width: 6px;
 
       .mut {
         width: 100%;
-        border: 1px solid transparent;
-        height: $oncoprint_cell_mutation;
+      }
+    }
+  }
+  &[data-scale^='ss'] {
+    .cell {
+      margin-left: 0;
+      margin-right: 0;
+      width: 5px;
+    }
+  }
+
+  &[data-scale^='sss'] {
+    .cell {
+      border: none;
+      width: 3px;
+
+      &.selected {
+        border: 1px solid $select-color;
       }
     }
   }
