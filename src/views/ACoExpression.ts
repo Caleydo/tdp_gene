@@ -10,6 +10,7 @@ import * as d3 from 'd3';
 import {Range, list, none} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
 import {AD3View} from 'tdp_core/src/views/AD3View';
+import {integrateColors, colorScale, legend} from './utils';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -33,15 +34,17 @@ export abstract class ACoExpression extends AD3View {
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
-  protected $errorMessage;
+  protected $errorMessage: d3.Selection<any>;
+  protected $legend: d3.Selection<any>;
 
   private refGene: IGeneOption = null;
   private refGeneExpression: IDataFormatRow[] = [];
 
-  private x = d3.scale.log();
-  private y = d3.scale.log();
-  private xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
-  private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
+  private readonly x = d3.scale.log();
+  private readonly y = d3.scale.log();
+  private readonly color = colorScale();
+  private readonly xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
+  private readonly yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
   protected initImpl() {
     super.initImpl();
@@ -52,6 +55,8 @@ export abstract class ACoExpression extends AD3View {
     this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
       .classed('hidden', true);
+
+    this.$legend = this.$node.append('div');
 
     // update the refGene select first, then update ref expression data and as last the charts
     return this.updateRefGeneSelect(this.selection)
@@ -83,6 +88,7 @@ export abstract class ACoExpression extends AD3View {
 
   parameterChanged(name: string) {
     super.parameterChanged(name);
+    this.color.domain([]); // reset colors
     if (!this.refGene) {
       this.refGeneExpression = null;
       this.update(null, null, true);
@@ -185,12 +191,16 @@ export abstract class ACoExpression extends AD3View {
     if (isEmpty) {
       this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
+      this.color.domain([]); // reset
+      legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
     if(noData) {
       this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
+      this.color.domain([]); // reset
+      legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
@@ -248,7 +258,7 @@ export abstract class ACoExpression extends AD3View {
       });
   }
 
-  private initChart($parent) {
+  private initChart($parent: d3.Selection<any>) {
     // already initialized svg node -> skip this part
     if ($parent.select('svg').size() > 0) {
       return;
@@ -334,6 +344,8 @@ export abstract class ACoExpression extends AD3View {
 
     this.x.domain([1, d3.max(refGeneExpression, (d) => d.expression)]).clamp(true);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
+    integrateColors(this.color, rows.map((d) => d.color));
+    legend(<HTMLElement>this.$legend.node(), this.color);
 
 
     const attribute = this.getAttributeName();
@@ -352,10 +364,10 @@ export abstract class ACoExpression extends AD3View {
 
     const data2 = smallerArray.reduce((result, d) => {
       if (hash.has(d.samplename)) {
-        result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, _id: d._id});
+        result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, _id: d._id});
       }
       return result;
-    }, <{ expr1: number, expr2: number, title: string, _id: number }[]>[]);
+    }, <{ expr1: number, expr2: number, title: string, color: string, _id: number }[]>[]);
 
     const marks = $g.selectAll('.mark').data(data2);
 
@@ -396,7 +408,7 @@ export abstract class ACoExpression extends AD3View {
     marks.transition().attr({
       cx: (d) => this.x(firstIsReference ? d.expr1 : d.expr2),
       cy: (d) => this.y(firstIsReference ? d.expr2 : d.expr1)
-    });
+    }).style('fill', (d) => d.color ? this.color(d.color) : null);
 
     marks.exit().remove();
   }
@@ -416,6 +428,7 @@ export default ACoExpression;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
+  color?: string;
   _id: number;
 }
 

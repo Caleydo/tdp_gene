@@ -5,6 +5,93 @@ $oncoprint_cell_width: 7px !default;
 $oncoprint_cell_padding: 2px !default;
 $oncoprint_cell_mutation: 8px !default;
 
+$oncoprint_cnv_amplified: '2';
+$oncoprint_cnv_amplified_color: #efb3bc;
+$oncoprint_cnv_amplified_border: transparent;
+
+$oncoprint_cnv_deep_deletion: '-2';
+$oncoprint_cnv_deep_deletion_color: #92c5de;
+$oncoprint_cnv_deep_deletion_border: transparent;
+
+$oncoprint_cnv_normal: '0';
+$oncoprint_cnv_normal_color: #dcdcdc;
+$oncoprint_cnv_normal_border: transparent;
+
+$oncoprint_cnv_unknown: 'null';
+$oncoprint_cnv_unknown_color: #FCFCFC;
+$oncoprint_cnv_unknown_border: #dcdcdc;
+
+$oncoprint_mut_mutated: 'true';
+$oncoprint_mut_mutated_color: #1BA64E;
+$oncoprint_mut_mutated_border: transparent;
+$oncoprint_mut_not_mutated: 'false';
+$oncoprint_mut_not_mutated_color: #aaa;
+$oncoprint_mut_not_mutated_border: transparent;
+$oncoprint_mut_unknown: 'null';
+$oncoprint_mut_unknown_color: transparent;
+$oncoprint_mut_unknown_border: #999;
+
+$oncoprint_label_width: 10em;
+
+div.parameters .oncoPrintScale {
+  display: inline-flex;
+
+  &[data-scale^='sss'] > button:first-of-type {
+    cursor: not-allowed;
+  }
+  &[data-scale^='s'] {
+    button:last-of-type {
+      cursor: pointer;
+    }
+  }
+  &[data-scale^='s'] > div {
+    div:nth-of-type(3) {
+      background: none;
+    }
+    button:last-of-type {
+      cursor: not-allowed;
+    }
+  }
+  &[data-scale^='ss'] > div {
+    div:nth-of-type(2) {
+      background: none;
+    }
+  }
+  &[data-scale^='sss'] > div {
+    div:nth-of-type(1) {
+      background: none;
+    }
+  }
+  > div {
+    display: flex;
+    align-items: flex-end;
+
+    > div {
+      border: 1px solid #aaa;
+      width: 5px;
+      margin: 1px;
+      background: #dcdcdc;
+
+      &:first-of-type {
+        height: 33%;
+      }
+      &:nth-of-type(2) {
+        height: 66%;
+      }
+      &:last-of-type {
+        height: 100%;
+      }
+    }
+  }
+  button {
+    border: none;
+    background: none;
+  }
+  > button:last-of-type {
+    cursor: not-allowed;
+  }
+}
+
 .oncoPrint {
   display: flex;
   flex-direction: column;
@@ -35,17 +122,55 @@ $oncoprint_cell_mutation: 8px !default;
       display: flex;
       align-items: center;
       margin-bottom: 3px;
+
+      &::before {
+        display: inline-block;
+        content: '';
+        border: 1px solid transparent;
+        width: 10px;
+        height: 25px;
+        margin-right: 5px;
+      }
+
+      &[data-mut]::before {
+        width: 8px;
+        height: 8px;
+      }
     }
 
-    li > span:first-child {
-      width: 10px;
-      height: 25px;
-      margin-right: 5px;
+    li[data-cnv='#{$oncoprint_cnv_amplified}']::before {
+      background-color: $oncoprint_cnv_amplified_color;
+      border-color: $oncoprint_cnv_amplified_border;
     }
 
-    li.mut > span:first-child {
-      width: 8px;
-      height: 8px;
+    li[data-cnv='#{$oncoprint_cnv_normal}']::before {
+      background-color: $oncoprint_cnv_normal_color;
+      border-color: $oncoprint_cnv_normal_border;
+    }
+
+    li[data-cnv='#{$oncoprint_cnv_deep_deletion}']::before {
+      background-color: $oncoprint_cnv_deep_deletion_color;
+      border-color: $oncoprint_cnv_deep_deletion_border;
+    }
+
+    li[data-cnv='#{$oncoprint_cnv_unknown}']::before {
+      background-color: $oncoprint_cnv_unknown_color;
+      border-color: $oncoprint_cnv_unknown_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_mutated}']::before {
+      background-color: $oncoprint_mut_mutated_color;
+      border-color: $oncoprint_mut_mutated_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_not_mutated}']::before {
+      background-color: $oncoprint_mut_not_mutated_color;
+      border-color: $oncoprint_mut_not_mutated_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_unknown}']::before {
+      background-color: $oncoprint_mut_unknown_color;
+      border-color: $oncoprint_mut_unknown_border;
     }
   }
 
@@ -54,7 +179,7 @@ $oncoprint_cell_mutation: 8px !default;
   }
 
   .geneTableWrapper {
-    margin-left: 10em; // === .geneLabel width
+    margin-left: $oncoprint_label_width;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 10px; // space for gene tooltip on hover
@@ -71,7 +196,7 @@ $oncoprint_cell_mutation: 8px !default;
     left: 0;
     top: auto;
     color: $core_colour_text;
-    width: 10em;
+    width: $oncoprint_label_width;
     text-align: left;
 
     .ensg {
@@ -89,16 +214,16 @@ $oncoprint_cell_mutation: 8px !default;
 
   .gene {
     margin-top: 10px;
+    display: flex;
+    align-items: center;
+    height: $oncoprint_cell_height + $oncoprint_cell_padding;
 
     &:first-child {
       margin-top: 0;
     }
 
-    display: flex;
-    align-items: center;
-
     &.ui-sortable-helper th.geneLabel {
-      left: -10em;
+      left: -$oncoprint_label_width;
     }
 
     .cell {
@@ -107,10 +232,9 @@ $oncoprint_cell_mutation: 8px !default;
       align-items: center;
       justify-content: center;
       margin: 2px;
-
-      border: 1px solid transparent;
       width: $oncoprint_cell_width + $oncoprint_cell_padding;
-      height: $oncoprint_cell_height + $oncoprint_cell_padding;
+      height: 100%;
+      border: 1px solid transparent;
 
       &.selected {
         border-color: $select-color !important;
@@ -168,6 +292,42 @@ $oncoprint_cell_mutation: 8px !default;
         visibility: visible;
         opacity: 1;
       }
+
+
+      &[data-cnv='#{$oncoprint_cnv_amplified}'] {
+        background-color: $oncoprint_cnv_amplified_color;
+        border-color: $oncoprint_cnv_amplified_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_normal}'] {
+        background-color: $oncoprint_cnv_normal_color;
+        border-color: $oncoprint_cnv_normal_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_deep_deletion}'] {
+        background-color: $oncoprint_cnv_deep_deletion_color;
+        border-color: $oncoprint_cnv_deep_deletion_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_unknown}'] {
+        background-color: $oncoprint_cnv_unknown_color;
+        border-color: $oncoprint_cnv_unknown_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_mutated}'] div {
+        background-color: $oncoprint_mut_mutated_color;
+        border-color: $oncoprint_mut_mutated_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_not_mutated}'] div {
+        background-color: $oncoprint_mut_not_mutated_color;
+        border-color: $oncoprint_mut_not_mutated_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_unknown}'] div {
+        background-color: $oncoprint_mut_unknown_color;
+        border-color: $oncoprint_mut_unknown_border;
+      }
     }
 
     // last row --> tooltip on top
@@ -198,6 +358,35 @@ $oncoprint_cell_mutation: 8px !default;
         left: 7px;
         border-width: 5px 8.7px 5px 0;
         border-color: transparent rgba(0,0,0,1) transparent transparent;
+      }
+    }
+  }
+  &[data-scale^='s'] {
+    .cell {
+      margin-left: 1px;
+      margin-right: 1px;
+      width: 6px;
+
+      .mut {
+        width: 100%;
+      }
+    }
+  }
+  &[data-scale^='ss'] {
+    .cell {
+      margin-left: 0;
+      margin-right: 0;
+      width: 5px;
+    }
+  }
+
+  &[data-scale^='sss'] {
+    .cell {
+      border: none;
+      width: 3px;
+
+      &.selected {
+        border: 1px solid $select-color;
       }
     }
   }
