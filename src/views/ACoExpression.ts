@@ -2,13 +2,12 @@
  * Created by Holger Stitz on 12.08.2016.
  */
 
-import bindTooltip from 'phovea_d3/src/tooltip';
 import {ISelection, resolveId} from 'tdp_core/src/views';
 import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
 import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
-import {Range, list, none} from 'phovea_core/src/range';
-import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
+import {Range} from 'phovea_core/src/range';
+import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {integrateColors, colorScale, legend} from './utils';
 
@@ -369,6 +368,9 @@ export abstract class ACoExpression extends AD3View {
       return result;
     }, <{ expr1: number, expr2: number, title: string, color: string, _id: number }[]>[]);
 
+    // sort missing colors to the front
+    data2.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
+
     const marks = $g.selectAll('.mark').data(data2);
 
     marks.enter().append('circle')
@@ -378,33 +380,21 @@ export abstract class ACoExpression extends AD3View {
         const target: EventTarget = (<Event>d3.event).target;
 
         const selectOperation: SelectOperation = toSelectOperation(<MouseEvent>d3.event);
-
-        const id: number = d._id; // d[3] = _id
-        const r: Range = list([id]);
-
         const oldSelection = this.getItemSelection();
-        let newSelection: Range = none();
+        const id: number = d._id;
+        const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
-        switch (selectOperation) {
-          case SelectOperation.SET:
-            newSelection = r;
+        if (selectOperation === SelectOperation.SET) {
             d3.selectAll('circle.mark.clicked').classed('clicked', false);
-            break;
-          case SelectOperation.ADD:
-            newSelection = oldSelection.range.union(r);
-            break;
-          case SelectOperation.REMOVE:
-            newSelection = oldSelection.range.without(r);
-            break;
         }
-
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
-      })
-      .call(bindTooltip<{ title: string }>((d) => d.title));
+      }).append('title');
 
 
-    marks.attr('title', (d) => d.title);
+    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-color', (d) => String(d.color));
+    marks.select('title').text((d) => `${d.title} (${refGene.symbol}: ${firstIsReference ? d.expr1 : d.expr2}, ${geneName}: ${firstIsReference ? d.expr2 : d.expr1}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(firstIsReference ? d.expr1 : d.expr2),
       cy: (d) => this.y(firstIsReference ? d.expr2 : d.expr1)

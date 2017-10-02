@@ -3,12 +3,11 @@
  */
 import '../style.scss';
 
-import bindTooltip from 'phovea_d3/src/tooltip';
-import {Range, list, none} from 'phovea_core/src/range';
+import {Range} from 'phovea_core/src/range';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
 import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
-import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
+import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views';
 import {AD3View} from 'tdp_core/src/views/AD3View';
@@ -205,7 +204,10 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     const data: IDataFormat = $parent.datum();
     const geneName = data.geneName;
-    const rows = data.rows;
+    const rows = data.rows.slice();
+
+    // sort missing colors to the front
+    rows.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
@@ -226,40 +228,29 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     }
     $g.select('text.title').text(title);
 
+
     const marks = $g.selectAll('.mark').data(rows);
     marks.enter().append('circle')
       .classed('mark', true)
       .attr('r', 2)
-      .attr('title', (d) => d.samplename)
       .on('click', (d) => {
         const target: EventTarget = (<Event>d3.event).target;
 
         const selectOperation = toSelectOperation(<MouseEvent>d3.event);
-
-        const id: number = d._id;
-        const r: Range = list([id]);
-
         const oldSelection = this.getItemSelection();
-        let newSelection: Range = none();
+        const id: number = d._id;
+        const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
-        switch(selectOperation) {
-          case SelectOperation.SET:
-            newSelection = r;
+        if (selectOperation === SelectOperation.SET) {
             d3.selectAll('circle.mark.clicked').classed('clicked', false);
-            break;
-          case SelectOperation.ADD:
-            newSelection = oldSelection.range.union(r);
-            break;
-          case SelectOperation.REMOVE:
-            newSelection = oldSelection.range.without(r);
-            break;
         }
-
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
-      })
-      .call(bindTooltip((d: any) => d.samplename));
+      }).append('title');
 
+    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-color', (d) => String(d.color));
+    marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
       cy: (d) => this.y(d.expression),
