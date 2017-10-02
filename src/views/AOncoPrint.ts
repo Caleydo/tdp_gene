@@ -165,21 +165,6 @@ export abstract class AOncoPrint extends AView {
 
   private $table:Selection<IView>;
 
-  private static STYLE = {
-    color: scale.ordinal<string>()
-      .domain(copyNumberCat.map((d) => String(d.value)))
-      .range(copyNumberCat.map((d) => d.color)),
-    colorBorder: scale.ordinal<string>()
-      .domain(copyNumberCat.map((d) => String(d.value)))
-      .range(copyNumberCat.map((d) => d.border)),
-    colorMut: scale.ordinal<string>()
-      .domain(mutationCat.map((d) => d.value))
-      .range(mutationCat.map((d) => d.color)),
-    colorMutBorder: scale.ordinal<string>()
-      .domain(mutationCat.map((d) => String(d.value)))
-      .range(mutationCat.map((d) => d.border))
-  };
-
   private sampleListPromise: Promise<ISample[]> = null;
 
   /**
@@ -187,6 +172,34 @@ export abstract class AOncoPrint extends AView {
    * @type {boolean}
    */
   private manuallyResorted: boolean = false;
+
+  private scaleFactor : ''|'s'|'ss'|'sss' = '';
+
+  init(params: HTMLElement, onParameterChange: (name: string, value: any) => Promise<any>) {
+    super.init(params, onParameterChange);
+
+    // inject stats
+    const base = <HTMLElement>params.querySelector('form') || params;
+    base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
+  <button class="fa fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fa fa-search-plus"></button>
+</div>`);
+    let s = 0;
+    const scaleElem = <HTMLElement>base.lastElementChild!;
+
+    scaleElem.firstElementChild!.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      s = Math.min(s + 1, 3);
+      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+    });
+    scaleElem.lastElementChild!.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      s = Math.max(s - 1, 0);
+      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+    });
+
+  }
 
   protected initImpl() {
     super.initImpl();
@@ -222,21 +235,15 @@ export abstract class AOncoPrint extends AView {
     $cnLegend.append('li').classed('title', true).text('Copy Number');
 
     copyNumberCat.forEach((d) => {
-      const $li = $cnLegend.append('li').classed('cnv', true);
-      $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
-      $li.append('span').text(d.name);
+      $cnLegend.append('li').attr('data-cnv', d.value).text(d.name);
     });
 
     const $mutLegend = $legend.append('ul');
     $mutLegend.append('li').classed('title', true).text('Mutation');
 
-    mutationCat
-      //.filter((d) => d.value !=='f')
-      .forEach((d) => {
-        const $li = $mutLegend.append('li').classed('mut', true);
-        $li.append('span').style('background-color', d.color).style('border', '1px solid ' + d.border);
-        $li.append('span').text(d.name);
-      });
+    mutationCat.forEach((d) => {
+      $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
+    });
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -360,7 +367,6 @@ export abstract class AOncoPrint extends AView {
   }
 
   private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
-    const style = AOncoPrint.STYLE;
     //console.log(data.geneName);
     let rows: IDataFormatRow[] = data.rows;
     rows = this.alignData(rows, samples);
@@ -385,14 +391,9 @@ export abstract class AOncoPrint extends AView {
     $cells
       .attr('data-title', (d) => d.name) //JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
-      .style('background-color', (d) => style.color(String(d.cn)))
-      .style('border-color',(d) => style.colorBorder(String(d.cn)))
+      .attr('data-cnv', (d) => String(d.cn))
+      .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated))
       .classed('selected', (d) => this.isSampleSelected(d.sampleId));
-      //.style('box-shadow', (d:any) => 'inset 0 0 0 ' + this.cellPadding + 'px ' + this.cBor(d.expr >= 2 ? 't' : 'f'));
-
-    $cells.select('.mut')
-      .style('background-color', (d) => style.colorMut(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)))
-      .style('border-color', (d) => style.colorMutBorder(String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated)));
 
     $cells.exit().remove();
 
