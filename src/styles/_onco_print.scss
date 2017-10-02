@@ -5,6 +5,32 @@ $oncoprint_cell_width: 7px !default;
 $oncoprint_cell_padding: 2px !default;
 $oncoprint_cell_mutation: 8px !default;
 
+$oncoprint_cnv_amplified: '2';
+$oncoprint_cnv_amplified_color: #efb3bc;
+$oncoprint_cnv_amplified_border: transparent;
+
+$oncoprint_cnv_deep_deletion: '-2';
+$oncoprint_cnv_deep_deletion_color: #92c5de;
+$oncoprint_cnv_deep_deletion_border: transparent;
+
+$oncoprint_cnv_normal: '0';
+$oncoprint_cnv_normal_color: #dcdcdc;
+$oncoprint_cnv_normal_border: transparent;
+
+$oncoprint_cnv_unknown: 'null';
+$oncoprint_cnv_unknown_color: #FCFCFC;
+$oncoprint_cnv_unknown_border: #dcdcdc;
+
+$oncoprint_mut_mutated: 'true';
+$oncoprint_mut_mutated_color: #1BA64E;
+$oncoprint_mut_mutated_border: transparent;
+$oncoprint_mut_not_mutated: 'false';
+$oncoprint_mut_not_mutated_color: #aaa;
+$oncoprint_mut_not_mutated_border: transparent;
+$oncoprint_mut_unknown: 'null';
+$oncoprint_mut_unknown_color: transparent;
+$oncoprint_mut_unknown_border: #999;
+
 .oncoPrint {
   display: flex;
   flex-direction: column;
@@ -35,17 +61,55 @@ $oncoprint_cell_mutation: 8px !default;
       display: flex;
       align-items: center;
       margin-bottom: 3px;
+
+      &::before {
+        display: inline-block;
+        content: '';
+        border: 1px solid transparent;
+        width: 10px;
+        height: 25px;
+        margin-right: 5px;
+      }
+
+      &[data-mut]::before {
+        width: 8px;
+        height: 8px;
+      }
     }
 
-    li > span:first-child {
-      width: 10px;
-      height: 25px;
-      margin-right: 5px;
+    li[data-cnv='#{$oncoprint_cnv_amplified}']::before {
+      background-color: $oncoprint_cnv_amplified_color;
+      border-color: $oncoprint_cnv_amplified_border;
     }
 
-    li.mut > span:first-child {
-      width: 8px;
-      height: 8px;
+    li[data-cnv='#{$oncoprint_cnv_normal}']::before {
+      background-color: $oncoprint_cnv_normal_color;
+      border-color: $oncoprint_cnv_normal_border;
+    }
+
+    li[data-cnv='#{$oncoprint_cnv_deep_deletion}']::before {
+      background-color: $oncoprint_cnv_deep_deletion_color;
+      border-color: $oncoprint_cnv_deep_deletion_border;
+    }
+
+    li[data-cnv='#{$oncoprint_cnv_unknown}']::before {
+      background-color: $oncoprint_cnv_unknown_color;
+      border-color: $oncoprint_cnv_unknown_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_mutated}']::before {
+      background-color: $oncoprint_mut_mutated_color;
+      border-color: $oncoprint_mut_mutated_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_not_mutated}']::before {
+      background-color: $oncoprint_mut_not_mutated_color;
+      border-color: $oncoprint_mut_not_mutated_border;
+    }
+
+    li[data-mut='#{$oncoprint_mut_unknown}']::before {
+      background-color: $oncoprint_mut_unknown_color;
+      border-color: $oncoprint_mut_unknown_border;
     }
   }
 
@@ -168,6 +232,42 @@ $oncoprint_cell_mutation: 8px !default;
         visibility: visible;
         opacity: 1;
       }
+
+
+      &[data-cnv='#{$oncoprint_cnv_amplified}'] {
+        background-color: $oncoprint_cnv_amplified_color;
+        border-color: $oncoprint_cnv_amplified_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_normal}'] {
+        background-color: $oncoprint_cnv_normal_color;
+        border-color: $oncoprint_cnv_normal_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_deep_deletion}'] {
+        background-color: $oncoprint_cnv_deep_deletion_color;
+        border-color: $oncoprint_cnv_deep_deletion_border;
+      }
+
+      &[data-cnv='#{$oncoprint_cnv_unknown}'] {
+        background-color: $oncoprint_cnv_unknown_color;
+        border-color: $oncoprint_cnv_unknown_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_mutated}'] div {
+        background-color: $oncoprint_mut_mutated_color;
+        border-color: $oncoprint_mut_mutated_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_not_mutated}'] div {
+        background-color: $oncoprint_mut_not_mutated_color;
+        border-color: $oncoprint_mut_not_mutated_border;
+      }
+
+      &[data-mut='#{$oncoprint_mut_unknown}'] div {
+        background-color: $oncoprint_mut_unknown_color;
+        border-color: $oncoprint_mut_unknown_border;
+      }
     }
 
     // last row --> tooltip on top
@@ -198,6 +298,25 @@ $oncoprint_cell_mutation: 8px !default;
         left: 7px;
         border-width: 5px 8.7px 5px 0;
         border-color: transparent rgba(0,0,0,1) transparent transparent;
+      }
+    }
+  }
+
+  [data-scale=small] {
+    .cell {
+      margin: 0 2px;
+      border: 1px solid transparent;
+      width: $oncoprint_cell_width + $oncoprint_cell_padding;
+      height: $oncoprint_cell_height + $oncoprint_cell_padding;
+
+      &.selected {
+        border-color: $select-color !important;
+      }
+
+      .mut {
+        width: 100%;
+        border: 1px solid transparent;
+        height: $oncoprint_cell_mutation;
       }
     }
   }
