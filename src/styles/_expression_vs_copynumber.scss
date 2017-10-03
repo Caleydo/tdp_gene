@@ -8,16 +8,25 @@
 
   .mark {
     fill: $core_color_almost_black;
+    fill-opacity: 0.8;
     cursor: pointer;
 
     &.clicked {
-      fill: $select-data-color
+      stroke: $select-data-color;
+      fill-opacity: 1;
+      stroke-width: 2;
+    }
+
+    &.disabled {
+      fill-opacity: 0.1;
     }
 
     &:active,
     &:focus,
     &:hover {
-      fill: $hover-data-color;
+      stroke: $hover-data-color;
+      fill-opacity: 1;
+      stroke-width: 2;
     }
   }
 

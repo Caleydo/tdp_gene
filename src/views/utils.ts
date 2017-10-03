@@ -1,4 +1,4 @@
-import {scale as d3Scale, Selection} from 'd3';
+import {scale as d3Scale} from 'd3';
 
 export function integrateColors(scale: d3Scale.Ordinal<string, string>, colors: string[]) {
   const old = new Set(scale.domain());
@@ -9,6 +9,7 @@ export function integrateColors(scale: d3Scale.Ordinal<string, string>, colors: 
 }
 
 const base = d3Scale.category20().range().slice();
+base.splice(2, 2); // splice out the orange since used for selection
 // reorder such that repeat after the primary colors
 const colors = base.filter((d, i) => i%2 === 0).concat(base.filter((d, i) => i%2 === 1));
 
@@ -25,5 +26,13 @@ export function legend(legend: HTMLElement, scale: d3Scale.Ordinal<string, strin
             <span>${category}</span>
         </div>
     `;
-  }).join('\n');
+  }).join('\n') + `<div>
+            <span style="background-color: black"></span>
+            <span>Unknown</span>
+        </div>`;
+  Array.from(legend.children).forEach((d, i) => d.addEventListener('click', () => {
+    const disabled = d.classList.toggle('disabled');
+    const cat = scale.domain()[i] || 'null';
+    Array.from(legend.parentElement.querySelectorAll(`.mark[data-color="${cat}"]`)).forEach((s) => s.classList.toggle('disabled', disabled));
+  }));
 }
