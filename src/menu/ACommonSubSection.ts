@@ -2,8 +2,7 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {SPECIES_SESSION_KEY} from '../common';
-import {defaultSpecies, getSelectedSpecies} from '../common';
+import {defaultSpecies, getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../common';
 import {resolve, IDType} from 'phovea_core/src/idtype';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
@@ -36,19 +35,22 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
 
     parent.appendChild(this.data.node);
 
-    // convert species to namedset
-    this.data.push(<INamedSet>{
-      name: 'All',
-      type: ENamedSetType.CUSTOM,
-      subTypeKey: SPECIES_SESSION_KEY,
-      subTypeFromSession: true,
-      subTypeValue: defaultSpecies,
-
-      description: '',
-      idType: '',
-      ids: '',
-      creator: ''
+    // convert all available species to namedsets
+    const defaultNamedSets = availableSpecies.map((species) => {
+      return <INamedSet>{
+        name: 'All',
+        type: ENamedSetType.CUSTOM,
+        subTypeKey: SPECIES_SESSION_KEY,
+        subTypeFromSession: true,
+        subTypeValue: species.value,
+        description: '',
+        idType: '',
+        ids: '',
+        creator: ''
+      };
     });
+
+    this.data.push(...defaultNamedSets);
     this.loadPanels().then((panels) => this.data.push(...panels));
 
     this.addSearchField();
