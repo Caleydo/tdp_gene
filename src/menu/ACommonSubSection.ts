@@ -111,7 +111,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   }
 
   protected validate(terms: string[]): Promise<{ id: string, text: string }[]> {
-    return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verfiy`, { //FIXME typo in verify?
+    return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verify/filter`, {
       column: this.dataSource.entityName,
       species: getSelectedSpecies(),
       [`filter_${this.dataSource.entityName}`]: terms
@@ -123,7 +123,8 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     if (term.length === 0) {
       return query;
     }
-    const arr = term.split(/[\s;,-]+/);
+    const arr = term.split(/[\s;,]+/);
+
     const last = arr[arr.length - 1];
     const valid = arr.map((a) => a.trim().toLowerCase()).filter((a) => a.length > 0);
     if (valid.length > 1) {
