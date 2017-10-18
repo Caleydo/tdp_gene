@@ -57,7 +57,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   }
 
   update() {
-    this.data.update();
+    this.data.update(true);
   }
 
   push(namedSet: INamedSet) {
