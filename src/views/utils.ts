@@ -19,6 +19,11 @@ export function colorScale() {
 
 export function legend(legend: HTMLElement, scale: d3Scale.Ordinal<string, string>) {
   legend.classList.add('tdp-legend');
+  const categories = scale.domain();
+  if (categories.length === 0) {
+    legend.innerHTML = '';
+    return;
+  }
   legend.innerHTML = scale.domain().map((category) => {
     return `
         <div>
