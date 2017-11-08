@@ -106,7 +106,6 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
       .data(views)
       .enter()
       .append('li')
-      .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)? 'active' : null)
       .attr('role', 'presentation')
       .append('a')
       .attr('href', (d) => `#entity_${d.cssClass}`)
@@ -116,6 +115,10 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
         (<Event>d3event).preventDefault();
         session.store(tabSessionKey, d.id);
         $(this).tab('show');
+      }).each(function(this: HTMLElement, d) {
+        if (d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)) {
+          this.click();
+        }
       });
   }
 

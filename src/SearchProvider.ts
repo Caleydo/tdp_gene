@@ -1,9 +1,9 @@
 //redeclare to avoid dependency
 import {getSelectedSpecies} from './common';
-import {IResult, ISearchProvider} from 'bob/src/extensions';
+import {IResult, ISearchProvider} from 'dTiles/src/extensions';
 import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
 
-export {IResult} from 'bob/src/extensions';
+export {IResult} from 'dTiles/src/extensions';
 
 export default class SearchProvider implements ISearchProvider {
 
