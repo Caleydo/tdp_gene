@@ -24,7 +24,7 @@ module.exports = function (registry) {
     return import('./src/views/GeneProxyView');
   }, {
      name: 'Ensembl',
-     site: 'http://feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
+     site: '//grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
@@ -48,7 +48,7 @@ module.exports = function (registry) {
     return import('./src/views/UniProtProxyView');
   }, {
      name: 'canSAR',
-     site: 'http://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
+     site: '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
@@ -96,7 +96,7 @@ module.exports = function (registry) {
     return import('./src/views/GeneProxyView');
   }, {
      name: 'Human Protein Atlas',
-     site: 'http://proteinatlas.org/{gene}',
+     site: '//proteinatlas.org/{gene}',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
