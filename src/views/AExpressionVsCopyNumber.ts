@@ -3,55 +3,41 @@
  */
 import '../style.scss';
 
-import bindTooltip from 'phovea_d3/src/tooltip';
-import {IViewContext, ISelection, ASmallMultipleView} from 'ordino/src/View';
-import {Range, list, none} from 'phovea_core/src/range';
-import {GENE_IDTYPE} from '../constants';
+import {Range} from 'phovea_core/src/range';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
-import {FormBuilder, FormElementType, IFormSelectDesc} from 'ordino/src/FormBuilder';
-import {showErrorModalDialog} from 'ordino/src/Dialogs';
+import {showErrorModalDialog} from 'tdp_core/src/dialogs';
 import * as d3 from 'd3';
-import {toSelectOperation, SelectOperation} from 'phovea_core/src/idtype';
+import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
+import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
+import {resolveId} from 'tdp_core/src/views';
+import {AD3View} from 'tdp_core/src/views/AD3View';
+import {colorScale, integrateColors, legend} from './utils';
 
 
-export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
+export abstract class AExpressionVsCopyNumber extends AD3View {
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly width = 280 - this.margin.left - this.margin.right;
+  private readonly height = 320 - this.margin.top - this.margin.bottom;
+
+  private $legend: d3.Selection<any>;
 
   private x = d3.scale.linear();
   private y = d3.scale.log();
+  private readonly color = colorScale();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
-  private paramForm: FormBuilder;
-
-  constructor(context: IViewContext, private selection: ISelection, parent: Element, options?) {
-    super(context, selection, parent, options);
-  }
-
-  init() {
-    super.init();
-    this.$node.classed('expressionVsCopyNumber', true);
-    this.update();
-  }
-
-  buildParameterUI($parent: d3.Selection<any>, onChange: (name: string, value: any) => Promise<any>) {
-    this.paramForm = new FormBuilder($parent);
-
-    const paramDesc = this.buildParameterDescs();
-    // map FormElement change function to provenance graph onChange function
-    paramDesc.forEach((p) => {
-      p.options.onChange = (selection, formElement) => onChange(formElement.id, selection.value);
-    });
-
-    this.paramForm.build(paramDesc);
-
-    // add other fields
-    super.buildParameterUI($parent, onChange);
+  protected initImpl() {
+    super.initImpl();
+    this.node.classList.add('expressionVsCopyNumber', 'multiple');
+    this.$legend = this.$node.append('div');
+    return this.update();
   }
 
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
   protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
 
-  protected buildParameterDescs(): IFormSelectDesc[] {
+  protected getParameterFormDescs(): IFormSelectDesc[] {
     return [
       {
         type: FormElementType.SELECT,
@@ -74,17 +60,14 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     ];
   }
 
-  getParameter(name: string): any {
-    return this.paramForm.getElementById(name).value.data;
-  }
-
-  setParameter(name: string, value: any) {
-    this.paramForm.getElementById(name).value = value;
+  parameterChanged(name: string) {
+    super.parameterChanged(name);
+    this.color.domain([]); // reset colors
     this.update(true);
   }
 
-  changeSelection(selection: ISelection) {
-    this.selection = selection;
+  selectionChanged() {
+    super.selectionChanged();
     this.update();
   }
 
@@ -119,7 +102,7 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = that.resolveId(idtype, d.id, that.idType)
+      const promise = resolveId(idtype, d.id, that.idType)
         .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
 
       // on error
@@ -221,10 +204,15 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
 
     const data: IDataFormat = $parent.datum();
     const geneName = data.geneName;
-    const rows = data.rows;
+    const rows = data.rows.slice();
+
+    // sort missing colors to the front
+    rows.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
+    integrateColors(this.color, rows.map((d) => d.color));
+    legend(<HTMLElement>this.$legend.node(), this.color);
 
     const $g = $parent.select('svg g');
 
@@ -240,44 +228,33 @@ export abstract class AExpressionVsCopyNumber extends ASmallMultipleView {
     }
     $g.select('text.title').text(title);
 
+
     const marks = $g.selectAll('.mark').data(rows);
     marks.enter().append('circle')
       .classed('mark', true)
       .attr('r', 2)
-      .attr('title', (d) => d.samplename)
       .on('click', (d) => {
         const target: EventTarget = (<Event>d3.event).target;
 
         const selectOperation = toSelectOperation(<MouseEvent>d3.event);
-
-        const id: number = d._id;
-        const r: Range = list([id]);
-
         const oldSelection = this.getItemSelection();
-        let newSelection: Range = none();
+        const id: number = d._id;
+        const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
-        switch(selectOperation) {
-          case SelectOperation.SET:
-            newSelection = r;
+        if (selectOperation === SelectOperation.SET) {
             d3.selectAll('circle.mark.clicked').classed('clicked', false);
-            break;
-          case SelectOperation.ADD:
-            newSelection = oldSelection.range.union(r);
-            break;
-          case SelectOperation.REMOVE:
-            newSelection = oldSelection.range.without(r);
-            break;
         }
-
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
-      })
-      .call(bindTooltip((d: any) => d.samplename));
+      }).append('title');
 
+    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-color', (d) => String(d.color));
+    marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
       cy: (d) => this.y(d.expression),
-    });
+    }).style('fill', (d) => d.color ? this.color(d.color) : null);
 
     marks.exit().remove();
   }
@@ -290,6 +267,7 @@ export default AExpressionVsCopyNumber;
 export interface IDataFormatRow {
   samplename: string;
   expression: number;
+  color?: string;
   cn: number;
   _id: number;
 }

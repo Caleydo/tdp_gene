@@ -2,6 +2,8 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
+// see also _onco_print.scss
+
 export const copyNumberCat = [
   {value: 2, name: 'Amplification', color: '#efb3bc', border: 'transparent'},
   {value: -2, name: 'Deep Deletion', color: '#92c5de', border: 'transparent'},

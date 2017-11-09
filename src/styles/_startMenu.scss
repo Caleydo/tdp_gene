@@ -1,4 +1,7 @@
-@import '~ordino/src/styles/utils';
+@import '~tdp_core/src/styles/vars';
+@import '~font-awesome/scss/variables';
+@import '~font-awesome/scss/mixins';
+
 
 .startMenu {
 
@@ -132,34 +135,13 @@
           width: auto !important;
         }
       }
-
-      .named-sets-wrapper {
-        margin-top: 10px;
-        display: flex;
-        justify-content: space-between;
-      }
-
     }
   }
 
   .speciesSelector > header > h1 > label:before {
-    @include fontAwesome();
-    content: "\f1c0"; //fa-database
+    @include fa-icon();
+    content: $fa-var-database;
+    width: (18em / 14);
+    text-align: center;
   }
-
-  .speciesSelector {
-    .predefined-named-sets .header:before {
-      @include fontAwesome();
-      content: "\f1c0"; //fa-database
-    }
-    .custom-named-sets .header:before {
-      @include fontAwesome();
-      content: "\f007 "; //fa-user
-    }
-    .other-named-sets .header:before {
-      @include fontAwesome();
-      content: "\f0c0"; //fa-users
-    }
-  }
-
 }

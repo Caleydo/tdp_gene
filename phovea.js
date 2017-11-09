@@ -6,146 +6,145 @@
 
 //register all extensions in the registry following the given pattern
 module.exports = function (registry) {
-  //registry.push('extension-type', 'extension-id', function() { return System.import('./src/extension_impl'); }, {});
+  //registry.push('extension-type', 'extension-id', function() { return import('./src/extension_impl'); }, {});
   // generator-phovea:begin
-  registry.push('targidStartMenuSection', 'targid_start_species', function () {
-    return System.import('./src/SpeciesSelector');
+  /// #if include('ordino')
+  registry.push('ordinoStartMenuSection', 'section_species', function () {
+    return import('./src/menu/SpeciesSelectorMenuSection');
   }, {
-    'name': 'Predefined Datasets',
-    'cssClass': 'speciesSelector',
-    'factory': 'create',
-    'priority': 10
+     name: 'Predefined Datasets',
+     cssClass: 'speciesSelector',
+     priority: 10
   });
-
-
+  /// #endif
 
   // proxy pages
 
-  registry.push('targidView', 'ensembl_org', function () {
-    return System.import('./src/views/GeneProxyView');
+  registry.push('tdpView', 'ensembl_org', function () {
+    return import('./src/views/GeneProxyView');
   }, {
-    'name': 'Ensembl',
-    'site': 'http://feb2014.archive.ensembl.org/{species}/Gene/Summary?g={gene}',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 0
+     name: 'Ensembl',
+     site: '//grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
+     argument: 'gene',
+     idtype: 'Ensembl',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 0
     }
   });
 
   // registry.push('targidView', 'gene_card', function () {
-  //   return System.import('./src/views/GeneProxyView');
+  //   return import('./src/views/GeneProxyView');
   // }, {
-  //   'name': 'GeneCards',
-  //   'site': '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
-  //   'argument': 'gene',
-  //   'idtype': 'Ensembl',
-  //   'selection': 'multiple'
+  //    name: 'GeneCards',
+  //    site: '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
+  //    argument: 'gene',
+  //    idtype: 'Ensembl',
+  //    selection: 'multiple'
   // });
 
-  registry.push('targidView', 'cansar', function () {
-    return System.import('./src/views/UniProtProxyView');
+  registry.push('tdpView', 'cansar', function () {
+    return import('./src/views/UniProtProxyView');
   }, {
-    'name': 'canSAR',
-    'site': 'http://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 60
+     name: 'canSAR',
+     site: '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
+     argument: 'gene',
+     idtype: 'Ensembl',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 60
     },
-    'filter': {
-      'species': 'human'
+     filter: {
+       species: 'human'
     }
   });
 
-  registry.push('targidView', 'uniprot', function () {
-    return System.import('./src/views/UniProtProxyView');
+  registry.push('tdpView', 'uniprot', function () {
+    return import('./src/views/UniProtProxyView');
   }, {
-    'name': 'UniProt',
-    'site': 'http://www.uniprot.org/uniprot/{gene}/',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 70
+     name: 'UniProt',
+     site: 'http://www.uniprot.org/uniprot/{gene}/',
+     argument: 'gene',
+     idtype: 'Ensembl',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 70
     }
   });
 
-  registry.push('targidView', 'targetvalidation', function () {
-    return System.import('./src/views/GeneProxyView');
+  registry.push('tdpView', 'targetvalidation', function () {
+    return import('./src/views/GeneProxyView');
   }, {
-    'name': 'Open Targets',
-    'site': '//www.targetvalidation.org/target/{gene}',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 40
+     name: 'Open Targets',
+     site: '//www.targetvalidation.org/target/{gene}',
+     argument: 'gene',
+     idtype: 'Ensembl',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 40
     },
-    'filter': {
-      'species': 'human'
+     filter: {
+       species: 'human'
     }
   });
 
-  registry.push('targidView', 'proteinatlas_org', function () {
-    return System.import('./src/views/GeneProxyView');
+  registry.push('tdpView', 'proteinatlas_org', function () {
+    return import('./src/views/GeneProxyView');
   }, {
-    'name': 'Human Protein Atlas',
-    'site': 'http://proteinatlas.org/{gene}',
-    'argument': 'gene',
-    'idtype': 'Ensembl',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 50
+     name: 'Human Protein Atlas',
+     site: '//proteinatlas.org/{gene}',
+     argument: 'gene',
+     idtype: 'Ensembl',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 50
     },
-    'filter': {
-      'species': 'human'
+     filter: {
+       species: 'human'
     }
   });
 
-  registry.push('targidView', 'cosmic', function () {
-    return System.import('ordino/src/ProxyView');
+  registry.push('tdpView', 'cosmic', function () {
+    return import('tdp_core/src/views/ProxyView');
   }, {
-    'name': 'COSMIC',
-    'site': '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
-    'argument': 'cellline',
-    'idtype': 'Cellline',
-    'selection': 'chooser',
-    'group': {
-      'name': 'External resources'
-      // 'order': 0
+     name: 'COSMIC',
+     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
+     argument: 'cellline',
+     idtype: 'Cellline',
+     selection: 'chooser',
+     group: {
+       name: 'External resources'
+      // 'order: 0
     },
-    'filter': {
-      'species': 'human'
+     filter: {
+       species: 'human'
     }
   });
 
 
   registry.push('importPostProcessor', 'GeneSymbol', function() {
-    return System.import('./src/Common');
+    return import('./src/common');
   }, {
-    'factory': 'convertGeneSymbolToEnsembl'
+     factory: 'convertGeneSymbolToEnsembl'
   });
 
-  registry.push('ordinoListFilters', 'SpeciesFilter', function() {
-    return System.import('./src/Common');
+  registry.push('tdpListFilters', 'SpeciesFilter', function() {
+    return import('./src/common');
   }, {
-    'factory': 'filterSpecies'
+     factory: 'filterSpecies'
   });
 
   registry.push('idTypeDetector', 'gene_idtype_detector', function () {
-    return System.import('./src/GeneIDTypeDetector');
+    return import('./src/GeneIDTypeDetector');
   }, {
-    'name': 'IDTypeDetector',
-    'factory': 'geneIDTypeDetector',
-    'idType': 'Ensembl'
+     name: 'IDTypeDetector',
+     factory: 'geneIDTypeDetector',
+     idType: 'Ensembl'
   });
 
   // generator-phovea:end

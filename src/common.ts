@@ -4,8 +4,8 @@
 
 import * as session from 'phovea_core/src/session';
 import IDType from 'phovea_core/src/idtype/IDType';
-import {IFormSelectOption} from 'ordino/src/FormBuilder';
-import {ISelection} from 'ordino/src/View';
+import {IFormSelectOption} from 'tdp_core/src/form';
+import {ISelection} from 'tdp_core/src/views';
 import {resolve} from 'phovea_core/src/idtype';
 import {GENE_IDTYPE} from './constants';
 import {list as asRange} from 'phovea_core/src/range';
@@ -99,8 +99,7 @@ export function convertGeneSymbolToEnsembl(): IPostProcessor {
        const idType = resolve(importResults.idType);
 
        const geneSymbols = data.map((row) => row[importResults.idColumn]);
-       const systemIDs = await idType.map(geneSymbols);
-       const ensgs = await idType.mapToName(systemIDs, GENE_IDTYPE);
+       const ensgs = await idType.mapNameToName(geneSymbols, GENE_IDTYPE);
 
        // append converted ENSGs to each row
        // ensgs is an Array of Arrays
