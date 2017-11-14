@@ -28,6 +28,7 @@ module.exports = function (registry) {
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/ensembl.jpg') },
      group: {
        name: 'External resources'
       // 'order: 0
@@ -52,6 +53,7 @@ module.exports = function (registry) {
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/cansar.jpg') },
      group: {
        name: 'External resources'
       // 'order: 60
@@ -69,6 +71,7 @@ module.exports = function (registry) {
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/uniprot.jpg') },
      group: {
        name: 'External resources'
       // 'order: 70
@@ -83,6 +86,7 @@ module.exports = function (registry) {
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/open_targets.jpg') },
      group: {
        name: 'External resources'
       // 'order: 40
@@ -100,6 +104,7 @@ module.exports = function (registry) {
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/human_protein_atlas.jpg') },
      group: {
        name: 'External resources'
       // 'order: 50
@@ -117,6 +122,7 @@ module.exports = function (registry) {
      argument: 'cellline',
      idtype: 'Cellline',
      selection: 'chooser',
+     preview: function() { return import('./src/assets/previews/cosmic.jpg') },
      group: {
        name: 'External resources'
       // 'order: 0
