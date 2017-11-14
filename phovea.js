@@ -32,7 +32,8 @@ module.exports = function (registry) {
      group: {
        name: 'External resources'
       // 'order: 0
-    }
+    },
+    description: 'Show information on your search from Ensembl.org'
   });
 
   // registry.push('targidView', 'gene_card', function () {
@@ -60,7 +61,8 @@ module.exports = function (registry) {
     },
      filter: {
        species: 'human'
-    }
+    },
+    description: 'Show information on your search from the canSAR page'
   });
 
   registry.push('tdpView', 'uniprot', function () {
@@ -75,7 +77,8 @@ module.exports = function (registry) {
      group: {
        name: 'External resources'
       // 'order: 70
-    }
+    },
+    description: 'Show information on your search from UniProt'
   });
 
   registry.push('tdpView', 'targetvalidation', function () {
@@ -93,7 +96,8 @@ module.exports = function (registry) {
     },
      filter: {
        species: 'human'
-    }
+    },
+    description: 'Show information on your search from Open Targets'
   });
 
   registry.push('tdpView', 'proteinatlas_org', function () {
@@ -111,7 +115,8 @@ module.exports = function (registry) {
     },
      filter: {
        species: 'human'
-    }
+    },
+    description: 'Show information on your search from the Human Protein Atlas'
   });
 
   registry.push('tdpView', 'cosmic', function () {
@@ -129,7 +134,8 @@ module.exports = function (registry) {
     },
      filter: {
        species: 'human'
-    }
+    },
+    description: 'Show information on your search from COSMIC'
   });
 
 
