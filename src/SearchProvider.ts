@@ -16,7 +16,7 @@ export default class SearchProvider implements ISearchProvider {
   }
 
   get verifyView() {
-    return `${this.dataSource.base}_items_verfiy`;
+    return `${this.dataSource.base}_items_verify`;
   }
 
   protected static mapItems(result: any): IResult {
