@@ -123,7 +123,7 @@ module.exports = function (registry) {
     return import('tdp_core/src/views/ProxyView');
   }, {
      name: 'COSMIC',
-     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}',
+     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}&genome=37',
      argument: 'cellline',
      idtype: 'Cellline',
      selection: 'chooser',
