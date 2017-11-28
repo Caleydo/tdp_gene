@@ -83,7 +83,7 @@
     "tslib": "1.5.0"
   },
   "dependencies": {
-    "tdp_core": "github:datavisyn/tdp_core#sluger/filter-species",
+    "tdp_core": "github:datavisyn/tdp_core#develop",
     "jquery-ui": "1.12.1"
   },
   "optionalDependencies": {
