@@ -123,9 +123,9 @@ module.exports = function (registry) {
     return import('tdp_core/src/views/ProxyView');
   }, {
      name: 'COSMIC',
-     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}&genome=37',
-     argument: 'cellline',
-     idtype: 'Cellline',
+     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?id={cosmicid}&genome=37',
+     argument: 'cosmicid',
+     idtype: 'Cosmic',
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/cosmic.jpg') },
      group: {
