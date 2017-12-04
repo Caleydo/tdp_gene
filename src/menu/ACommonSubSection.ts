@@ -68,15 +68,15 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     return true;
   }
 
-  private static panel2NamedSet({id, description}: { id: string, description: string }): INamedSet {
+  private static panel2NamedSet({id, description, species}: { id: string, description: string, species: string }): INamedSet {
     return {
       type: ENamedSetType.PANEL,
       id,
       name: id,
       description,
       subTypeKey: SPECIES_SESSION_KEY,
-      subTypeFromSession: true,
-      subTypeValue: defaultSpecies,
+      subTypeFromSession: false,
+      subTypeValue: species,
       idType: '',
       ids: '',
       creator: ''
@@ -84,7 +84,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   }
 
   protected loadPanels(): Promise<INamedSet[]> {
-    return getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels: { id: string, description: string }[]) => {
+    return getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels: { id: string, description: string, species: string }[]) => {
       return panels.map(ACommonSubSection.panel2NamedSet);
     });
   }
