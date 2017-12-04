@@ -10,7 +10,7 @@ import {resolve} from 'phovea_core/src/idtype';
 import {GENE_IDTYPE} from './constants';
 import {list as asRange} from 'phovea_core/src/range';
 
-// hast to work for all data sources (gene, tissue, cell line)
+// has to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {
   name: string;
   value: string;
