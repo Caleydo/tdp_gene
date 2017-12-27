@@ -250,6 +250,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     marks.attr('data-id', (d) => d._id);
     marks.attr('data-color', (d) => String(d.color));
+    marks.classed('disabled', false); // show all and reset filtering
     marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
