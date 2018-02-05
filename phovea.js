@@ -30,7 +30,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/ensembl.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 0
     },
     description: 'Show information on your search from Ensembl.org'
@@ -56,7 +56,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/cansar.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 60
     },
      filter: {
@@ -75,7 +75,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/uniprot.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 70
     },
     description: 'Show information on your search from UniProt'
@@ -91,7 +91,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/open_targets.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 40
     },
      filter: {
@@ -110,7 +110,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/human_protein_atlas.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 50
     },
      filter: {
