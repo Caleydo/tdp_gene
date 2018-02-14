@@ -30,7 +30,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/ensembl.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 0
     },
     description: 'Show information on your search from Ensembl.org'
@@ -56,7 +56,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/cansar.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 60
     },
      filter: {
@@ -75,7 +75,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/uniprot.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 70
     },
     description: 'Show information on your search from UniProt'
@@ -91,7 +91,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/open_targets.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 40
     },
      filter: {
@@ -110,7 +110,7 @@ module.exports = function (registry) {
      selection: 'chooser',
      preview: function() { return import('./src/assets/previews/human_protein_atlas.jpg') },
      group: {
-       name: 'External resources'
+       name: 'External Resources'
       // 'order: 50
     },
      filter: {
@@ -118,26 +118,6 @@ module.exports = function (registry) {
     },
     description: 'Show information on your search from the Human Protein Atlas'
   });
-
-  registry.push('tdpView', 'cosmic', function () {
-    return import('tdp_core/src/views/ProxyView');
-  }, {
-     name: 'COSMIC',
-     site: '//cancer.sanger.ac.uk/cell_lines/sample/overview?name={cellline}&genome=37',
-     argument: 'cellline',
-     idtype: 'Cellline',
-     selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/cosmic.jpg') },
-     group: {
-       name: 'External resources'
-      // 'order: 0
-    },
-     filter: {
-       species: 'human'
-    },
-    description: 'Show information on your search from COSMIC'
-  });
-
 
   registry.push('importPostProcessor', 'GeneSymbol', function() {
     return import('./src/common');
