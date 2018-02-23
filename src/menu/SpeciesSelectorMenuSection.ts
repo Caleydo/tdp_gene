@@ -114,7 +114,7 @@ export default class SpeciesSelectorMenuSection implements IStartMenuSection {
       .on('click', function(d) {
         (<Event>d3event).preventDefault();
         session.store(tabSessionKey, d.id);
-        $(this).tab('show');
+        $(this).tab('show').blur();
       }).each(function(this: HTMLElement, d) {
         if (d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)) {
           this.click();

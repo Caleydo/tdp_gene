@@ -394,6 +394,7 @@ export abstract class ACoExpression extends AD3View {
 
     marks.attr('data-id', (d) => d._id);
     marks.attr('data-color', (d) => String(d.color));
+    marks.classed('disabled', false); // show all and reset filtering
     marks.select('title').text((d) => `${d.title} (${refGene.symbol}: ${firstIsReference ? d.expr1 : d.expr2}, ${geneName}: ${firstIsReference ? d.expr2 : d.expr1}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(firstIsReference ? d.expr1 : d.expr2),
