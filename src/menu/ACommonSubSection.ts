@@ -106,17 +106,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
           page,
           pageSize
         })
-      },
-      ajax: {
-        url: getTDPLookupUrl(this.dataSource.db, `${this.dataSource.base}_items`),
-        data: (params: any) => {
-          return {
-            column: this.dataSource.entityName,
-            species: getSelectedSpecies(),
-            query: params.term === undefined ? '' : params.term,
-            page: params.page === undefined ? 0 : params.page
-          };
-        }
       }
     };
   }
