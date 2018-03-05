@@ -8,7 +8,7 @@ import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import NamedSetList from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData, getTDPLookup, getTDPLookupUrl} from 'tdp_core/src/rest';
+import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
@@ -97,7 +97,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       tags: true,
       tokenSeparators: [',', ' ', ';', '\t'],
       tokenizer: this.tokenize.bind(this),
-      createTag: () => null,
       search: (query, page, pageSize) => {
         return getTDPLookup(this.dataSource.db, `${this.dataSource.base}_items`, {
           column: this.dataSource.entityName,
@@ -106,7 +105,8 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
           page,
           pageSize
         })
-      }
+      },
+      validate: ((query) => this.validate(query))
     };
   }
 
