@@ -8,13 +8,13 @@ import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import NamedSetList from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
+import {getTDPData} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
 import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
-import {highlightMatch, ISelect3Item} from 'tdp_core/src/form/internal/Select3';
+import {format, search, validate} from 'tdp_publicdb/src/utils';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -95,30 +95,10 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       return: 'id',
       optionsData: [],
       placeholder: `Search ${this.dataSource.name}`,
-      search: (query, page, pageSize) => {
-        return getTDPLookup(this.dataSource.db, `${this.dataSource.base}_items`, {
-          column: this.dataSource.entityName,
-          species: getSelectedSpecies(),
-          query,
-          page,
-          pageSize
-        })
-      },
-      validate: (query) => {
-        return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verify/filter`, {
-          column: this.dataSource.entityName,
-          species: getSelectedSpecies(),
-          [`filter_${this.dataSource.entityName}`]: query
-        });
-      },
-      format: (item: ISelect3Item<IdTextPair>, node: HTMLElement, mode: 'result' | 'selection', currentSearchQuery?: RegExp) => {
-        if (mode === 'result' && currentSearchQuery) {
-          //highlight match
-          return `${item.text.replace(currentSearchQuery!, highlightMatch)}`;
-        }
-        return item.text;
-      }
-    };
+      search: (query, page, pageSize) => search(this.dataSource, query, page, pageSize),
+      validate: (query) => validate(this.dataSource, query),
+      format: (item, node, mode, currentSearchQuery) => format(this.dataSource, item, node, mode, currentSearchQuery)
+    }
   }
 
   protected getDefaultSessionValues() {
