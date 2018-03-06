@@ -14,6 +14,7 @@ import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
 import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
+import {highlightMatch, ISelect3Item} from 'tdp_core/src/form/internal/Select3';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -103,16 +104,21 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
           pageSize
         })
       },
-      validate: ((query) => this.validate(query))
+      validate: (query) => {
+        return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verify/filter`, {
+          column: this.dataSource.entityName,
+          species: getSelectedSpecies(),
+          [`filter_${this.dataSource.entityName}`]: query
+        });
+      },
+      format: (item: ISelect3Item<IdTextPair>, node: HTMLElement, mode: 'result' | 'selection', currentSearchQuery?: RegExp) => {
+        if (mode === 'result' && currentSearchQuery) {
+          //highlight match
+          return `${item.text.replace(currentSearchQuery!, highlightMatch)}`;
+        }
+        return item.text;
+      }
     };
-  }
-
-  protected validate(terms: string[]): Promise<{ id: string, text: string }[]> {
-    return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verify/filter`, {
-      column: this.dataSource.entityName,
-      species: getSelectedSpecies(),
-      [`filter_${this.dataSource.entityName}`]: terms
-    });
   }
 
   protected getDefaultSessionValues() {
