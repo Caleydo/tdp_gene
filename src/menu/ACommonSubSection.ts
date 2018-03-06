@@ -94,9 +94,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       return: 'id',
       optionsData: [],
       placeholder: `Search ${this.dataSource.name}`,
-      tags: true,
-      tokenSeparators: [',', ' ', ';', '\t'],
-      tokenizer: this.tokenize.bind(this),
       search: (query, page, pageSize) => {
         return getTDPLookup(this.dataSource.db, `${this.dataSource.base}_items`, {
           column: this.dataSource.entityName,
@@ -116,25 +113,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       species: getSelectedSpecies(),
       [`filter_${this.dataSource.entityName}`]: terms
     });
-  }
-
-  private tokenize(query: { term: string }, options: any, addSelection: (item: { id: string, text: string }) => void) {
-    const term = query.term;
-    if (term.length === 0) {
-      return query;
-    }
-    const arr = term.split(/[\s;,]+/);
-
-    const last = arr[arr.length - 1];
-    const valid = arr.map((a) => a.trim().toLowerCase()).filter((a) => a.length > 0);
-    if (valid.length > 1) {
-      this.validate(valid).then((items) => {
-        items.forEach((item) => addSelection(item));
-      });
-    }
-    return {
-      term: last
-    };
   }
 
   protected getDefaultSessionValues() {
