@@ -97,7 +97,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       placeholder: `Search ${this.dataSource.name}`,
       search: (query, page, pageSize) => search(this.dataSource, query, page, pageSize),
       validate: (query) => validate(this.dataSource, query),
-      format: (item, node, mode, currentSearchQuery) => format(this.dataSource, item, node, mode, currentSearchQuery)
+      format: format
     }
   }
 
