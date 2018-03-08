@@ -14,7 +14,6 @@ import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
 import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
-import {format, search, validate} from 'tdp_publicdb/src/utils';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -95,9 +94,6 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       return: 'id',
       optionsData: [],
       placeholder: `Search ${this.dataSource.name}`,
-      search: (query, page, pageSize) => search(this.dataSource, query, page, pageSize),
-      validate: (query) => validate(this.dataSource, query),
-      format: format
     }
   }
 
