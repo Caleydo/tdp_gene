@@ -31,7 +31,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     super.initImpl();
     this.node.classList.add('expressionVsCopyNumber', 'multiple');
     this.$legend = this.$node.append('div');
-    return this.update();
+    return this.updateCharts();
   }
 
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
@@ -63,12 +63,12 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   parameterChanged(name: string) {
     super.parameterChanged(name);
     this.color.domain([]); // reset colors
-    this.update(true);
+    this.updateCharts(true);
   }
 
   selectionChanged() {
     super.selectionChanged();
-    this.update();
+    this.updateCharts();
   }
 
   /**
@@ -82,7 +82,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     return rows2;
   }
 
-  private update(updateAll = false) {
+  private updateCharts(updateAll = false) {
     this.setBusy(true);
 
     const that = this;
@@ -103,7 +103,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
       const promise = resolveId(idtype, d.id, that.idType)
-        .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
+        .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
       promise.catch(showErrorModalDialog)
@@ -222,6 +222,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
+
     let title = 'No data for ' + geneName;
     if (rows[0]) {
       title = geneName;
@@ -242,7 +243,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
-            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+          d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
