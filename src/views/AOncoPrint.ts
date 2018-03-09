@@ -30,7 +30,7 @@ export interface IDataFormatRow {
 }
 
 export interface IDataFormat {
-  id:number;
+  id: number;
   geneName: string;
   ensg: string;
   alterationFreq: number;
@@ -49,11 +49,11 @@ function unknownSample(sample: string, sampleId: number): IDataFormatRow {
   };
 }
 
-function isMissingMutation(v : boolean) {
+function isMissingMutation(v: boolean) {
   return v === null || v === unknownMutationValue;
 }
 
-function isMissingCNV(v : number) {
+function isMissingCNV(v: number) {
   return v === null || v === unknownCopyNumberValue;
 }
 
@@ -115,7 +115,7 @@ function compareMutation(a: boolean, b: boolean) {
 }
 
 function sort(sampleList: string[], rows: IDataFormatRow[][]) {
-  const rowLookups : any[] = rows.map((row) => {
+  const rowLookups: any[] = rows.map((row) => {
     const r = {};
     row.forEach((d) => r[d.name] = d);
     return r;
@@ -163,7 +163,7 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
 
 export abstract class AOncoPrint extends AView {
 
-  private $table:Selection<IView>;
+  private $table: Selection<IView>;
 
   private sampleListPromise: Promise<ISample[]> = null;
 
@@ -173,7 +173,7 @@ export abstract class AOncoPrint extends AView {
    */
   private manuallyResorted: boolean = false;
 
-  private scaleFactor : ''|'s'|'ss'|'sss' = '';
+  private scaleFactor: '' | 's' | 'ss' | 'sss' = '';
 
   init(params: HTMLElement, onParameterChange: (name: string, value: any) => Promise<any>) {
     super.init(params, onParameterChange);
@@ -190,13 +190,13 @@ export abstract class AOncoPrint extends AView {
       e.preventDefault();
       e.stopPropagation();
       s = Math.min(s + 1, 3);
-      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+      scaleElem.dataset.scale = this.node.dataset.scale = 's'.repeat(s);
     });
     scaleElem.lastElementChild!.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       s = Math.max(s - 1, 0);
-      scaleElem.dataset.scale = this.node.dataset.scale='s'.repeat(s);
+      scaleElem.dataset.scale = this.node.dataset.scale = 's'.repeat(s);
     });
 
   }
@@ -206,18 +206,18 @@ export abstract class AOncoPrint extends AView {
     this.build();
     // load sample list with all available ids, then update the onco print
     this.sampleListPromise = this.loadSampleList();
-    return this.sampleListPromise.then(this.update.bind(this, false));
+    return this.sampleListPromise.then(this.updateChart.bind(this, false));
   }
 
   protected parameterChanged(name: string) {
     super.parameterChanged(name);
     this.sampleListPromise = this.loadSampleList();
-    this.sampleListPromise.then(this.update.bind(this,true));
+    this.sampleListPromise.then(this.updateChart.bind(this, true));
   }
 
   protected selectionChanged() {
     super.selectionChanged();
-    this.update();
+    this.updateChart();
   }
 
   private build() {
@@ -247,7 +247,7 @@ export abstract class AOncoPrint extends AView {
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <p>Please note:</p> 
+      <p>Please note:</p>
       <ul>
          <li>The indicated copy number states are only estimates, which can be affected by sample purity, ploidy, and other factors.</li>
          <li>The indicated alteration prevalences are only estimates, which can be affected by incomplete data and small sample numbers.</li>
@@ -265,7 +265,7 @@ export abstract class AOncoPrint extends AView {
     this.setBusy(false);
   }
 
-  private update(updateAll = false) {
+  private updateChart(updateAll = false) {
     this.setBusy(true);
 
     const ids = this.selection.range.dim(0).asList();
@@ -289,7 +289,7 @@ export abstract class AOncoPrint extends AView {
       return ids.map((id) => lookup.get(id) || empty(id));
     };
 
-    const data:IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
+    const data: IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
 
     const $ids = this.$table.selectAll('tr.gene').data(data, (d) => String(d.id));
     const $idsEnter = $ids.enter().append('tr').classed('gene', true);
@@ -325,15 +325,15 @@ export abstract class AOncoPrint extends AView {
       });
     };
 
-    enterOrUpdateAll.each(function(d: IDataFormat) {
+    enterOrUpdateAll.each(function (d: IDataFormat) {
       renderRow(select(this), d);
     });
 
     //assume that all data will have a promise
     // wait for all data and then sort the things
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
-      const samples : string[] = result.shift().map((d) => d.name);
-      const rows =<IDataFormat[]>result;
+      const samples: string[] = result.shift().map((d) => d.name);
+      const rows = <IDataFormat[]>result;
       if (!this.manuallyResorted) {
         rows.sort(byAlterationFrequency);
       }
@@ -363,7 +363,7 @@ export abstract class AOncoPrint extends AView {
             this.sortCells(sortedSamples);
           });
         }
-    });
+      });
   }
 
   private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
@@ -376,7 +376,7 @@ export abstract class AOncoPrint extends AView {
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
-    $th.html((d:any) => `<span class="alterationFreq">${format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
+    $th.html((d: any) => `<span class="alterationFreq">${format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
     $th.exit().remove();
 
     const $cells = $parent.selectAll('td.cell').data(rows);
@@ -397,7 +397,7 @@ export abstract class AOncoPrint extends AView {
 
     $cells.exit().remove();
 
-    if(rows.length === 0) {
+    if (rows.length === 0) {
       $parent.append('td').classed('cell', true);
     }
   }
@@ -412,7 +412,7 @@ export abstract class AOncoPrint extends AView {
     const current = range.dim(0);
     let newSelection: Range = null;
     const single = rlist([sampleId]);
-    switch(op) {
+    switch (op) {
       case SelectOperation.SET:
         if (current.contains(sampleId)) {
           newSelection = none();
@@ -453,8 +453,8 @@ export abstract class AOncoPrint extends AView {
 
   private sortCells(sortedSamples: string[]) {
     //name to index
-    const lookup : any= {};
-    sortedSamples.forEach((d,i) => lookup[d] = i);
+    const lookup: any = {};
+    sortedSamples.forEach((d, i) => lookup[d] = i);
 
     const $genes = this.$table.selectAll('tr.gene');
     $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
@@ -468,7 +468,7 @@ export abstract class AOncoPrint extends AView {
 
   private alignData(rows: IDataFormatRow[], samples: ISample[]) {
     // build hash map first for faster access
-    const hash : any= {};
+    const hash: any = {};
     rows.forEach((r) => hash[r.name] = r);
 
     // align items --> fill missing values up to match sample list
