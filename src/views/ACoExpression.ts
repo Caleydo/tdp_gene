@@ -25,7 +25,7 @@ function filterZeroValues(rows: IDataFormatRow[]) {
 }
 
 export interface IGeneOption extends IFormSelectOption {
-  data: { id: string, symbol: string, _id: number };
+  data: {id: string, symbol: string, _id: number};
 }
 
 export abstract class ACoExpression extends AD3View {
@@ -67,9 +67,9 @@ export abstract class ACoExpression extends AD3View {
           return null;
         }
       }).then((expressions) => {
-      this.refGeneExpression = expressions;
-      this.update(this.refGene, expressions, true);
-    });
+        this.refGeneExpression = expressions;
+        this.updateChart(this.refGene, expressions, true);
+      });
   }
 
   protected getParameterFormDescs(): IFormSelectDesc[] {
@@ -90,11 +90,11 @@ export abstract class ACoExpression extends AD3View {
     this.color.domain([]); // reset colors
     if (!this.refGene) {
       this.refGeneExpression = null;
-      this.update(null, null, true);
+      this.updateChart(null, null, true);
     } else {
       this.loadRefGeneData(this.refGene).then((expressions) => {
         this.refGeneExpression = expressions;
-        this.update(this.refGene, this.refGeneExpression, true);
+        this.updateChart(this.refGene, this.refGeneExpression, true);
       });
     }
   }
@@ -112,11 +112,11 @@ export abstract class ACoExpression extends AD3View {
           if (refGene) {
             this.loadRefGeneData(refGene).then((expressions) => {
               this.refGeneExpression = expressions;
-              this.update(refGene, this.refGeneExpression, true);
+              this.updateChart(refGene, this.refGeneExpression, true);
             });
           }
         } else {
-          this.update(refGene, this.refGeneExpression, refChanged);
+          this.updateChart(refGene, this.refGeneExpression, refChanged);
         }
       });
   }
@@ -174,12 +174,12 @@ export abstract class ACoExpression extends AD3View {
 
   protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
 
-  protected abstract loadGeneList(ensgs: string[]): Promise<{ id: string, symbol: string, _id: number }[]>;
+  protected abstract loadGeneList(ensgs: string[]): Promise<{id: string, symbol: string, _id: number}[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
 
-  private update(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
+  private updateChart(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
     const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
@@ -195,7 +195,7 @@ export abstract class ACoExpression extends AD3View {
       return;
     }
 
-    if(noData) {
+    if (noData) {
       this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
@@ -320,7 +320,7 @@ export abstract class ACoExpression extends AD3View {
       });*/
   }
 
-  private updateChartData(refGene: { id: string, symbol: string }, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
+  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
     const geneName = data.geneName;
 
     // hide small multiple co-expression plot because it would just project the ref gene on its own
@@ -366,7 +366,7 @@ export abstract class ACoExpression extends AD3View {
         result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, _id: d._id});
       }
       return result;
-    }, <{ expr1: number, expr2: number, title: string, color: string, _id: number }[]>[]);
+    }, <{expr1: number, expr2: number, title: string, color: string, _id: number}[]>[]);
 
     // sort missing colors to the front
     data2.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
@@ -385,7 +385,7 @@ export abstract class ACoExpression extends AD3View {
         const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
-            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+          d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
