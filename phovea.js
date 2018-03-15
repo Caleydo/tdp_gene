@@ -69,7 +69,7 @@ module.exports = function (registry) {
     return import('./src/views/UniProtProxyView');
   }, {
      name: 'UniProt',
-     site: 'http://www.uniprot.org/uniprot/{gene}/',
+     site: 'https://www.uniprot.org/uniprot/{gene}/',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
