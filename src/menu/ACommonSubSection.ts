@@ -2,18 +2,18 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {defaultSpecies, getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../common';
+import {getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../common';
 import {resolve, IDType} from 'phovea_core/src/idtype';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import NamedSetList from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData, getTDPLookupUrl} from 'tdp_core/src/rest';
+import {getTDPData} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import FormSelect2 from 'tdp_core/src/form/internal/FormSelect2';
+import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -94,49 +94,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       return: 'id',
       optionsData: [],
       placeholder: `Search ${this.dataSource.name}`,
-      tags: true,
-      tokenSeparators: [',', ' ', ';', '\t'],
-      tokenizer: this.tokenize.bind(this),
-      createTag: () => null,
-      ajax: {
-        url: getTDPLookupUrl(this.dataSource.db, `${this.dataSource.base}_items`),
-        data: (params: any) => {
-          return {
-            column: this.dataSource.entityName,
-            species: getSelectedSpecies(),
-            query: params.term === undefined ? '' : params.term,
-            page: params.page === undefined ? 0 : params.page
-          };
-        }
-      }
-    };
-  }
-
-  protected validate(terms: string[]): Promise<{ id: string, text: string }[]> {
-    return getTDPData(this.dataSource.db, `${this.dataSource.base}_items_verify/filter`, {
-      column: this.dataSource.entityName,
-      species: getSelectedSpecies(),
-      [`filter_${this.dataSource.entityName}`]: terms
-    });
-  }
-
-  private tokenize(query: { term: string }, options: any, addSelection: (item: { id: string, text: string }) => void) {
-    const term = query.term;
-    if (term.length === 0) {
-      return query;
     }
-    const arr = term.split(/[\s;,]+/);
-
-    const last = arr[arr.length - 1];
-    const valid = arr.map((a) => a.trim().toLowerCase()).filter((a) => a.length > 0);
-    if (valid.length > 1) {
-      this.validate(valid).then((items) => {
-        items.forEach((item) => addSelection(item));
-      });
-    }
-    return {
-      term: last
-    };
   }
 
   protected getDefaultSessionValues() {
@@ -153,13 +111,12 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     formBuilder.appendElement({
       id: `search-${this.dataSource.idType}${this.dataSource.entityName}`,
       hideLabel: true,
-      type: FormElementType.SELECT2_MULTIPLE,
+      type: FormElementType.SELECT3_MULTIPLE,
       attributes: {
         style: 'width:100%',
       },
       options: this.searchOptions()
     });
-
 
 
     const $searchButton = ACommonSubSection.createButton($searchWrapper, 'Go');
@@ -168,7 +125,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
 
     searchField.on('change', () => {
-      const state = (<FormSelect2>searchField).hasValue()? null : 'disabled';
+      const state = (<FormSelect3>searchField).hasValue() ? null : 'disabled';
       $searchButton.attr('disabled', state);
       $saveSetButton.attr('disabled', state);
     });
