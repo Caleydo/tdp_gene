@@ -12,12 +12,15 @@ import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {colorScale, integrateColors, legend} from './utils';
+import {jStat} from 'jStat';
 
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
   private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
+
+  private readonly spearmancoeff_title = 'Spearman Coefficient: ';
 
   private $legend: d3.Selection<any>;
 
@@ -173,7 +176,11 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
-  }
+
+    $parent.append('div').classed('statistics', true)
+      .append('div')
+      .attr('class', 'spearmancoeff');
+   }
 
   private resizeChart($parent: d3.Selection<any>) {
     this.x.range([0, this.width]);
@@ -228,6 +235,10 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     }
     $g.select('text.title').text(title);
 
+    // statistics
+    const formatter = d3.format('.4f');
+    const spearmancoeff = jStat.jStat.spearmancoeff(rows.map((d) => d.cn), rows.map((d) => d.expression));
+    $parent.select('div.statistics .spearmancoeff').text(this.spearmancoeff_title + formatter(spearmancoeff));
 
     const marks = $g.selectAll('.mark').data(rows);
     marks.enter().append('circle')
@@ -278,4 +289,3 @@ export interface IDataFormat {
   geneName: string;
   rows: IDataFormatRow[];
 }
-

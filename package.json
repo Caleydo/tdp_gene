@@ -84,7 +84,8 @@
   },
   "dependencies": {
     "tdp_core": "github:datavisyn/tdp_core#develop",
-    "jquery-ui": "1.12.1"
+    "jquery-ui": "1.12.1",
+    "jStat": "1.7.1"
   },
   "optionalDependencies": {
     "ordino": "github:Caleydo/ordino#develop",
