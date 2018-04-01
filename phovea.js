@@ -33,7 +33,8 @@ module.exports = function (registry) {
        name: 'External Resources'
       // 'order: 0
     },
-    description: 'Show information on your search from Ensembl.org'
+    description: 'Show information on your search from Ensembl.org',
+    topics: ['ensembl', 'external']
   });
 
   // registry.push('targidView', 'gene_card', function () {
@@ -62,7 +63,8 @@ module.exports = function (registry) {
      filter: {
        species: 'human'
     },
-    description: 'Show information on your search from the canSAR page'
+    description: 'Show information on your search from the canSAR page',
+    topics: ['cansar', 'external']
   });
 
   registry.push('tdpView', 'uniprot', function () {
@@ -78,7 +80,8 @@ module.exports = function (registry) {
        name: 'External Resources'
       // 'order: 70
     },
-    description: 'Show information on your search from UniProt'
+    description: 'Show information on your search from UniProt',
+    topics: ['uniprot', 'external']
   });
 
   registry.push('tdpView', 'targetvalidation', function () {
@@ -97,7 +100,8 @@ module.exports = function (registry) {
      filter: {
        species: 'human'
     },
-    description: 'Show information on your search from Open Targets'
+    description: 'Show information on your search from Open Targets',
+    topics: ['open-targets', 'external']
   });
 
   registry.push('tdpView', 'proteinatlas_org', function () {
@@ -116,7 +120,8 @@ module.exports = function (registry) {
      filter: {
        species: 'human'
     },
-    description: 'Show information on your search from the Human Protein Atlas'
+    description: 'Show information on your search from the Human Protein Atlas',
+    topics: ['protein-atlas', 'external']
   });
 
   registry.push('importPostProcessor', 'GeneSymbol', function() {
