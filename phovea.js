@@ -15,7 +15,7 @@ module.exports = function (registry) {
   });
   /// #endif
 
-  const phovea = require('./src/phovea');
+  const phovea = require('./src/phovea').default;
   phovea(registry);
   // generator-phovea:end
 }
