@@ -4,31 +4,31 @@
  * Licensed under the new BSD license, available at http://caleydo.org/license
  **************************************************************************** */
 
-//register all extensions in the registry following the given pattern
-module.exports = function (registry) {
-  //registry.push('extension-type', 'extension-id', function() { return import('./src/extension_impl'); }, {});
+import {IRegistry} from 'phovea_core/src/plugin';
+
+export default function (registry: IRegistry) {
+  //registry.push('extension-type', 'extension-id', function() { return System.import('./extension_impl'); }, {});
   // generator-phovea:begin
   /// #if include('ordino')
-  registry.push('ordinoStartMenuSection', 'section_species', function () {
-    return import('./src/menu/SpeciesSelectorMenuSection');
-  }, {
+  registry.push('ordinoStartMenuSection', 'section_species', () => System.import('./menu/SpeciesSelectorMenuSection'), {
      name: 'Predefined Datasets',
      cssClass: 'speciesSelector',
      priority: 10
   });
   /// #endif
 
-  // proxy pages
+  function tdpView(id: string, loader: () => any, desc: any) {
+    registry.push('tdpView', id, loader, desc);
+  }
 
-  registry.push('tdpView', 'ensembl_org', function () {
-    return import('./src/views/GeneProxyView');
-  }, {
+  // proxy pages
+  tdpView('ensembl_org', () => System.import('./views/GeneProxyView'), {
      name: 'Ensembl',
      site: '//grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/ensembl.jpg') },
+     preview: () => System.import('./assets/previews/ensembl.jpg'),
      group: {
        name: 'External Resources'
       // 'order: 0
@@ -37,25 +37,13 @@ module.exports = function (registry) {
     topics: ['ensembl', 'external']
   });
 
-  // registry.push('targidView', 'gene_card', function () {
-  //   return import('./src/views/GeneProxyView');
-  // }, {
-  //    name: 'GeneCards',
-  //    site: '//www.genecards.org/cgi-bin/carddisp.pl?id_type=esembl&id={gene}',
-  //    argument: 'gene',
-  //    idtype: 'Ensembl',
-  //    selection: 'multiple'
-  // });
-
-  registry.push('tdpView', 'cansar', function () {
-    return import('./src/views/UniProtProxyView');
-  }, {
+  tdpView('cansar', () => System.import('./views/UniProtProxyView'), {
      name: 'canSAR',
      site: '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/cansar.jpg') },
+     preview: () => System.import('./assets/previews/cansar.jpg'),
      group: {
        name: 'External Resources'
       // 'order: 60
@@ -67,15 +55,13 @@ module.exports = function (registry) {
     topics: ['cansar', 'external']
   });
 
-  registry.push('tdpView', 'uniprot', function () {
-    return import('./src/views/UniProtProxyView');
-  }, {
+  tdpView('uniprot', () => System.import('./views/UniProtProxyView'), {
      name: 'UniProt',
      site: 'https://www.uniprot.org/uniprot/{gene}/',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/uniprot.jpg') },
+     preview: () => System.import('./assets/previews/uniprot.jpg'),
      group: {
        name: 'External Resources'
       // 'order: 70
@@ -84,15 +70,13 @@ module.exports = function (registry) {
     topics: ['uniprot', 'external']
   });
 
-  registry.push('tdpView', 'targetvalidation', function () {
-    return import('./src/views/GeneProxyView');
-  }, {
+  tdpView('targetvalidation', () => System.import('./views/GeneProxyView'), {
      name: 'Open Targets',
      site: '//www.targetvalidation.org/target/{gene}',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/open_targets.jpg') },
+     preview: () => System.import('./assets/previews/open_targets.jpg'),
      group: {
        name: 'External Resources'
       // 'order: 40
@@ -104,15 +88,13 @@ module.exports = function (registry) {
     topics: ['open-targets', 'external']
   });
 
-  registry.push('tdpView', 'proteinatlas_org', function () {
-    return import('./src/views/GeneProxyView');
-  }, {
+  tdpView('proteinatlas_org', () => System.import('./views/GeneProxyView'), {
      name: 'Human Protein Atlas',
      site: '//proteinatlas.org/{gene}',
      argument: 'gene',
      idtype: 'Ensembl',
      selection: 'chooser',
-     preview: function() { return import('./src/assets/previews/human_protein_atlas.jpg') },
+     preview: () => System.import('./assets/previews/human_protein_atlas.jpg'),
      group: {
        name: 'External Resources'
       // 'order: 50
@@ -124,26 +106,19 @@ module.exports = function (registry) {
     topics: ['protein-atlas', 'external']
   });
 
-  registry.push('importPostProcessor', 'GeneSymbol', function() {
-    return import('./src/common');
-  }, {
+  registry.push('importPostProcessor', 'GeneSymbol', () => System.import('./common'), {
      factory: 'convertGeneSymbolToEnsembl'
   });
 
-  registry.push('tdpListFilters', 'SpeciesFilter', function() {
-    return import('./src/common');
-  }, {
+  registry.push('tdpListFilters', 'SpeciesFilter', () => System.import('./common'), {
      factory: 'filterSpecies'
   });
 
-  registry.push('idTypeDetector', 'gene_idtype_detector', function () {
-    return import('./src/GeneIDTypeDetector');
-  }, {
+  registry.push('idTypeDetector', 'gene_idtype_detector', () => System.import('./GeneIDTypeDetector'), {
      name: 'IDTypeDetector',
      factory: 'geneIDTypeDetector',
      idType: 'Ensembl'
   });
 
   // generator-phovea:end
-};
-
+}

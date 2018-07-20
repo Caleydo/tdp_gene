@@ -15,4 +15,4 @@ import 'tdp_core/phovea_registry.js';
 import 'ordino/phovea_registry.js';
 /// #endif
 //self
-register('tdp_gene',require('./phovea.js'));
+register('tdp_gene',require('./src/phovea'));
