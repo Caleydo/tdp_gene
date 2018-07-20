@@ -236,5 +236,6 @@ export default function (registry: IRegistry) {
     idType: 'Ensembl'
   });
 
+
   // generator-phovea:end
 }
