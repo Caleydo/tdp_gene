@@ -7,16 +7,6 @@
 import {IRegistry} from 'phovea_core/src/plugin';
 
 export default function (registry: IRegistry) {
-  //registry.push('extension-type', 'extension-id', function() { return System.import('./extension_impl'); }, {});
-  // generator-phovea:begin
-  /// #if include('ordino')
-  registry.push('ordinoStartMenuSection', 'section_species', () => System.import('./menu/SpeciesSelectorMenuSection'), {
-    name: 'Predefined Datasets',
-    cssClass: 'speciesSelector',
-    priority: 10
-  });
-  /// #endif
-
   function tdpView(id: string, loader: () => any, desc: any, ...descs) {
     registry.push('tdpView', id, loader, Object.assign(desc, ...descs));
   }
@@ -132,7 +122,7 @@ export default function (registry: IRegistry) {
     topics: ['protein', 'external']
   });
 
-  tdpView('proteomicsdb', () => System.import('tdp_core/src/views/Chooser/ProxyView'), {
+  tdpView('proteomicsdb', () => System.import('tdp_core/src/views/ChooserProxyView'), {
     name: 'ProteomicsDB',
     site: 'https://www.proteomicsdb.org/proteomicsdb/#human/search/query?protein_name={gene}',
     argument: 'gene',
@@ -235,7 +225,4 @@ export default function (registry: IRegistry) {
     factory: 'geneIDTypeDetector',
     idType: 'Ensembl'
   });
-
-
-  // generator-phovea:end
 }

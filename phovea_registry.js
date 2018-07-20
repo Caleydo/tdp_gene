@@ -4,7 +4,7 @@
  * Licensed under the new BSD license, available at http://caleydo.org/license
  **************************************************************************** */
 import {register} from 'phovea_core/src/plugin';
-import reg from './src/phovea';
+import reg from './phovea';
 /**
  * build a registry by registering all phovea modules
  */
