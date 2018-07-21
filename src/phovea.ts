@@ -14,7 +14,7 @@ export default function (registry: IRegistry) {
   // proxy pages
   tdpView('ensembl_org', () => System.import('./views/GeneProxyView'), {
     name: 'Ensembl',
-    site: '//grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
+    site: 'https://grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
     argument: 'gene',
     idtype: 'Ensembl',
     selection: 'chooser',
@@ -24,12 +24,12 @@ export default function (registry: IRegistry) {
       // 'order: 0
     },
     description: 'Show information on your search from Ensembl.org',
-    topics: ['general', 'external']
+    topics: ['external']
   });
 
   tdpView('cansar', () => System.import('./views/UniProtProxyView'), {
     name: 'canSAR',
-    site: '//cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
+    site: 'https://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
     argument: 'gene',
     idtype: 'Ensembl',
     selection: 'chooser',
@@ -42,7 +42,7 @@ export default function (registry: IRegistry) {
       species: 'human'
     },
     description: 'Show information on your search from the canSAR page',
-    topics: ['general', 'external']
+    topics: ['external']
   });
 
   tdpView('uniprot', () => System.import('./views/UniProtProxyView'), {
@@ -57,12 +57,12 @@ export default function (registry: IRegistry) {
       // 'order: 70
     },
     description: 'Show information on your search from UniProt',
-    topics: ['uniprot', 'general', 'external']
+    topics: ['uniprot', 'external']
   });
 
   tdpView('targetvalidation', () => System.import('./views/GeneProxyView'), {
     name: 'Open Targets',
-    site: '//www.targetvalidation.org/target/{gene}',
+    site: 'https://www.targetvalidation.org/target/{gene}',
     argument: 'gene',
     idtype: 'Ensembl',
     selection: 'chooser',
@@ -75,12 +75,12 @@ export default function (registry: IRegistry) {
       species: 'human'
     },
     description: 'Show information on your search from Open Targets',
-    topics: ['open-targets', 'external']
+    topics: ['external']
   });
 
   tdpView('proteinatlas_org', () => System.import('./views/GeneProxyView'), {
     name: 'Human Protein Atlas',
-    site: '//proteinatlas.org/{gene}',
+    site: 'https://proteinatlas.org/{gene}',
     argument: 'gene',
     idtype: 'Ensembl',
     selection: 'chooser',
