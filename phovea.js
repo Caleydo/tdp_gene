@@ -3,6 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  **************************************************************************** */
+import reg from './src/phovea';
 
 module.exports = function (registry) {
   //registry.push('extension-type', 'extension-id', function() { return System.import('./extension_impl'); }, {});
@@ -15,7 +16,6 @@ module.exports = function (registry) {
   });
   /// #endif
 
-  const phovea = require('./src/phovea').default;
-  phovea(registry);
+  reg(registry);
   // generator-phovea:end
 }
