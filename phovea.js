@@ -5,7 +5,7 @@
  **************************************************************************** */
 import reg from './src/phovea';
 
-module.exports = function (registry) {
+export default function (registry) {
   //registry.push('extension-type', 'extension-id', function() { return System.import('./extension_impl'); }, {});
   // generator-phovea:begin
   /// #if include('ordino')
