@@ -45,20 +45,20 @@ export default function (registry: IRegistry) {
     topics: ['external']
   });
 
-  tdpView('uniprot', () => System.import('./views/UniProtProxyView'), {
-    name: 'UniProt',
-    site: 'https://www.uniprot.org/uniprot/{gene}/',
-    argument: 'gene',
-    idtype: 'Ensembl',
-    selection: 'chooser',
-    preview: () => System.import('./assets/previews/uniprot.jpg'),
-    group: {
-      name: 'External Resources'
-      // 'order: 70
-    },
-    description: 'Show information on your search from UniProt',
-    topics: ['uniprot', 'external']
-  });
+  // tdpView('uniprot', () => System.import('./views/UniProtProxyView'), {
+  //   name: 'UniProt',
+  //   site: 'https://www.uniprot.org/uniprot/{gene}/',
+  //   argument: 'gene',
+  //   idtype: 'Ensembl',
+  //   selection: 'chooser',
+  //   preview: () => System.import('./assets/previews/uniprot.jpg'),
+  //   group: {
+  //     name: 'External Resources'
+  //     // 'order: 70
+  //   },
+  //   description: 'Show information on your search from UniProt',
+  //   topics: ['uniprot', 'external']
+  // });
 
   tdpView('targetvalidation', () => System.import('./views/GeneProxyView'), {
     name: 'Open Targets',
@@ -78,23 +78,23 @@ export default function (registry: IRegistry) {
     topics: ['external']
   });
 
-  tdpView('proteinatlas_org', () => System.import('./views/GeneProxyView'), {
-    name: 'Human Protein Atlas',
-    site: 'https://proteinatlas.org/{gene}',
-    argument: 'gene',
-    idtype: 'Ensembl',
-    selection: 'chooser',
-    preview: () => System.import('./assets/previews/human_protein_atlas.jpg'),
-    group: {
-      name: 'External Resources'
-      // 'order: 50
-    },
-    filter: {
-      species: 'human'
-    },
-    description: 'Show information on your search from the Human Protein Atlas',
-    topics: ['protein', 'external']
-  });
+  // tdpView('proteinatlas_org', () => System.import('./views/GeneProxyView'), {
+  //   name: 'Human Protein Atlas',
+  //   site: 'https://proteinatlas.org/{gene}',
+  //   argument: 'gene',
+  //   idtype: 'Ensembl',
+  //   selection: 'chooser',
+  //   preview: () => System.import('./assets/previews/human_protein_atlas.jpg'),
+  //   group: {
+  //     name: 'External Resources'
+  //     // 'order: 50
+  //   },
+  //   filter: {
+  //     species: 'human'
+  //   },
+  //   description: 'Show information on your search from the Human Protein Atlas',
+  //   topics: ['protein', 'external']
+  // });
 
   const common = {
     argument: 'gene',
@@ -110,17 +110,17 @@ export default function (registry: IRegistry) {
     topics: ['external']
   };
 
-  tdpView('humanproteomemap', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'Human Proteome Map',
-    site: 'http://www.humanproteomemap.org/protein.php?hpm_id={gene}',
-    helpUrl: 'http://www.humanproteomemap.org/faqs.html',
-    preview: () => System.import('./assets/previews/humanproteomemap.png'),
-    description: 'Proteomics data from the human proteome map'
-  }, common, {
-    idtype: 'EntrezGene',
-    readableIDType: 'GeneSymbol',
-    topics: ['protein', 'external']
-  });
+  // tdpView('humanproteomemap', () => System.import('tdp_core/src/views/ChooserProxyView'), {
+  //   name: 'Human Proteome Map',
+  //   site: 'http://www.humanproteomemap.org/protein.php?hpm_id={gene}',
+  //   helpUrl: 'http://www.humanproteomemap.org/faqs.html',
+  //   preview: () => System.import('./assets/previews/humanproteomemap.png'),
+  //   description: 'Proteomics data from the human proteome map'
+  // }, common, {
+  //   idtype: 'EntrezGene',
+  //   readableIDType: 'GeneSymbol',
+  //   topics: ['protein', 'external']
+  // });
 
   tdpView('proteomicsdb', () => System.import('tdp_core/src/views/ChooserProxyView'), {
     name: 'ProteomicsDB',
@@ -159,35 +159,37 @@ export default function (registry: IRegistry) {
     topics: ['cancer', 'external']
   });
 
-  tdpView('tumorportal', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'Tumor portal',
-    site: 'http://www.tumorportal.org/view?geneSymbol={gene}',
-    preview: () => System.import('./assets/previews/tumorportal.png'),
-    description: 'Tumor portal from the BROAD institute',
-    helpUrl: 'https://www.nature.com/articles/nature12912'
-  }, common, {
-    topics: ['cancer', 'external']
-  });
+  // tdpView('tumorportal', () => System.import('tdp_core/src/views/ChooserProxyView'), {
+  //   name: 'Tumor portal',
+  //   site: 'http://www.tumorportal.org/view?geneSymbol={gene}',
+  //   preview: () => System.import('./assets/previews/tumorportal.png'),
+  //   description: 'Tumor portal from the BROAD institute',
+  //   helpUrl: 'https://www.nature.com/articles/nature12912'
+  // }, common, {
+  //   topics: ['cancer', 'external']
+  // });
 
-  tdpView('antibodypedia', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'Antibodypedia',
-    site: 'https://www.antibodypedia.com/explore/{gene}',
-    preview: () => System.import('./assets/previews/antibodypedia.png'),
-    description: 'Searchable database tailored to specific biological and biomedical assays',
-    helpUrl: 'https://www.antibodypedia.com/text/about_us'
-  }, common, {
-    topics: ['compounds', 'external']
-  });
+  // iframe flag
+  // tdpView('antibodypedia', () => System.import('tdp_core/src/views/ChooserProxyView'), {
+  //   name: 'Antibodypedia',
+  //   site: 'https://www.antibodypedia.com/explore/{gene}',
+  //   preview: () => System.import('./assets/previews/antibodypedia.png'),
+  //   description: 'Searchable database tailored to specific biological and biomedical assays',
+  //   helpUrl: 'https://www.antibodypedia.com/text/about_us'
+  // }, common, {
+  //   topics: ['compounds', 'external']
+  // });
 
-  tdpView('rndsystems', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'R&D Systems',
-    site: 'https://www.rndsystems.com/search?keywords={gene}',
-    preview: () => System.import('./assets/previews/rndsystems.png'),
-    description: 'Tool compound/AB search engine',
-    helpUrl: 'https://www.rndsystems.com/about-us'
-  }, common, {
-    topics: ['compounds', 'external']
-  });
+  // iframe flag
+  // tdpView('rndsystems', () => System.import('tdp_core/src/views/ChooserProxyView'), {
+  //   name: 'R&D Systems',
+  //   site: 'https://www.rndsystems.com/search?keywords={gene}',
+  //   preview: () => System.import('./assets/previews/rndsystems.png'),
+  //   description: 'Tool compound/AB search engine',
+  //   helpUrl: 'https://www.rndsystems.com/about-us'
+  // }, common, {
+  //   topics: ['compounds', 'external']
+  // });
 
   tdpView('biocompare', () => System.import('tdp_core/src/views/ChooserProxyView'), {
     name: 'Biocompare',
