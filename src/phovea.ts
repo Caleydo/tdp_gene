@@ -207,7 +207,7 @@ export default function (registry: IRegistry) {
     helpUrl: 'https://www.ebi.ac.uk/chembl/drugebility/'
   }, common, {
     argument: 'protein',
-    idtype: 'Uniprot',
+    idtype: 'UniProt',
     readableIDType: 'GeneSymbol',
     topics: ['protein', 'external']
   });
