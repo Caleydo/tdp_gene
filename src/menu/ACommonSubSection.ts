@@ -77,9 +77,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       subTypeKey: SPECIES_SESSION_KEY,
       subTypeFromSession: false,
       subTypeValue: species,
-      idType: '',
-      ids: '',
-      creator: ''
+      idType: ''
     };
   }
 

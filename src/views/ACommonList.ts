@@ -39,7 +39,7 @@ export abstract class ACommonList extends AStartList {
       }
     }, options));
 
-    if(!this.namedSet) {
+    if(!this.namedSet && options) {
       this.search = options.search;
     }
   }

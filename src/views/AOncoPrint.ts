@@ -175,7 +175,7 @@ export abstract class AOncoPrint extends AView {
 
   private scaleFactor: '' | 's' | 'ss' | 'sss' = '';
 
-  init(params: HTMLElement, onParameterChange: (name: string, value: any) => Promise<any>) {
+  init(params: HTMLElement, onParameterChange: (name: string, value: any, previousValue: any) => Promise<any>) {
     super.init(params, onParameterChange);
 
     // inject stats
