@@ -88,7 +88,7 @@
     "ts-loader": "4.0.1"
   },
   "dependencies": {
-    "tdp_core": "github:datavisyn/tdp_core#lineupjs3",
+    "tdp_core": "github:datavisyn/tdp_core#develop",
     "jquery-ui": "1.12.1",
     "jStat": "1.7.1"
   },
