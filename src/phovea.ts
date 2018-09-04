@@ -122,17 +122,6 @@ export default function (registry: IRegistry) {
   //   topics: ['protein', 'external']
   // });
 
-  tdpView('proteomicsdb', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'ProteomicsDB',
-    site: 'https://www.proteomicsdb.org/proteomicsdb/#human/search/query?protein_name={gene}',
-    argument: 'gene',
-    helpUrl: 'https://www.proteomicsdb.org/#faq',
-    preview: () => System.import('./assets/previews/proteomicsdb.png'),
-    description: 'Proteomics data from proteomicsDB'
-  }, common, {
-    topics: ['protein', 'external']
-  });
-
   tdpView('genenames', () => System.import('tdp_core/src/views/ChooserProxyView'), {
     name: 'Genenames',
     site: 'https://www.genenames.org/cgi-bin/gene_symbol_report?match={gene}',
@@ -191,28 +180,6 @@ export default function (registry: IRegistry) {
   //   topics: ['compounds', 'external']
   // });
 
-  tdpView('biocompare', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'Biocompare',
-    site: 'https://www.biocompare.com/Search-Antibodies/?search={gene}',
-    preview: () => System.import('./assets/previews/biocompare.png'),
-    description: 'Find antibodies and more from biocompare.com',
-    helpUrl: 'https://www.biocompare.com/About-Biocompare/'
-  }, common, {
-    topics: ['compounds', 'external']
-  });
-
-  tdpView('drugebility', () => System.import('tdp_core/src/views/ChooserProxyView'), {
-    name: 'DrugEBIlity',
-    site: 'https://www.ebi.ac.uk/chembl/drugebility/protein/{protein}',
-    preview: () => System.import('./assets/previews/DrugEBIlity.png'),
-    description: 'EBI, druggability scores of protein structures',
-    helpUrl: 'https://www.ebi.ac.uk/chembl/drugebility/'
-  }, common, {
-    argument: 'protein',
-    idtype: 'UniProt',
-    readableIDType: 'GeneSymbol',
-    topics: ['protein', 'external']
-  });
 
   registry.push('importPostProcessor', 'GeneSymbol', () => System.import('./common'), {
     factory: 'convertGeneSymbolToEnsembl'
