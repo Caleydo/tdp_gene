@@ -27,23 +27,24 @@ export default function (registry: IRegistry) {
     topics: ['external']
   });
 
-  tdpView('cansar', () => System.import('./views/UniProtProxyView'), {
-    name: 'canSAR',
-    site: 'https://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
-    argument: 'gene',
-    idtype: 'Ensembl',
-    selection: 'chooser',
-    preview: () => System.import('./assets/previews/cansar.jpg'),
-    group: {
-      name: 'External Resources'
-      // 'order: 60
-    },
-    filter: {
-      species: 'human'
-    },
-    description: 'Show information on your search from the canSAR page',
-    topics: ['external']
-  });
+  // doesn't work properly
+  // tdpView('cansar', () => System.import('./views/UniProtProxyView'), {
+  //   name: 'canSAR',
+  //   site: 'https://cansar.icr.ac.uk/cansar/molecular-targets/{gene}/',
+  //   argument: 'gene',
+  //   idtype: 'Ensembl',
+  //   selection: 'chooser',
+  //   preview: () => System.import('./assets/previews/cansar.jpg'),
+  //   group: {
+  //     name: 'External Resources'
+  //     // 'order: 60
+  //   },
+  //   filter: {
+  //     species: 'human'
+  //   },
+  //   description: 'Show information on your search from the canSAR page',
+  //   topics: ['external']
+  // });
 
   tdpView('uniprot', () => System.import('./views/UniProtProxyView'), {
     name: 'UniProt',
