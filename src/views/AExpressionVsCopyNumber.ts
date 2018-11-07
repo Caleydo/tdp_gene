@@ -14,13 +14,12 @@ import {AD3View} from 'tdp_core/src/views/AD3View';
 import {colorScale, integrateColors, legend} from './utils';
 import {jStat} from 'jStat';
 
+const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
   private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
-
-  private readonly spearmancoeff_title = 'Spearman Coefficient: ';
 
   private $legend: d3.Selection<any>;
 
@@ -239,7 +238,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     // statistics
     const formatter = d3.format('.4f');
     const spearmancoeff = jStat.jStat.spearmancoeff(rows.map((d) => d.cn), rows.map((d) => d.expression));
-    $parent.select('div.statistics .spearmancoeff').text(this.spearmancoeff_title + formatter(spearmancoeff));
+    $parent.select('div.statistics .spearmancoeff').text(spearmancoeffTitle + formatter(spearmancoeff));
 
     const marks = $g.selectAll('.mark').data(rows);
     marks.enter().append('circle')

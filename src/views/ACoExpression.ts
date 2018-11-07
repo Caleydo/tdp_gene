@@ -10,6 +10,7 @@ import {Range} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {integrateColors, colorScale, legend} from './utils';
+import {jStat} from 'jStat';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -27,6 +28,8 @@ function filterZeroValues(rows: IDataFormatRow[]) {
 export interface IGeneOption extends IFormSelectOption {
   data: {id: string, symbol: string, _id: number};
 }
+
+const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class ACoExpression extends AD3View {
   private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
@@ -296,6 +299,10 @@ export abstract class ACoExpression extends AD3View {
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text('Expression');
+
+    $parent.append('div').classed('statistics', true)
+      .append('div')
+      .attr('class', 'spearmancoeff');
   }
 
   private resizeChart($parent: d3.Selection<IDataFormat>) {
@@ -339,6 +346,7 @@ export abstract class ACoExpression extends AD3View {
 
     $g.select('text.title').text(hasData ? geneName : 'No data for ' + geneName);
 
+
     if (!hasData) {
       $g.selectAll('.mark').remove();
       return;
@@ -373,6 +381,15 @@ export abstract class ACoExpression extends AD3View {
 
     // sort missing colors to the front
     data2.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
+
+    // statistics
+    {
+      const formatter = d3.format('.4f');
+      const xData = data2.map((d) => d.expr1);
+      const yData = data2.map((d) => d.expr2);
+      const spearmancoeff = jStat.jStat.spearmancoeff(firstIsReference ? xData : yData, !firstIsReference ? xData : yData);
+      $parent.select('div.statistics .spearmancoeff').text(spearmancoeffTitle + formatter(spearmancoeff));
+    }
 
     const marks = $g.selectAll('.mark').data(data2);
 
