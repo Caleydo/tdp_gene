@@ -88,6 +88,9 @@ export abstract class ACoExpression extends AD3View {
   parameterChanged(name: string) {
     super.parameterChanged(name);
     this.color.domain([]); // reset colors
+    if (name === FORM_ID_REFERENCE_GENE) {
+      this.refGene = this.getParameterElement(FORM_ID_REFERENCE_GENE).value;
+    }
     if (!this.refGene) {
       this.refGeneExpression = null;
       this.updateChart(null, null, true);
