@@ -91,8 +91,8 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     return {
       return: 'id',
       optionsData: [],
-      placeholder: `Search ${this.dataSource.name}`,
-    }
+      placeholder: `Add ${this.dataSource.name} by Typing or by Dragging a Text File onto the Search Field`
+    };
   }
 
   protected getDefaultSessionValues() {
