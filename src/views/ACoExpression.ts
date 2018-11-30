@@ -10,6 +10,7 @@ import {Range} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {integrateColors, colorScale, legend} from './utils';
+import {jStat} from 'jStat';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -25,8 +26,10 @@ function filterZeroValues(rows: IDataFormatRow[]) {
 }
 
 export interface IGeneOption extends IFormSelectOption {
-  data: { id: string, symbol: string, _id: number };
+  data: {id: string, symbol: string, _id: number};
 }
+
+const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class ACoExpression extends AD3View {
   private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
@@ -67,9 +70,9 @@ export abstract class ACoExpression extends AD3View {
           return null;
         }
       }).then((expressions) => {
-      this.refGeneExpression = expressions;
-      this.update(this.refGene, expressions, true);
-    });
+        this.refGeneExpression = expressions;
+        this.updateChart(this.refGene, expressions, true);
+      });
   }
 
   protected getParameterFormDescs(): IFormSelectDesc[] {
@@ -88,13 +91,16 @@ export abstract class ACoExpression extends AD3View {
   parameterChanged(name: string) {
     super.parameterChanged(name);
     this.color.domain([]); // reset colors
+    if (name === FORM_ID_REFERENCE_GENE) {
+      this.refGene = this.getParameterElement(FORM_ID_REFERENCE_GENE).value;
+    }
     if (!this.refGene) {
       this.refGeneExpression = null;
-      this.update(null, null, true);
+      this.updateChart(null, null, true);
     } else {
       this.loadRefGeneData(this.refGene).then((expressions) => {
         this.refGeneExpression = expressions;
-        this.update(this.refGene, this.refGeneExpression, true);
+        this.updateChart(this.refGene, this.refGeneExpression, true);
       });
     }
   }
@@ -112,11 +118,11 @@ export abstract class ACoExpression extends AD3View {
           if (refGene) {
             this.loadRefGeneData(refGene).then((expressions) => {
               this.refGeneExpression = expressions;
-              this.update(refGene, this.refGeneExpression, true);
+              this.updateChart(refGene, this.refGeneExpression, true);
             });
           }
         } else {
-          this.update(refGene, this.refGeneExpression, refChanged);
+          this.updateChart(refGene, this.refGeneExpression, refChanged);
         }
       });
   }
@@ -174,12 +180,12 @@ export abstract class ACoExpression extends AD3View {
 
   protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
 
-  protected abstract loadGeneList(ensgs: string[]): Promise<{ id: string, symbol: string, _id: number }[]>;
+  protected abstract loadGeneList(ensgs: string[]): Promise<{id: string, symbol: string, _id: number}[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
 
-  private update(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
+  private updateChart(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
     const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
@@ -195,7 +201,7 @@ export abstract class ACoExpression extends AD3View {
       return;
     }
 
-    if(noData) {
+    if (noData) {
       this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
@@ -293,6 +299,10 @@ export abstract class ACoExpression extends AD3View {
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text('Expression');
+
+    $parent.append('div').classed('statistics', true)
+      .append('div')
+      .attr('class', 'spearmancoeff');
   }
 
   private resizeChart($parent: d3.Selection<IDataFormat>) {
@@ -320,7 +330,7 @@ export abstract class ACoExpression extends AD3View {
       });*/
   }
 
-  private updateChartData(refGene: { id: string, symbol: string }, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
+  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
     const geneName = data.geneName;
 
     // hide small multiple co-expression plot because it would just project the ref gene on its own
@@ -335,6 +345,7 @@ export abstract class ACoExpression extends AD3View {
     const $g = $parent.select('svg g');
 
     $g.select('text.title').text(hasData ? geneName : 'No data for ' + geneName);
+
 
     if (!hasData) {
       $g.selectAll('.mark').remove();
@@ -366,10 +377,19 @@ export abstract class ACoExpression extends AD3View {
         result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, _id: d._id});
       }
       return result;
-    }, <{ expr1: number, expr2: number, title: string, color: string, _id: number }[]>[]);
+    }, <{expr1: number, expr2: number, title: string, color: string, _id: number}[]>[]);
 
     // sort missing colors to the front
     data2.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
+
+    // statistics
+    {
+      const formatter = d3.format('.4f');
+      const xData = data2.map((d) => d.expr1);
+      const yData = data2.map((d) => d.expr2);
+      const spearmancoeff = jStat.jStat.spearmancoeff(firstIsReference ? xData : yData, !firstIsReference ? xData : yData);
+      $parent.select('div.statistics .spearmancoeff').text(spearmancoeffTitle + formatter(spearmancoeff));
+    }
 
     const marks = $g.selectAll('.mark').data(data2);
 
@@ -385,7 +405,7 @@ export abstract class ACoExpression extends AD3View {
         const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
-            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+          d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);

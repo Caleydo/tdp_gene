@@ -12,7 +12,9 @@ import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {colorScale, integrateColors, legend} from './utils';
+import {jStat} from 'jStat';
 
+const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
   private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
@@ -31,7 +33,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     super.initImpl();
     this.node.classList.add('expressionVsCopyNumber', 'multiple');
     this.$legend = this.$node.append('div');
-    return this.update();
+    return this.updateCharts();
   }
 
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
@@ -63,12 +65,12 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   parameterChanged(name: string) {
     super.parameterChanged(name);
     this.color.domain([]); // reset colors
-    this.update(true);
+    this.updateCharts(true);
   }
 
   selectionChanged() {
     super.selectionChanged();
-    this.update();
+    this.updateCharts();
   }
 
   /**
@@ -82,7 +84,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     return rows2;
   }
 
-  private update(updateAll = false) {
+  private updateCharts(updateAll = false) {
     this.setBusy(true);
 
     const that = this;
@@ -103,7 +105,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
       const promise = resolveId(idtype, d.id, that.idType)
-        .then((name) => Promise.all([that.loadData(name),that.loadFirstName(name)]));
+        .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
       promise.catch(showErrorModalDialog)
@@ -173,7 +175,11 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
-  }
+
+    $parent.append('div').classed('statistics', true)
+      .append('div')
+      .attr('class', 'spearmancoeff');
+   }
 
   private resizeChart($parent: d3.Selection<any>) {
     this.x.range([0, this.width]);
@@ -222,12 +228,17 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
+
     let title = 'No data for ' + geneName;
     if (rows[0]) {
       title = geneName;
     }
     $g.select('text.title').text(title);
 
+    // statistics
+    const formatter = d3.format('.4f');
+    const spearmancoeff = jStat.jStat.spearmancoeff(rows.map((d) => d.cn), rows.map((d) => d.expression));
+    $parent.select('div.statistics .spearmancoeff').text(spearmancoeffTitle + formatter(spearmancoeff));
 
     const marks = $g.selectAll('.mark').data(rows);
     marks.enter().append('circle')
@@ -242,7 +253,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
-            d3.selectAll('circle.mark.clicked').classed('clicked', false);
+          d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
@@ -278,4 +289,3 @@ export interface IDataFormat {
   geneName: string;
   rows: IDataFormatRow[];
 }
-

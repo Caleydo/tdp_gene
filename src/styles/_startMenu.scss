@@ -134,6 +134,10 @@
         .select2-search__field {
           width: auto !important;
         }
+
+        .select2-selection__rendered > li:first-child > .select2-search__field {
+          width: 30em !important;
+        }
       }
     }
   }
