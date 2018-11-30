@@ -2,7 +2,7 @@
   "name": "tdp_gene",
   "description": "",
   "homepage": "https://phovea.caleydo.org",
-  "version": "4.0.2-SNAPSHOT",
+  "version": "5.0.0",
   "private": true,
   "author": {
     "name": "The Caleydo Team",
@@ -89,11 +89,11 @@
   },
   "dependencies": {
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#develop",
+    "tdp_core": "github:datavisyn/tdp_core#semver:^5.0.0",
     "jStat": "1.7.1"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop",
-    "dTiles": "github:datavisyn/dTiles#develop"
+    "ordino": "github:Caleydo/ordino#semver:^5.0.0",
+    "dTiles": "github:datavisyn/dTiles#semver:^3.0.0"
   }
 }
