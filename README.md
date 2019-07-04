@@ -1,7 +1,7 @@
 tdp_gene [![Phovea][phovea-image]][phovea-url] [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 =====================
 
-This repository provides a collection of TargID views and visualization that could be used independent from entry point.
+This repository provides a collection of TDP views and visualization that could be used independent from entry point.
 
 Installation
 ------------
