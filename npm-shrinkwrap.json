@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "tdp_core": {
+      "from": "github:datavisyn/tdp_core#develop",
+      "dependencies": {
+        "tdp_core": {
+          "from": "github:datavisyn/tdp_core#thinkh/form-element-extension-point"
+        }
+      }
+    },
+    "ordino": {
+      "from": "github:Caleydo/ordino#develop",
+      "dependencies": {
+        "tdp_core": {
+          "from": "github:datavisyn/tdp_core#develop",
+          "dependencies": {
+            "tdp_core": {
+              "from": "github:datavisyn/tdp_core#thinkh/form-element-extension-point"
+            }
+          }
+        }
+      }
+    },
+    "dTiles": {
+      "from": "github:Caleydo/dTiles#develop",
+      "dependencies": {
+        "tdp_core": {
+          "from": "github:datavisyn/tdp_core#develop",
+          "dependencies": {
+            "tdp_core": {
+              "from": "github:datavisyn/tdp_core#thinkh/form-element-extension-point"
+            }
+          }
+        }
+      }
+    }
+  }
+}
