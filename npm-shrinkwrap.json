@@ -1,4 +1,7 @@
 {
+  "name": "tdp_gene",
+  "version": "5.0.1-SNAPSHOT",
+  "lockfileVersion": 1,
   "dependencies": {
     "tdp_core": {
       "from": "github:datavisyn/tdp_core#develop",
