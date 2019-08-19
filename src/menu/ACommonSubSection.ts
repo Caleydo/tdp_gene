@@ -13,7 +13,7 @@ import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
+import FormSelect3 from 'tdp_core/src/form/elements/FormSelect3';
 import {IForm} from 'tdp_core/src/form/interfaces';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
