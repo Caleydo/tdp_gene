@@ -199,6 +199,7 @@ export abstract class AOncoPrint extends AView {
       scaleElem.dataset.scale = this.node.dataset.scale = 's'.repeat(s);
     });
 
+    return Promise.resolve();
   }
 
   protected initImpl() {
