@@ -14,7 +14,7 @@ export default function (registry: IRegistry) {
   // proxy pages
   tdpView('ensembl_org', () => System.import('./views/GeneProxyView'), {
     name: 'Ensembl',
-    site: 'https://grch37.ensembl.org/{species}/Gene/Summary?g={gene}',
+    site: 'https://ensembl.org/{species}/Gene/Summary?g={gene}',
     argument: 'gene',
     idtype: 'Ensembl',
     selection: 'chooser',
@@ -143,7 +143,7 @@ export default function (registry: IRegistry) {
 
   tdpView('cosmic_gene', () => System.import('tdp_core/src/views/ChooserProxyView'), {
     name: 'COSMIC',
-    site: 'https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln={gene}',
+    site: 'https://cancer.sanger.ac.uk/cosmic/gene/analysis?genome=38&ln={gene}',
     preview: () => System.import('./assets/previews/cosmic_banner.png'),
     description: 'Catalogue Of Somatic Mutations In Cancer',
     helpUrl: 'https://cancer.sanger.ac.uk/cosmic/about'
