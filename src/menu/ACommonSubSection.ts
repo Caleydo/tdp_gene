@@ -13,7 +13,8 @@ import {FormElementType, FormBuilder} from 'tdp_core/src/form';
 import editDialog from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import FormSelect3 from 'tdp_core/src/form/internal/FormSelect3';
+import FormSelect3 from 'tdp_core/src/form/elements/FormSelect3';
+import {IForm} from 'tdp_core/src/form/interfaces';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -102,7 +103,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     };
   }
 
-  private addSearchField() {
+  private async addSearchField() {
     const $searchWrapper = select(this.data.node.parentElement!).insert('div', ':first-child').attr('class', 'startMenuSearch');
 
     const formBuilder = new FormBuilder($searchWrapper);
@@ -116,11 +117,12 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       options: this.searchOptions()
     });
 
+    const form: IForm = await formBuilder.build();
 
     const $searchButton = ACommonSubSection.createButton($searchWrapper, 'Go');
     const $saveSetButton = ACommonSubSection.createButton($searchWrapper, 'Save');
 
-    const searchField = formBuilder.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
+    const searchField = form.getElementById(`search-${this.dataSource.idType}${this.dataSource.entityName}`);
 
     searchField.on('change', () => {
       const state = (<FormSelect3>searchField).hasValue() ? null : 'disabled';
