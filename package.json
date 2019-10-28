@@ -1,9 +1,7 @@
 {
   "name": "tdp_gene",
   "description": "",
-  "homepage": "https://phovea.caleydo.org",
   "version": "5.1.1-SNAPSHOT",
-  "private": true,
   "author": {
     "name": "The Caleydo Team",
     "email": "contact@caleydo.org",
@@ -17,6 +15,7 @@
     "type": "git",
     "url": "https://github.com/caleydo/tdp_gene.git"
   },
+  "private": true,
   "main": "build/tdp_gene.js",
   "files": [
     "src",

@@ -2,7 +2,7 @@
   "generator-phovea": {
     "type": "lib",
     "name": "tdp_gene",
-    "author": "The Caleydo Team",
+    "author": "datavisyn",
     "githubAccount": "datavisyn",
     "modules": [],
     "extensions": [ ],
