@@ -349,7 +349,7 @@ export abstract class AOncoPrint extends AView {
     $ids.exit().remove().each(() => this.setBusy(false));
 
     //sortable
-    $(this.$table.node()) // jquery
+    (<any>$(this.$table.node())) // jquery
       .sortable({
         handle: 'th.geneLabel',
         axis: 'y',
