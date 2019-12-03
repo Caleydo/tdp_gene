@@ -88,9 +88,9 @@
     "ts-loader": "4.0.1"
   },
   "dependencies": {
+    "jStat": "1.7.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#develop",
-    "jStat": "1.7.1"
+    "tdp_core": "github:datavisyn/tdp_core#develop"
   },
   "optionalDependencies": {
     "ordino": "github:Caleydo/ordino#develop",
