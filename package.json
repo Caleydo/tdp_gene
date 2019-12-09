@@ -93,7 +93,6 @@
     "tdp_core": "github:datavisyn/tdp_core#develop"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop",
-    "dTiles": "github:datavisyn/dTiles#develop"
+    "ordino": "github:Caleydo/ordino#develop"
   }
 }
