@@ -3,6 +3,7 @@ import {getSelectedSpecies} from './common';
 import {IResult, ISearchProvider} from 'tdp_core/src/public/search/index';
 import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
 
+export {IResult} from 'tdp_core/src/public/search/index';
 
 export default class SearchProvider implements ISearchProvider {
 
