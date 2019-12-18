@@ -93,7 +93,6 @@
     "tdp_core": "github:datavisyn/tdp_core#ochampari/154_Integrate_i18next"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#ochampari/156_switch-tdp_core-branch",
-    "dTiles": "github:datavisyn/dTiles#ochampari/154_prepare-i18next-integartion"
+    "ordino": "github:Caleydo/ordino#ochampari/156_switch-tdp_core-branch"
   }
 }
