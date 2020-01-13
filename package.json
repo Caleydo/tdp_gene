@@ -1,7 +1,7 @@
 {
   "name": "tdp_gene",
   "description": "",
-  "version": "5.1.1-SNAPSHOT",
+  "version": "5.2.0",
   "author": {
     "name": "The Caleydo Team",
     "email": "contact@caleydo.org",
@@ -90,9 +90,9 @@
   "dependencies": {
     "jStat": "1.7.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#develop"
+    "tdp_core": "^8.0.0"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop"
+    "ordino": "^6.0.0"
   }
 }
