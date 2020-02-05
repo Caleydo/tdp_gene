@@ -1,4 +1,4 @@
-function detectIDType(data: any[], accessor: (row: any) => string, sampleSize: number) : number {
+function detectIDType(data: any[], accessor: (row: any) => string, sampleSize: number): number {
   const testSize = Math.min(data.length, sampleSize);
   if (testSize <= 0) {
     return 0;
