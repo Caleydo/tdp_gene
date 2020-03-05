@@ -90,9 +90,9 @@
   "dependencies": {
     "jStat": "1.7.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#typescript_3.8"
+    "tdp_core": "github:datavisyn/tdp_core#develop"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#typescript_3.8"
+    "ordino": "github:Caleydo/ordino#develop"
   }
 }
