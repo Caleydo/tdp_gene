@@ -16,7 +16,7 @@
     "type": "git",
     "url": "https://github.com/caleydo/tdp_gene.git"
   },
-  "private": true,
+  "private": false,
   "main": "build/tdp_gene.js",
   "files": [
     "src",
