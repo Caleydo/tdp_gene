@@ -38,7 +38,7 @@ This repository is part of **[Phovea](http://phovea.caleydo.org/)**, a platform 
 [phovea-url]: https://phovea.caleydo.org
 [npm-image]: https://badge.fury.io/js/tdp_gene.svg
 [npm-url]: https://npmjs.org/package/tdp_gene
-[travis-image]: https://travis-ci.org/caleydo/tdp_gene.svg?branch=master
-[travis-url]: https://travis-ci.org/caleydo/tdp_gene
+[circleci-image]: https://circleci.com/gh/Caleydo/tdp_gene.svg?style=shield
+[circleci-url]: https://circleci.com/gh/Caleydo/tdp_gene
 [daviddm-image]: https://david-dm.org/caleydo/tdp_gene/status.svg
 [daviddm-url]: https://david-dm.org/caleydo/tdp_gene
