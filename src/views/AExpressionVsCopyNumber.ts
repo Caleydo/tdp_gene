@@ -78,7 +78,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
    * @param rows
    * @returns {any}
    */
-  private filterZeroValues(rows: IDataFormatRow[]) {
+  private filterZeroValues(rows: ICopyNumberDataFormatRow[]) {
     const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
     console.log(`filtered ${rows.length - rows2.length} zero values`);
     return rows2;
@@ -91,11 +91,11 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
 
-    const data: IDataFormat[] = ids.map((id) => {
+    const data: ICopyNumberDataFormat[] = ids.map((id) => {
       return {id, geneName: '', rows: []};
     });
 
-    const $ids = this.$node.selectAll('div.ids').data<IDataFormat>(<any>data, (d) => d.id.toString());
+    const $ids = this.$node.selectAll('div.ids').data<ICopyNumberDataFormat>(<any>data, (d) => d.id.toString());
     const $idsEnter = $ids.enter().append('div').classed('ids', true);
 
     // decide whether to load data for newly added items
@@ -135,7 +135,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       });
   }
 
-  protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
+  protected abstract loadData(ensg: string): Promise<ICopyNumberDataFormatRow[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
@@ -208,7 +208,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
   private updateChartData($parent: d3.Selection<any>) {
 
-    const data: IDataFormat = $parent.datum();
+    const data: ICopyNumberDataFormat = $parent.datum();
     const geneName = data.geneName;
     const rows = data.rows.slice();
 
@@ -276,7 +276,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 }
 export default AExpressionVsCopyNumber;
 
-export interface IDataFormatRow {
+export interface ICopyNumberDataFormatRow {
   samplename: string;
   expression: number;
   color?: string;
@@ -284,8 +284,8 @@ export interface IDataFormatRow {
   _id: number;
 }
 
-export interface IDataFormat {
+export interface ICopyNumberDataFormat {
   id: number;
   geneName: string;
-  rows: IDataFormatRow[];
+  rows: ICopyNumberDataFormatRow[];
 }

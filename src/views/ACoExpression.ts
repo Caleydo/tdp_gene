@@ -19,7 +19,7 @@ const FORM_ID_REFERENCE_GENE = 'referenceGene';
  * @param rows
  * @returns {any}
  */
-function filterZeroValues(rows: IDataFormatRow[]) {
+function filterZeroValues(rows: ICoExprDataFormatRow[]) {
   const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
   console.log(`filtered ${rows.length - rows2.length} zero values`);
   return rows2;
@@ -40,7 +40,7 @@ export abstract class ACoExpression extends AD3View {
   protected $legend: d3.Selection<any>;
 
   private refGene: IGeneOption = null;
-  private refGeneExpression: IDataFormatRow[] = [];
+  private refGeneExpression: ICoExprDataFormatRow[] = [];
 
   private readonly x = d3.scale.log();
   private readonly y = d3.scale.log();
@@ -178,14 +178,14 @@ export abstract class ACoExpression extends AD3View {
     return filterZeroValues(rows);
   }
 
-  protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
+  protected abstract loadData(ensg: string): Promise<ICoExprDataFormatRow[]>;
 
   protected abstract loadGeneList(ensgs: string[]): Promise<{id: string, symbol: string, _id: number}[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
 
-  private updateChart(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
+  private updateChart(refGene: IGeneOption, refGeneExpression: ICoExprDataFormatRow[], updateAll = false) {
     const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
@@ -209,7 +209,7 @@ export abstract class ACoExpression extends AD3View {
       return;
     }
 
-    const data: IDataFormat[] = ids
+    const data: ICoExprDataFormat[] = ids
       .filter((id) => id !== refGene.data._id) // skip refGene, because it's already loaded
       .map((id) => {
         return {id, geneName: '', rows: []};
@@ -226,7 +226,7 @@ export abstract class ACoExpression extends AD3View {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
 
-    enterOrUpdateAll.each(function (this: HTMLElement, d: IDataFormat) {
+    enterOrUpdateAll.each(function (this: HTMLElement, d: ICoExprDataFormat) {
       const $id = d3.select(this);
       const promise = resolveId(idtype, d.id, that.idType)
         .then((name) => {
@@ -305,7 +305,7 @@ export abstract class ACoExpression extends AD3View {
       .attr('class', 'spearmancoeff');
   }
 
-  private resizeChart($parent: d3.Selection<IDataFormat>) {
+  private resizeChart($parent: d3.Selection<ICoExprDataFormat>) {
     this.x.range([0, this.width]);
     this.y.range([this.height, 0]);
 
@@ -330,7 +330,7 @@ export abstract class ACoExpression extends AD3View {
       });*/
   }
 
-  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
+  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: ICoExprDataFormatRow[], data: ICoExprDataFormat, $parent: d3.Selection<ICoExprDataFormat>) {
     const geneName = data.geneName;
 
     // hide small multiple co-expression plot because it would just project the ref gene on its own
@@ -364,8 +364,8 @@ export abstract class ACoExpression extends AD3View {
 
 
     // get smaller and larger array to build intersection between both
-    const largerArray: IDataFormatRow[] = (refGeneExpression.length <= rows.length) ? rows : refGeneExpression;
-    const smallerArray: IDataFormatRow[] = (refGeneExpression.length <= rows.length) ? refGeneExpression : rows;
+    const largerArray: ICoExprDataFormatRow[] = (refGeneExpression.length <= rows.length) ? rows : refGeneExpression;
+    const smallerArray: ICoExprDataFormatRow[] = (refGeneExpression.length <= rows.length) ? refGeneExpression : rows;
 
     const firstIsReference = refGeneExpression.length <= rows.length;
 
@@ -436,16 +436,16 @@ export abstract class ACoExpression extends AD3View {
 
 export default ACoExpression;
 
-export interface IDataFormatRow {
+export interface ICoExprDataFormatRow {
   samplename: string;
   expression: number;
   color?: string;
   _id: number;
 }
 
-export interface IDataFormat {
+export interface ICoExprDataFormat {
   id: number;
   geneName: string;
-  rows: IDataFormatRow[];
+  rows: ICoExprDataFormatRow[];
 }
 
