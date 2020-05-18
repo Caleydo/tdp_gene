@@ -5,7 +5,7 @@ import '../style.scss';
 
 import {Range} from 'phovea_core/src/range';
 import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
-import {showErrorModalDialog} from 'tdp_core/src/dialogs';
+import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
@@ -108,7 +108,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
-      promise.catch(showErrorModalDialog)
+      promise.catch(errorAlert)
         .catch((error) => {
           console.error(error);
           that.setBusy(false);

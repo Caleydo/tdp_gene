@@ -4,7 +4,7 @@
 
 import {ISelection, resolveId} from 'tdp_core/src/views';
 import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
-import {showErrorModalDialog} from 'tdp_core/src/dialogs';
+import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
 import {Range} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
@@ -136,7 +136,7 @@ export abstract class ACoExpression extends AD3View {
         const promise = this.loadGeneList(genesEnsembl);
 
         // on error
-        promise.catch(showErrorModalDialog)
+        promise.catch(errorAlert)
           .catch((error) => {
             console.error(error);
             this.setBusy(false);
@@ -236,7 +236,7 @@ export abstract class ACoExpression extends AD3View {
           ]);
         });
       // on error
-      promise.catch(showErrorModalDialog)
+      promise.catch(errorAlert)
         .catch((error) => {
           console.error(error);
           that.setBusy(false);
