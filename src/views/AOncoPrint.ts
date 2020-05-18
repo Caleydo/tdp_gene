@@ -14,7 +14,7 @@ import {none, list as rlist} from 'phovea_core/src/range';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import {AView, IView, resolveId} from 'tdp_core/src/views';
-import {showErrorModalDialog} from 'phovea_ui/src/errors';
+import {errorAlert} from 'tdp_core/src/notifications';
 
 export interface ISample {
   name: string;
@@ -311,7 +311,7 @@ export abstract class AOncoPrint extends AView {
         });
 
       // on error
-      promise.catch(showErrorModalDialog)
+      promise.catch(errorAlert)
         .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success

@@ -91,6 +91,6 @@
     "tdp_core": "github:datavisyn/tdp_core#vstoiber/refactoring"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop"
+    "ordino": "github:Caleydo/ordino#vstoiber/use_refactoring_branches"
   }
 }
