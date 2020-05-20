@@ -6,14 +6,14 @@ import {getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../comm
 import {resolve, IDType} from 'phovea_core/src/idtype';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
-import NamedSetList from 'tdp_core/src/storage/NamedSetList';
+import {NamedSetList} from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
 import {getTDPData} from 'tdp_core/src/rest';
 import {FormElementType, FormBuilder} from 'tdp_core/src/form';
-import editDialog from 'tdp_core/src/storage/editDialog';
+import {editDialog} from 'tdp_core/src/storage/editDialog';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import FormSelect3 from 'tdp_core/src/form/elements/FormSelect3';
+import {FormSelect3} from 'tdp_core/src/form/elements/FormSelect3';
 import {IForm} from 'tdp_core/src/form/interfaces';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
