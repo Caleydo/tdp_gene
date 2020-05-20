@@ -1,8 +1,8 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-
-import {ISelection, resolveId} from 'tdp_core/src/views';
+import {ISelection} from 'tdp_core/src/views/interfaces';
+import {resolveId} from 'tdp_core/src/views/resolve';
 import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
 import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';

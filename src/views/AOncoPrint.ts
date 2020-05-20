@@ -13,7 +13,9 @@ import Range from 'phovea_core/src/range/Range';
 import {none, list as rlist} from 'phovea_core/src/range';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import {AView, IView, resolveId} from 'tdp_core/src/views';
+import {IView} from 'tdp_core/src/views/interfaces';
+import {AView} from 'tdp_core/src/views/AView';
+import {resolveId} from 'tdp_core/src/views/resolve';
 import {errorAlert} from 'tdp_core/src/notifications';
 
 export interface ISample {

@@ -1,6 +1,6 @@
 //redeclare to avoid dependency
 import {getSelectedSpecies} from './common';
-import {IResult, ISearchProvider} from 'tdp_core/src/public/search/index';
+import {IResult, ISearchProvider} from 'tdp_core/src/public/search/SearchProviderInterfaces';
 import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
 
 export class SearchProvider implements ISearchProvider {

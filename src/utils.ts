@@ -2,7 +2,7 @@
  * Created by sam on 29.05.2017.
  */
 import {RangeLike, parse} from 'phovea_core/src/range';
-import {INamedSet, ENamedSetType} from 'tdp_core/src/storage';
+import {INamedSet, ENamedSetType} from 'tdp_core/src/storage/interfaces';
 import IDType from 'phovea_core/src/idtype/IDType';
 
 /**

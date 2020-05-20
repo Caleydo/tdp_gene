@@ -9,7 +9,7 @@ import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
-import {resolveId} from 'tdp_core/src/views';
+import {resolveId} from 'tdp_core/src/views/resolve';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {colorScale, integrateColors, legend} from './utils';
 import {jStat} from 'jStat';
