@@ -19,7 +19,7 @@ import {
 const tabSessionKey = 'entityType';
 const defaultTabSessionValue = 'celllinedb_genes_start'; //ensembl
 
-export default class SpeciesSelectorMenuSection implements IStartMenuSection {
+export class SpeciesSelectorMenuSection implements IStartMenuSection {
 
   private readonly subSections: IStartMenuSubSection[] = [];
 

@@ -2,14 +2,14 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 
-import GeneProxyView from './GeneProxyView';
+import {GeneProxyView} from './GeneProxyView';
 import {FormElementType, IFormSelectElement} from 'tdp_core/src/form';
 import {FORM_ID_SELECTED_ITEM} from 'tdp_core/src/views/ProxyView';
 
 /**
  * helper view for proxying an existing external website
  */
-export default class UniProtProxyView extends GeneProxyView {
+export class UniProtProxyView extends GeneProxyView {
 
   static SELECTED_UNIPROT_ITEM = 'externalUniProt';
   static readonly OUTPUT_IDTYPE = 'UniProt_human';

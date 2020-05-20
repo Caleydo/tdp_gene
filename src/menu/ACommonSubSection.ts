@@ -164,5 +164,3 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       .text(text);
   }
 }
-
-export default ACommonSubSection;

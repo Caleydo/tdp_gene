@@ -9,7 +9,7 @@ import {IFormSelectOption} from 'tdp_core/src/form';
 /**
  * helper view for proxying an existing external website
  */
-export default class GeneProxyView extends ProxyView {
+export class GeneProxyView extends ProxyView {
 
   protected getSelectionSelectData(ensgs: string[]): Promise<IFormSelectOption[]> {
     return createOptions(ensgs, this.selection, this.idType);

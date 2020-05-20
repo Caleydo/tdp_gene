@@ -434,8 +434,6 @@ export abstract class ACoExpression extends AD3View {
 
 }
 
-export default ACoExpression;
-
 export interface ICoExprDataFormatRow {
   samplename: string;
   expression: number;

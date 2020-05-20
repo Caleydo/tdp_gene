@@ -485,6 +485,3 @@ export abstract class AOncoPrint extends AView {
   }
 }
 
-export default AOncoPrint;
-
-

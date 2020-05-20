@@ -69,5 +69,3 @@ export abstract class ACommonList extends AStartList {
     return key !== '';
   }
 }
-
-export default ACommonList;

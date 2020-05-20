@@ -1,13 +1,7 @@
 export * from './ACoExpression';
-export {default as ACoExpression} from './ACoExpression';
 export * from './ACommonList';
-export {default as ACommonList} from './ACommonList';
 export * from './AExpressionVsCopyNumber';
-export {default as AExpressionVsCopyNumber} from './AExpressionVsCopyNumber';
 export * from './AOncoPrint';
-export {default as AOncoPrint} from './AOncoPrint';
 export * from './GeneProxyView';
-export {default as GeneProxyView} from './GeneProxyView';
 export * from './UniProtProxyView';
-export {default as UniProtProxyView} from './UniProtProxyView';
 export * from './utils';

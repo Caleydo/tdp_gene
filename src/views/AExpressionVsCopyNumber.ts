@@ -274,7 +274,6 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   protected abstract select(r: Range): void;
 
 }
-export default AExpressionVsCopyNumber;
 
 export interface ICopyNumberDataFormatRow {
   samplename: string;
