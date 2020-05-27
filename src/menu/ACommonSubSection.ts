@@ -6,15 +6,15 @@ import {SpeciesUtils, Species} from '../common/common';
 import {resolve, IDType} from 'phovea_core';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
-import {NamedSetList} from 'tdp_core/src/storage/NamedSetList';
-import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData} from 'tdp_core/src/rest';
-import {FormElementType, FormBuilder} from 'tdp_core/src/form';
-import {editDialog} from 'tdp_core/src/storage/editDialog';
+import {NamedSetList} from 'tdp_core';
+import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core';
+import {getTDPData} from 'tdp_core';
+import {FormElementType, FormBuilder} from 'tdp_core';
+import {editDialog} from 'tdp_core';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import {FormSelect3} from 'tdp_core/src/form/elements/FormSelect3';
-import {IForm} from 'tdp_core/src/form/interfaces';
+import {FormSelect3} from 'tdp_core';
+import {IForm} from 'tdp_core';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;

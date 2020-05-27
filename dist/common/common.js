@@ -1,10 +1,10 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import * as session from 'phovea_core/src/session';
-import { resolve } from 'phovea_core/src/idtype';
+import { Session } from 'phovea_core';
+import { resolve } from 'phovea_core';
 import { Categories } from './constants';
-import { list as asRange } from 'phovea_core/src/range';
+import { Range } from 'phovea_core';
 export var Species;
 (function (Species) {
     Species.availableSpecies = [
@@ -18,7 +18,7 @@ export var Species;
 })(Species || (Species = {}));
 export class SpeciesUtils {
     static getSelectedSpecies() {
-        return session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
+        return Session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
     }
     /**
      * selects a human readable idtype for a given one that can be mapped
@@ -45,7 +45,7 @@ export class SpeciesUtils {
             return selection.range;
         }
         // assume mappable
-        return selection.idtype.mapToFirstID(selection.range, target).then((r) => asRange(r));
+        return selection.idtype.mapToFirstID(selection.range, target).then((r) => Range.list(r));
     }
     static createOptions(ensgs, selection, base) {
         if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {

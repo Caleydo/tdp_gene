@@ -2,7 +2,7 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 import '../scss/style.scss';
-import { Range } from 'phovea_core/src/range';
+import { Range } from 'phovea_core';
 import { IFormSelectDesc } from 'tdp_core/src/form';
 import { AD3View } from 'tdp_core/src/views/AD3View';
 export declare abstract class AExpressionVsCopyNumber extends AD3View {

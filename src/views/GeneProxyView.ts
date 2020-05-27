@@ -2,9 +2,9 @@
  * Created by Holger Stitz on 06.12.2016.
  */
 
-import {ProxyView} from 'tdp_core/src/views/ProxyView';
+import {ProxyView} from 'tdp_core';
 import {SpeciesUtils} from '../common/common';
-import {IFormSelectOption} from 'tdp_core/src/form';
+import {IFormSelectOption} from 'tdp_core';
 
 /**
  * helper view for proxying an existing external website

@@ -1,7 +1,7 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import { parse } from 'phovea_core/src/range';
+import { parse } from 'phovea_core';
 import { ENamedSetType } from 'tdp_core/src/storage/interfaces';
 export class FieldUtils {
     /**

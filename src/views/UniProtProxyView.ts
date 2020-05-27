@@ -3,8 +3,8 @@
  */
 
 import {GeneProxyView} from './GeneProxyView';
-import {FormElementType, IFormSelectElement} from 'tdp_core/src/form';
-import {FORM_ID_SELECTED_ITEM} from 'tdp_core/src/views/ProxyView';
+import {FormElementType, IFormSelectElement} from 'tdp_core';
+import {FORM_ID_SELECTED_ITEM} from 'tdp_core';
 
 /**
  * helper view for proxying an existing external website

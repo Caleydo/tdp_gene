@@ -2,7 +2,7 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 import { SpeciesUtils, Species } from '../common/common';
-import { resolve } from 'phovea_core/src/idtype';
+import { resolve } from 'phovea_core';
 import { NamedSetList } from 'tdp_core/src/storage/NamedSetList';
 import { ENamedSetType, saveNamedSet } from 'tdp_core/src/storage';
 import { getTDPData } from 'tdp_core/src/rest';

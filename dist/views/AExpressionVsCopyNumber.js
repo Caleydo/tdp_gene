@@ -5,7 +5,7 @@ import '../scss/style.scss';
 import { FormSubtype } from '../provider/forms';
 import { errorAlert } from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
-import { toSelectOperation, SelectOperation, integrateSelection } from 'phovea_core/src/idtype';
+import { SelectionUtils, SelectOperation } from 'phovea_core';
 import { FormElementType } from 'tdp_core/src/form';
 import { resolveId } from 'tdp_core/src/views/resolve';
 import { AD3View } from 'tdp_core/src/views/AD3View';
@@ -192,10 +192,10 @@ export class AExpressionVsCopyNumber extends AD3View {
             .attr('r', 2)
             .on('click', (d) => {
             const target = d3.event.target;
-            const selectOperation = toSelectOperation(d3.event);
+            const selectOperation = SelectionUtils.toSelectOperation(d3.event);
             const oldSelection = this.getItemSelection();
             const id = d._id;
-            const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
+            const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
             if (selectOperation === SelectOperation.SET) {
                 d3.selectAll('circle.mark.clicked').classed('clicked', false);
             }

@@ -2,9 +2,9 @@
  * Created by sam on 06.03.2017.
  */
 
-import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
-import {ISelection, IViewContext} from 'tdp_core/src/views/interfaces';
-import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
+import {AStartList, IAStartListOptions} from 'tdp_core';
+import {ISelection, IViewContext} from 'tdp_core';
+import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core';
 import {SpeciesUtils, Species} from '../common/common';
 
 export interface ICommonDBConfig {

@@ -9,7 +9,7 @@ import {select, event as d3event, Selection} from 'd3';
 import * as $ from 'jquery';
 import '../scss/style.scss';
 import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino/src/extensions';
-import {INamedSet} from 'tdp_core/src/storage';
+import {INamedSet} from 'tdp_core';
 import {
   EXTENSION_POINT_STARTMENU_SUBSECTION, IStartMenuSubSection,
   IStartMenuSubSectionDesc

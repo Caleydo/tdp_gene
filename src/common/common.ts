@@ -4,8 +4,8 @@
 
 import {Session} from 'phovea_core';
 import {IDType} from 'phovea_core';
-import {IFormSelectOption} from 'tdp_core/src/form';
-import {ISelection} from 'tdp_core/src/views/interfaces';
+import {IFormSelectOption} from 'tdp_core';
+import {ISelection} from 'tdp_core';
 import {resolve} from 'phovea_core';
 import {Categories} from './constants';
 import {Range} from 'phovea_core';

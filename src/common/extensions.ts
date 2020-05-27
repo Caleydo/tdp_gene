@@ -1,6 +1,6 @@
 
 import {IPluginDesc} from 'phovea_core';
-import {INamedSet} from 'tdp_core/src/storage/interfaces';
+import {INamedSet} from 'tdp_core';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 
 export {IStartMenuSectionOptions} from 'ordino/src/extensions';

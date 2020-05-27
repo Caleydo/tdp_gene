@@ -1,8 +1,8 @@
 /**
  * Created by Holger Stitz on 27.07.2016.
  */
-import * as session from 'phovea_core/src/session';
-import { list as listPlugins } from 'phovea_core/src/plugin';
+import { Session } from 'phovea_core';
+import { list as listPlugins } from 'phovea_core';
 import { Species } from '../common/common';
 import { select, event as d3event } from 'd3';
 import * as $ from 'jquery';
@@ -29,10 +29,10 @@ export class SpeciesSelectorMenuSection {
     }
     buildSpeciesSelection($parent) {
         const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
-        const selectedSpecies = session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
+        const selectedSpecies = Session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
         // store default option, if not available
-        if (!session.has(Species.SPECIES_SESSION_KEY)) {
-            session.store(Species.SPECIES_SESSION_KEY, selectedSpecies);
+        if (!Session.has(Species.SPECIES_SESSION_KEY)) {
+            Session.store(Species.SPECIES_SESSION_KEY, selectedSpecies);
         }
         const $group = $speciesSelection.selectAll('.species-group').data(Species.availableSpecies);
         const group = $group.enter()
@@ -47,7 +47,7 @@ export class SpeciesSelectorMenuSection {
             .attr('type', 'radio')
             .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
             .on('change', function (d) {
-            session.store(Species.SPECIES_SESSION_KEY, d.value);
+            Session.store(Species.SPECIES_SESSION_KEY, d.value);
             $group.classed('active', false);
             select(this.parentNode).classed('active', true);
             that.subSections.forEach((list) => list.update());
@@ -67,8 +67,8 @@ export class SpeciesSelectorMenuSection {
     buildEntityTypes($parent) {
         // get start views for entry points and sort them by name ASC
         const views = listPlugins(EXTENSION_POINT_STARTMENU_SUBSECTION).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        if (!session.has(tabSessionKey)) {
-            session.store(tabSessionKey, defaultTabSessionValue);
+        if (!Session.has(tabSessionKey)) {
+            Session.store(tabSessionKey, defaultTabSessionValue);
         }
         this.buildEntityTypeSelection($parent, views);
         this.buildEntryPointList($parent, views);
@@ -87,10 +87,10 @@ export class SpeciesSelectorMenuSection {
             .text((d) => d.description)
             .on('click', function (d) {
             d3event.preventDefault();
-            session.store(tabSessionKey, d.id);
+            Session.store(tabSessionKey, d.id);
             $(this).tab('show').blur();
         }).each(function (d) {
-            if (d.id === session.retrieve(tabSessionKey, defaultTabSessionValue)) {
+            if (d.id === Session.retrieve(tabSessionKey, defaultTabSessionValue)) {
                 this.click();
             }
         });
@@ -102,7 +102,7 @@ export class SpeciesSelectorMenuSection {
         const $enter = $items.enter()
             .append('div')
             .attr('id', (d) => `entity_${d.cssClass}`)
-            .attr('class', (d) => d.id === session.retrieve(tabSessionKey, defaultTabSessionValue) ? 'active' : '')
+            .attr('class', (d) => d.id === Session.retrieve(tabSessionKey, defaultTabSessionValue) ? 'active' : '')
             .classed('tab-pane', true);
         // append initial loading icon --> must be removed by each entry point individually
         $enter.append('div').classed('body', true)

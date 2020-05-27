@@ -23,9 +23,9 @@ export declare abstract class ACommonList extends AStartList {
     protected readonly dataSource: ICommonDBConfig;
     private search;
     constructor(context: IViewContext, selection: ISelection, parent: HTMLElement, dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>);
-    protected loadColumnDesc(): Promise<Readonly<import("tdp_core/src/rest").IDatabaseViewDesc>>;
+    protected loadColumnDesc(): any;
     protected buildFilter(): IParams;
-    protected loadRows(): Promise<import("tdp_core/src/rest").IRow[]>;
+    protected loadRows(): any;
     protected isValidFilter(key: string): boolean;
 }
 export {};

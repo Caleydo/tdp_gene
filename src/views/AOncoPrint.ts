@@ -12,10 +12,10 @@ import {Range} from 'phovea_core';
 import {none, list as rlist} from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import {IView} from 'tdp_core/src/views/interfaces';
+import {IView} from 'tdp_core';
 import {AView} from 'tdp_core/src/views/AView';
-import {resolveId} from 'tdp_core/src/views/resolve';
-import {errorAlert} from 'tdp_core/src/notifications';
+import {resolveId} from 'tdp_core';
+import {errorAlert} from 'tdp_core';
 
 export interface ISample {
   name: string;

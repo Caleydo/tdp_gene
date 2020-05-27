@@ -13,7 +13,7 @@ export declare class UniProtProxyView extends GeneProxyView {
     protected getParameterFormDescs(): {
         type: FormElementType;
         label: string;
-        id: string;
+        id: any;
         options: {
             optionsData: any[];
         };

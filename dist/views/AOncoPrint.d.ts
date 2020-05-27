@@ -2,8 +2,8 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 import '../scss/style.scss';
-import IDType from 'phovea_core/src/idtype/IDType';
-import Range from 'phovea_core/src/range/Range';
+import { IDType } from 'phovea_core';
+import { Range } from 'phovea_core';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core/src/views/AView';
 export interface ISample {

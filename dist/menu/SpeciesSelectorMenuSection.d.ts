@@ -1,7 +1,7 @@
 /**
  * Created by Holger Stitz on 27.07.2016.
  */
-import { IPluginDesc } from 'phovea_core/src/plugin';
+import { IPluginDesc } from 'phovea_core';
 import '../scss/style.scss';
 import { IStartMenuSection, IStartMenuSectionOptions } from 'ordino/src/extensions';
 import { INamedSet } from 'tdp_core/src/storage';

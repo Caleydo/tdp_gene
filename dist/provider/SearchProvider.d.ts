@@ -13,9 +13,6 @@ export declare class SearchProvider implements ISearchProvider {
     get searchView(): string;
     get verifyView(): string;
     protected static mapItems(result: any): IResult;
-    search(query: string, page: number, pageSize: number): Promise<{
-        items: IResult[];
-        more: boolean;
-    }>;
+    search(query: string, page: number, pageSize: number): any;
     validate(query: string[]): Promise<IResult[]>;
 }

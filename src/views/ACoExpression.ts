@@ -1,14 +1,14 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-import {ISelection} from 'tdp_core/src/views/interfaces';
-import {resolveId} from 'tdp_core/src/views/resolve';
-import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
-import {errorAlert} from 'tdp_core/src/notifications';
+import {ISelection} from 'tdp_core';
+import {resolveId} from 'tdp_core';
+import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core';
+import {errorAlert} from 'tdp_core';
 import * as d3 from 'd3';
 import {Range} from 'phovea_core';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
-import {AD3View} from 'tdp_core/src/views/AD3View';
+import {AD3View} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jStat';
 

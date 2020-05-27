@@ -5,12 +5,12 @@ import '../scss/style.scss';
 
 import {Range} from 'phovea_core';
 import {FormSubtype} from '../provider/forms';
-import {errorAlert} from 'tdp_core/src/notifications';
+import {errorAlert} from 'tdp_core';
 import * as d3 from 'd3';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
-import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
-import {resolveId} from 'tdp_core/src/views/resolve';
-import {AD3View} from 'tdp_core/src/views/AD3View';
+import {FormElementType, IFormSelectDesc} from 'tdp_core';
+import {resolveId} from 'tdp_core';
+import {AD3View} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jStat';
 

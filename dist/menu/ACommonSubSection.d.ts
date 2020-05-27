@@ -23,7 +23,7 @@ export declare abstract class ACommonSubSection implements IStartMenuSubSection 
     protected loadPanels(): Promise<INamedSet[]>;
     protected searchOptions(): any;
     protected getDefaultSessionValues(): {
-        species: string;
+        species: any;
     };
     private addSearchField;
     private static createButton;

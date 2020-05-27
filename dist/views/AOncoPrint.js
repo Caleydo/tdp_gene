@@ -4,9 +4,8 @@
 import '../scss/style.scss';
 import { Categories } from '../common/constants';
 import { select, format, event as d3event } from 'd3';
-import { toSelectOperation } from 'phovea_core/src/idtype/IIDType';
-import { SelectOperation } from 'phovea_core/src/idtype';
-import { none, list as rlist } from 'phovea_core/src/range';
+import { SelectionUtils, SelectOperation } from 'phovea_core';
+import { none, list as rlist } from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core/src/views/AView';
@@ -306,7 +305,7 @@ export class AOncoPrint extends AView {
         $cells.enter().append('td')
             .classed('cell', true)
             .on('click', (row) => {
-            this.selectSample(row.sampleId, toSelectOperation(d3event));
+            this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(d3event));
         })
             .append('div')
             .classed('mut', true);
