@@ -5,7 +5,7 @@
 import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
 import {ISelection, IViewContext} from 'tdp_core/src/views/interfaces';
 import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
-import {getSelectedSpecies, SPECIES_SESSION_KEY} from '../common';
+import {SpeciesUtils, Species} from '../common/common';
 
 export interface ICommonDBConfig {
   idType: string;
@@ -34,8 +34,8 @@ export abstract class ACommonList extends AStartList {
       itemName: dataSource.name,
       itemIDType: dataSource.idType,
       subType: {
-        key: SPECIES_SESSION_KEY,
-        value: getSelectedSpecies()
+        key: Species.SPECIES_SESSION_KEY,
+        value: SpeciesUtils.getSelectedSpecies()
       }
     }, options));
 
@@ -50,7 +50,7 @@ export abstract class ACommonList extends AStartList {
 
   protected buildFilter(): IParams {
     const filter: IParams = {
-      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies()
     };
 
     Object.assign(filter, this.buildNamedSetFilters(`namedset4${((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)}`, (key) => this.isValidFilter(key)));

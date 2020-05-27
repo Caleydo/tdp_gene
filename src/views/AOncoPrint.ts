@@ -2,9 +2,9 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import '../style.scss';
+import '../scss/style.scss';
 
-import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue} from '../constants';
+import {Categories} from '../common/constants';
 import {select, scale, format, event as d3event, Selection} from 'd3';
 import {toSelectOperation} from 'phovea_core/src/idtype/IIDType';
 import {SelectOperation} from 'phovea_core/src/idtype';
@@ -45,18 +45,18 @@ function unknownSample(sample: string, sampleId: number): IDataFormatRow {
   return {
     name: sample,
     sampleId,
-    cn: unknownCopyNumberValue, // unknown --> see Common.
+    cn: Categories.unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
-    aa_mutated: unknownMutationValue // unknown
+    aa_mutated: Categories.unknownMutationValue // unknown
   };
 }
 
 function isMissingMutation(v: boolean) {
-  return v === null || v === unknownMutationValue;
+  return v === null || v === Categories.unknownMutationValue;
 }
 
 function isMissingCNV(v: number) {
-  return v === null || v === unknownCopyNumberValue;
+  return v === null || v === Categories.unknownCopyNumberValue;
 }
 
 function computeAlterationFrequency(rows: IDataFormatRow[]) {
@@ -237,14 +237,14 @@ export abstract class AOncoPrint extends AView {
     const $cnLegend = $legend.append('ul');
     $cnLegend.append('li').classed('title', true).text('Copy Number');
 
-    copyNumberCat.forEach((d) => {
+    Categories.copyNumberCat.forEach((d) => {
       $cnLegend.append('li').attr('data-cnv', d.value).text(d.name);
     });
 
     const $mutLegend = $legend.append('ul');
     $mutLegend.append('li').classed('title', true).text('Mutation');
 
-    mutationCat.forEach((d) => {
+    Categories.mutationCat.forEach((d) => {
       $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
     });
 
@@ -395,7 +395,7 @@ export abstract class AOncoPrint extends AView {
       .attr('data-title', (d) => d.name) //JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
       .attr('data-cnv', (d) => String(d.cn))
-      .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated))
+      .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? Categories.unknownMutationValue : d.aa_mutated))
       .classed('selected', (d) => this.isSampleSelected(d.sampleId));
 
     $cells.exit().remove();

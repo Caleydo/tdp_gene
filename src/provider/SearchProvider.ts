@@ -1,5 +1,5 @@
 //redeclare to avoid dependency
-import {getSelectedSpecies} from './common';
+import {SpeciesUtils} from '../common/common';
 import {IResult, ISearchProvider} from 'tdp_core/src/public/search/SearchProviderInterfaces';
 import {getTDPData, getTDPLookup} from 'tdp_core/src/rest';
 
@@ -24,7 +24,7 @@ export class SearchProvider implements ISearchProvider {
   search(query: string, page: number, pageSize: number) {
     return getTDPLookup(this.dataSource.db, this.searchView , {
       column: this.dataSource.entityName,
-      species: getSelectedSpecies(),
+      species: SpeciesUtils.getSelectedSpecies(),
       query,
       page,
       limit: pageSize
@@ -40,7 +40,7 @@ export class SearchProvider implements ISearchProvider {
   validate(query: string[]): Promise<IResult[]> {
     return getTDPData(this.dataSource.db, `${this.verifyView}/filter`, {
       column: this.dataSource.entityName,
-      species: getSelectedSpecies(),
+      species: SpeciesUtils.getSelectedSpecies(),
       [`filter_${this.dataSource.entityName}`]: query,
     }).then((data) => data.map(SearchProvider.mapItems));
   }

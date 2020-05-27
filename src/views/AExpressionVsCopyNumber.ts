@@ -1,17 +1,17 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import '../style.scss';
+import '../scss/style.scss';
 
 import {Range} from 'phovea_core/src/range';
-import {FORM_EXPRESSION_SUBTYPE_ID, FORM_COPYNUMBER_SUBTYPE_ID} from '../forms';
+import {FormSubtype} from '../provider/forms';
 import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views/resolve';
 import {AD3View} from 'tdp_core/src/views/AD3View';
-import {colorScale, integrateColors, legend} from './utils';
+import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jStat';
 
 const spearmancoeffTitle = 'Spearman Coefficient: ';
@@ -25,7 +25,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
   private x = d3.scale.linear();
   private y = d3.scale.log();
-  private readonly color = colorScale();
+  private readonly color = ViewUtils.colorScale();
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
@@ -44,7 +44,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       {
         type: FormElementType.SELECT,
         label: 'Expression',
-        id: FORM_EXPRESSION_SUBTYPE_ID,
+        id: FormSubtype.FORM_EXPRESSION_SUBTYPE_ID,
         options: {
           optionsData: this.getExpressionValues()
         },
@@ -53,7 +53,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       {
         type: FormElementType.SELECT,
         label: 'Copy Number',
-        id: FORM_COPYNUMBER_SUBTYPE_ID,
+        id: FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID,
         options: {
           optionsData: this.getCopyNumberValues()
         },
@@ -164,7 +164,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     svg.append('text')
       .attr('class', 'x label')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
+      .text(this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name);
 
     svg.append('g')
       .attr('class', 'y axis');
@@ -174,7 +174,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       .attr('transform', 'rotate(-90)')
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
-      .text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
+      .text(this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name);
 
     $parent.append('div').classed('statistics', true)
       .append('div')
@@ -217,13 +217,13 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
-    integrateColors(this.color, rows.map((d) => d.color));
-    legend(<HTMLElement>this.$legend.node(), this.color);
+    ViewUtils.integrateColors(this.color, rows.map((d) => d.color));
+    ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
 
     const $g = $parent.select('svg g');
 
-    $g.select('text.x.label').text(this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name);
-    $g.select('text.y.label').text(this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name);
+    $g.select('text.x.label').text(this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name);
+    $g.select('text.y.label').text(this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name);
 
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
@@ -262,7 +262,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     marks.attr('data-id', (d) => d._id);
     marks.attr('data-color', (d) => String(d.color));
     marks.classed('disabled', false); // show all and reset filtering
-    marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
+    marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
     marks.transition().attr({
       cx: (d) => this.x(d.cn),
       cy: (d) => this.y(d.expression),

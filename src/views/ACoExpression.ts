@@ -9,7 +9,7 @@ import * as d3 from 'd3';
 import {Range} from 'phovea_core/src/range';
 import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
 import {AD3View} from 'tdp_core/src/views/AD3View';
-import {integrateColors, colorScale, legend} from './utils';
+import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jStat';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
@@ -44,7 +44,7 @@ export abstract class ACoExpression extends AD3View {
 
   private readonly x = d3.scale.log();
   private readonly y = d3.scale.log();
-  private readonly color = colorScale();
+  private readonly color = ViewUtils.colorScale();
   private readonly xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
   private readonly yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
@@ -197,7 +197,7 @@ export abstract class ACoExpression extends AD3View {
       this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
-      legend(<HTMLElement>this.$legend.node(), this.color);
+      ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
@@ -205,7 +205,7 @@ export abstract class ACoExpression extends AD3View {
       this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
-      legend(<HTMLElement>this.$legend.node(), this.color);
+      ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
@@ -354,8 +354,8 @@ export abstract class ACoExpression extends AD3View {
 
     this.x.domain([1, d3.max(refGeneExpression, (d) => d.expression)]).clamp(true);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
-    integrateColors(this.color, rows.map((d) => d.color));
-    legend(<HTMLElement>this.$legend.node(), this.color);
+    ViewUtils.integrateColors(this.color, rows.map((d) => d.color));
+    ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
 
 
     const attribute = this.getAttributeName();

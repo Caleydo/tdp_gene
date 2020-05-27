@@ -152,15 +152,15 @@ export default function (registry: IRegistry) {
   });
 
 
-  registry.push('importPostProcessor', 'GeneSymbol', () => System.import('./common'), {
+  registry.push('importPostProcessor', 'GeneSymbol', () => System.import('./common/common'), {
     factory: 'convertGeneSymbolToEnsembl'
   });
 
-  registry.push('tdpListFilters', 'SpeciesFilter', () => System.import('./common'), {
+  registry.push('tdpListFilters', 'SpeciesFilter', () => System.import('./common/common'), {
     factory: 'filterSpecies'
   });
 
-  registry.push('idTypeDetector', 'gene_idtype_detector', () => System.import('./GeneIDTypeDetector'), {
+  registry.push('idTypeDetector', 'gene_idtype_detector', () => System.import('./provider/GeneIDTypeDetector'), {
     name: 'IDTypeDetector',
     factory: 'geneIDTypeDetector',
     idType: 'Ensembl'

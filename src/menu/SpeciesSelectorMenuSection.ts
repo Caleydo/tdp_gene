@@ -4,16 +4,16 @@
 
 import * as session from 'phovea_core/src/session';
 import {IPluginDesc, list as listPlugins} from 'phovea_core/src/plugin';
-import {availableSpecies, defaultSpecies, SPECIES_SESSION_KEY} from '../common';
+import {Species} from '../common/common';
 import {select, event as d3event, Selection} from 'd3';
 import * as $ from 'jquery';
-import '../style.scss';
+import '../scss/style.scss';
 import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino/src/extensions';
 import {INamedSet} from 'tdp_core/src/storage';
 import {
   EXTENSION_POINT_STARTMENU_SUBSECTION, IStartMenuSubSection,
   IStartMenuSubSectionDesc
-} from '../extensions';
+} from '../common/extensions';
 
 
 const tabSessionKey = 'entityType';
@@ -42,14 +42,14 @@ export class SpeciesSelectorMenuSection implements IStartMenuSection {
   private buildSpeciesSelection($parent: Selection<HTMLElement>) {
     const $speciesSelection = $parent.append('div').classed('species-wrapper', true);
 
-    const selectedSpecies = session.retrieve(SPECIES_SESSION_KEY, defaultSpecies);
+    const selectedSpecies = session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
 
     // store default option, if not available
-    if(!session.has(SPECIES_SESSION_KEY)) {
-      session.store(SPECIES_SESSION_KEY, selectedSpecies);
+    if(!session.has(Species.SPECIES_SESSION_KEY)) {
+      session.store(Species.SPECIES_SESSION_KEY, selectedSpecies);
     }
 
-    const $group = $speciesSelection.selectAll('.species-group').data(availableSpecies);
+    const $group = $speciesSelection.selectAll('.species-group').data(Species.availableSpecies);
     const group = $group.enter()
       .append('div')
       .classed('species-group', true)
@@ -63,7 +63,7 @@ export class SpeciesSelectorMenuSection implements IStartMenuSection {
       .attr('type', 'radio')
       .attr('checked', (d) => (d.value === selectedSpecies) ? 'checked' : null)
       .on('change', function(d) {
-        session.store(SPECIES_SESSION_KEY, d.value);
+        session.store(Species.SPECIES_SESSION_KEY, d.value);
 
         $group.classed('active', false);
         select(this.parentNode).classed('active', true);

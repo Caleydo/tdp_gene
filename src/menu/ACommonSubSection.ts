@@ -2,9 +2,9 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../common';
+import {SpeciesUtils, Species} from '../common/common';
 import {resolve, IDType} from 'phovea_core/src/idtype';
-import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
+import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import {NamedSetList} from 'tdp_core/src/storage/NamedSetList';
 import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
@@ -37,11 +37,11 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     parent.appendChild(this.data.node);
 
     // convert all available species to namedsets
-    const defaultNamedSets = availableSpecies.map((species) => {
+    const defaultNamedSets = Species.availableSpecies.map((species) => {
       return <INamedSet>{
         name: 'All',
         type: ENamedSetType.CUSTOM,
-        subTypeKey: SPECIES_SESSION_KEY,
+        subTypeKey: Species.SPECIES_SESSION_KEY,
         subTypeFromSession: true,
         subTypeValue: species.value,
         description: '',
@@ -75,7 +75,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       id,
       name: id,
       description,
-      subTypeKey: SPECIES_SESSION_KEY,
+      subTypeKey: Species.SPECIES_SESSION_KEY,
       subTypeFromSession: false,
       subTypeValue: species,
       idType: ''
@@ -99,7 +99,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected getDefaultSessionValues() {
     // initialize the session with the selected species
     return {
-      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies()
     };
   }
 
@@ -147,8 +147,8 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
         const ids = await idType.map(idStrings);
 
         const response = await saveNamedSet(name, idType, ids, {
-          key: SPECIES_SESSION_KEY,
-          value: getSelectedSpecies()
+          key: Species.SPECIES_SESSION_KEY,
+          value: SpeciesUtils.getSelectedSpecies()
         }, description, isPublic);
         this.push(response);
       });
