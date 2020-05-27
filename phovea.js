@@ -6,7 +6,7 @@
 import reg from './src/phovea';
 
 export default function (registry) {
-  //registry.push('extension-type', 'extension-id', function() { return System.import('./extension_impl'); }, {});
+  //registry.push('extension-type', 'extension-id', function() { return import('./extension_impl'); }, {});
   // generator-phovea:begin
   /// #if include('ordino')
   registry.push('ordinoStartMenuSection', 'section_species', function() { return import('./src/menu/SpeciesSelectorMenuSection'); }, {
