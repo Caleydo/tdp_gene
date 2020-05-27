@@ -2,13 +2,13 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
-import * as session from 'phovea_core/src/session';
-import IDType from 'phovea_core/src/idtype/IDType';
+import {Session} from 'phovea_core';
+import {IDType} from 'phovea_core';
 import {IFormSelectOption} from 'tdp_core/src/form';
 import {ISelection} from 'tdp_core/src/views/interfaces';
-import {resolve} from 'phovea_core/src/idtype';
+import {resolve} from 'phovea_core';
 import {Categories} from './constants';
-import {list as asRange} from 'phovea_core/src/range';
+import {Range} from 'phovea_core';
 
 // has to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {
@@ -43,7 +43,7 @@ export interface IPostProcessor {
 export class SpeciesUtils {
 
   static getSelectedSpecies() {
-    return session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
+    return Session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
   }
 
   /**
@@ -72,7 +72,7 @@ export class SpeciesUtils {
       return selection.range;
     }
     // assume mappable
-    return selection.idtype.mapToFirstID(selection.range, target).then((r) => asRange(r));
+    return selection.idtype.mapToFirstID(selection.range, target).then((r) => Range.list(r));
   }
 
 

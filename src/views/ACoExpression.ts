@@ -6,8 +6,8 @@ import {resolveId} from 'tdp_core/src/views/resolve';
 import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
 import {errorAlert} from 'tdp_core/src/notifications';
 import * as d3 from 'd3';
-import {Range} from 'phovea_core/src/range';
-import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
+import {Range} from 'phovea_core';
+import {SelectionUtils, SelectOperation} from 'phovea_core';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jStat';
@@ -399,12 +399,12 @@ export abstract class ACoExpression extends AD3View {
       .on('click', (d) => {
         const target: EventTarget = (<Event>d3.event).target;
 
-        const selectOperation: SelectOperation = toSelectOperation(<MouseEvent>d3.event);
+        const selectOperation: SelectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
         const id: number = d._id;
-        const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
+        const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
 
-        if (selectOperation === SelectOperation.SET) {
+        if (selectOperation === SelectionUtils.SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);

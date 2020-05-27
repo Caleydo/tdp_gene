@@ -3,7 +3,7 @@
  */
 
 import {SpeciesUtils, Species} from '../common/common';
-import {resolve, IDType} from 'phovea_core/src/idtype';
+import {resolve, IDType} from 'phovea_core';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
 import {IStartMenuSectionOptions} from 'ordino/src/extensions';
 import {NamedSetList} from 'tdp_core/src/storage/NamedSetList';
