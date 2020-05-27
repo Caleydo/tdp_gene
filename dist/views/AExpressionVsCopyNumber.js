@@ -3,12 +3,12 @@
  */
 import '../scss/style.scss';
 import { FormSubtype } from '../provider/forms';
-import { errorAlert } from 'tdp_core/src/notifications';
+import { ErrorAlertHandler } from 'tdp_core';
 import * as d3 from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';
-import { FormElementType } from 'tdp_core/src/form';
-import { resolveId } from 'tdp_core/src/views/resolve';
-import { AD3View } from 'tdp_core/src/views/AD3View';
+import { FormElementType } from 'tdp_core';
+import { ResolveUtils } from 'tdp_core';
+import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
 import { jStat } from 'jStat';
 const spearmancoeffTitle = 'Spearman Coefficient: ';
@@ -86,10 +86,10 @@ export class AExpressionVsCopyNumber extends AD3View {
         const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
         enterOrUpdateAll.each(function (d) {
             const $id = d3.select(this);
-            const promise = resolveId(idtype, d.id, that.idType)
+            const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
                 .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
             // on error
-            promise.catch(errorAlert)
+            promise.catch(ErrorAlertHandler.getInstance().errorAlert)
                 .catch((error) => {
                 console.error(error);
                 that.setBusy(false);

@@ -9,13 +9,12 @@ import {select, scale, format, event as d3event, Selection} from 'd3';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
 import {IDType} from 'phovea_core';
 import {Range} from 'phovea_core';
-import {none, list as rlist} from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import {IView} from 'tdp_core';
 import {AView} from 'tdp_core/src/views/AView';
-import {resolveId} from 'tdp_core';
-import {errorAlert} from 'tdp_core';
+import {ResolveUtils} from 'tdp_core';
+import {ErrorAlertHandler} from 'tdp_core';
 
 export interface ISample {
   name: string;
@@ -301,7 +300,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : resolveId(idtype, d.id, this.idType))
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
@@ -312,7 +311,7 @@ export abstract class AOncoPrint extends AView {
         });
 
       // on error
-      promise.catch(errorAlert)
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
         .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
@@ -413,11 +412,11 @@ export abstract class AOncoPrint extends AView {
     const {range} = this.getItemSelection();
     const current = range.dim(0);
     let newSelection: Range = null;
-    const single = rlist([sampleId]);
+    const single = Range.list([sampleId]);
     switch (op) {
       case SelectOperation.SET:
         if (current.contains(sampleId)) {
-          newSelection = none();
+          newSelection = Range.none();
         } else {
           newSelection = single;
         }

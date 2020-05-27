@@ -2,8 +2,8 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 import { GeneProxyView } from './GeneProxyView';
-import { FormElementType } from 'tdp_core/src/form';
-import { FORM_ID_SELECTED_ITEM } from 'tdp_core/src/views/ProxyView';
+import { FormElementType } from 'tdp_core';
+import { ProxyView } from 'tdp_core';
 /**
  * helper view for proxying an existing external website
  */
@@ -26,7 +26,7 @@ export class UniProtProxyView extends GeneProxyView {
             {
                 type: FormElementType.SELECT,
                 label: 'Gene',
-                id: FORM_ID_SELECTED_ITEM,
+                id: ProxyView.FORM_ID_SELECTED_ITEM,
                 options: {
                     optionsData: [],
                 },
@@ -45,7 +45,7 @@ export class UniProtProxyView extends GeneProxyView {
     }
     parameterChanged(name) {
         super.parameterChanged(name);
-        if (name === FORM_ID_SELECTED_ITEM) {
+        if (name === ProxyView.FORM_ID_SELECTED_ITEM) {
             this.updateUniProtSelect()
                 .catch(() => {
                 this.updateProxyView();
@@ -72,7 +72,7 @@ export class UniProtProxyView extends GeneProxyView {
     }
     updateUniProtSelect(forceUseLastSelection = false) {
         const selectedItemSelect = this.getParameterElement(UniProtProxyView.SELECTED_UNIPROT_ITEM);
-        const ensg = this.getParameter(FORM_ID_SELECTED_ITEM).value;
+        const ensg = this.getParameter(ProxyView.FORM_ID_SELECTED_ITEM).value;
         //convert to uid
         return this.selection.idtype.map([ensg]).then((ids) => {
             // convert to uniprot

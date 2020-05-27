@@ -1,8 +1,8 @@
 /**
  * Created by sam on 06.03.2017.
  */
-import { AStartList } from 'tdp_core/src/views/AStartList';
-import { getTDPDesc, getTDPFilteredRows } from 'tdp_core/src/rest';
+import { AStartList } from 'tdp_core';
+import { RestBaseUtils } from 'tdp_core';
 import { SpeciesUtils, Species } from '../common/common';
 export class ACommonList extends AStartList {
     constructor(context, selection, parent, dataSource, options) {
@@ -21,7 +21,7 @@ export class ACommonList extends AStartList {
         }
     }
     loadColumnDesc() {
-        return getTDPDesc(this.dataSource.db, this.dataSource.base);
+        return RestBaseUtils.getTDPDesc(this.dataSource.db, this.dataSource.base);
     }
     buildFilter() {
         const filter = {
@@ -34,7 +34,7 @@ export class ACommonList extends AStartList {
         return filter;
     }
     loadRows() {
-        return getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
+        return RestBaseUtils.getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
     }
     isValidFilter(key) {
         return key !== '';

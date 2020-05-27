@@ -2,7 +2,7 @@
  * Created by sam on 29.05.2017.
  */
 import { RangeLike } from 'phovea_core';
-import { INamedSet } from 'tdp_core/src/storage/interfaces';
+import { INamedSet } from 'tdp_core';
 import { IDType } from 'phovea_core';
 export declare class FieldUtils {
     /**

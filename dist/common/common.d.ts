@@ -2,8 +2,8 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 import { IDType } from 'phovea_core';
-import { IFormSelectOption } from 'tdp_core/src/form';
-import { ISelection } from 'tdp_core/src/views/interfaces';
+import { IFormSelectOption } from 'tdp_core';
+import { ISelection } from 'tdp_core';
 interface IAvailableSpecies {
     name: string;
     value: string;
@@ -25,7 +25,7 @@ export interface IPostProcessor {
     }, data: string[][]) => Promise<string[][]>;
 }
 export declare class SpeciesUtils {
-    static getSelectedSpecies(): any;
+    static getSelectedSpecies(): string;
     /**
      * selects a human readable idtype for a given one that can be mapped
      * @param idType

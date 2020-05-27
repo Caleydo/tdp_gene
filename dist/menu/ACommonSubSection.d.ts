@@ -4,8 +4,8 @@
 import { Species } from '../common/common';
 import { IStartMenuSubSection, IStartMenuSubSectionDesc } from '../common/extensions';
 import { IStartMenuSectionOptions } from 'ordino/src/extensions';
-import { NamedSetList } from 'tdp_core/src/storage/NamedSetList';
-import { INamedSet } from 'tdp_core/src/storage';
+import { NamedSetList } from 'tdp_core';
+import { INamedSet } from 'tdp_core';
 import { ICommonDBConfig } from '../views/ACommonList';
 export declare abstract class ACommonSubSection implements IStartMenuSubSection {
     readonly desc: IStartMenuSubSectionDesc;
@@ -23,7 +23,7 @@ export declare abstract class ACommonSubSection implements IStartMenuSubSection 
     protected loadPanels(): Promise<INamedSet[]>;
     protected searchOptions(): any;
     protected getDefaultSessionValues(): {
-        species: any;
+        species: string;
     };
     private addSearchField;
     private static createButton;

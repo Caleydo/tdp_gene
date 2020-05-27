@@ -4,7 +4,7 @@
 
 import {AStartList, IAStartListOptions} from 'tdp_core';
 import {ISelection, IViewContext} from 'tdp_core';
-import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core';
+import {RestBaseUtils, IParams} from 'tdp_core';
 import {SpeciesUtils, Species} from '../common/common';
 
 export interface ICommonDBConfig {
@@ -45,7 +45,7 @@ export abstract class ACommonList extends AStartList {
   }
 
   protected loadColumnDesc() {
-    return getTDPDesc(this.dataSource.db, this.dataSource.base);
+    return RestBaseUtils.getTDPDesc(this.dataSource.db, this.dataSource.base);
   }
 
   protected buildFilter(): IParams {
@@ -62,7 +62,7 @@ export abstract class ACommonList extends AStartList {
   }
 
   protected loadRows() {
-    return getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
+    return RestBaseUtils.getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
   }
 
   protected isValidFilter(key: string) {

@@ -2,7 +2,7 @@
  * Created by Holger Stitz on 07.12.2016.
  */
 import { GeneProxyView } from './GeneProxyView';
-import { FormElementType } from 'tdp_core/src/form';
+import { FormElementType } from 'tdp_core';
 /**
  * helper view for proxying an existing external website
  */
@@ -13,7 +13,7 @@ export declare class UniProtProxyView extends GeneProxyView {
     protected getParameterFormDescs(): {
         type: FormElementType;
         label: string;
-        id: any;
+        id: string;
         options: {
             optionsData: any[];
         };

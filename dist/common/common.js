@@ -1,8 +1,8 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { Session } from 'phovea_core';
-import { resolve } from 'phovea_core';
+import { UserSession } from 'phovea_core';
+import { IDTypeManager } from 'phovea_core';
 import { Categories } from './constants';
 import { Range } from 'phovea_core';
 export var Species;
@@ -18,7 +18,7 @@ export var Species;
 })(Species || (Species = {}));
 export class SpeciesUtils {
     static getSelectedSpecies() {
-        return Session.retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
+        return UserSession.getInstance().retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
     }
     /**
      * selects a human readable idtype for a given one that can be mapped
@@ -74,7 +74,7 @@ export class SpeciesUtils {
         return {
             process: async function process(importResults, data) {
                 if (importResults.idType.includes('GeneSymbol')) {
-                    const idType = resolve(importResults.idType);
+                    const idType = IDTypeManager.getInstance().resolveIdType(importResults.idType);
                     const geneSymbols = data.map((row) => row[importResults.idColumn]);
                     const ensgs = await idType.mapNameToName(geneSymbols, Categories.GENE_IDTYPE);
                     // append converted ENSGs to each row

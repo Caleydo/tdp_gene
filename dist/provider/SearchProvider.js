@@ -1,6 +1,6 @@
 //redeclare to avoid dependency
 import { SpeciesUtils } from '../common/common';
-import { getTDPData, getTDPLookup } from 'tdp_core/src/rest';
+import { RestBaseUtils } from 'tdp_core';
 export class SearchProvider {
     constructor(dataSource) {
         this.dataSource = dataSource;
@@ -15,7 +15,7 @@ export class SearchProvider {
         return result;
     }
     search(query, page, pageSize) {
-        return getTDPLookup(this.dataSource.db, this.searchView, {
+        return RestBaseUtils.getTDPLookup(this.dataSource.db, this.searchView, {
             column: this.dataSource.entityName,
             species: SpeciesUtils.getSelectedSpecies(),
             query,
@@ -29,7 +29,7 @@ export class SearchProvider {
         });
     }
     validate(query) {
-        return getTDPData(this.dataSource.db, `${this.verifyView}/filter`, {
+        return RestBaseUtils.getTDPData(this.dataSource.db, `${this.verifyView}/filter`, {
             column: this.dataSource.entityName,
             species: SpeciesUtils.getSelectedSpecies(),
             [`filter_${this.dataSource.entityName}`]: query,

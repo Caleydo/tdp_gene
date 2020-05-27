@@ -2,12 +2,12 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 import { SpeciesUtils, Species } from '../common/common';
-import { resolve } from 'phovea_core';
-import { NamedSetList } from 'tdp_core/src/storage/NamedSetList';
-import { ENamedSetType, saveNamedSet } from 'tdp_core/src/storage';
-import { getTDPData } from 'tdp_core/src/rest';
-import { FormElementType, FormBuilder } from 'tdp_core/src/form';
-import { editDialog } from 'tdp_core/src/storage/editDialog';
+import { IDTypeManager } from 'phovea_core';
+import { NamedSetList } from 'tdp_core';
+import { ENamedSetType, RestStorageUtils } from 'tdp_core';
+import { RestBaseUtils } from 'tdp_core';
+import { FormElementType, FormBuilder } from 'tdp_core';
+import { StoreUtils } from 'tdp_core';
 import { select } from 'd3';
 export class ACommonSubSection {
     /**
@@ -17,7 +17,7 @@ export class ACommonSubSection {
         this.desc = desc;
         this.dataSource = dataSource;
         this.options = options;
-        this.idType = resolve(desc.idType);
+        this.idType = IDTypeManager.getInstance().resolveIdType(desc.idType);
         const createSession = (namedSet) => {
             if (options.session) {
                 options.session(this.desc.viewId, { namedSet }, this.getDefaultSessionValues());
@@ -26,7 +26,7 @@ export class ACommonSubSection {
                 console.error('no session factory object given to push new view');
             }
         };
-        this.data = new NamedSetList(resolve(desc.idType), createSession, parent.ownerDocument);
+        this.data = new NamedSetList(IDTypeManager.getInstance().resolveIdType(desc.idType), createSession, parent.ownerDocument);
         parent.appendChild(this.data.node);
         // convert all available species to namedsets
         const defaultNamedSets = Species.availableSpecies.map((species) => {
@@ -69,7 +69,7 @@ export class ACommonSubSection {
         };
     }
     loadPanels() {
-        return getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels) => {
+        return RestBaseUtils.getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels) => {
             return panels.map(ACommonSubSection.panel2NamedSet);
         });
     }
@@ -116,11 +116,11 @@ export class ACommonSubSection {
             }, this.getDefaultSessionValues());
         });
         $saveSetButton.on('click', () => {
-            editDialog(null, async (name, description, isPublic) => {
+            StoreUtils.editDialog(null, async (name, description, isPublic) => {
                 const idStrings = searchField.value;
-                const idType = resolve(this.dataSource.idType);
+                const idType = IDTypeManager.getInstance().resolveIdType(this.dataSource.idType);
                 const ids = await idType.map(idStrings);
-                const response = await saveNamedSet(name, idType, ids, {
+                const response = await RestStorageUtils.saveNamedSet(name, idType, ids, {
                     key: Species.SPECIES_SESSION_KEY,
                     value: SpeciesUtils.getSelectedSpecies()
                 }, description, isPublic);

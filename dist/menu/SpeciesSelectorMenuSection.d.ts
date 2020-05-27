@@ -4,7 +4,7 @@
 import { IPluginDesc } from 'phovea_core';
 import '../scss/style.scss';
 import { IStartMenuSection, IStartMenuSectionOptions } from 'ordino/src/extensions';
-import { INamedSet } from 'tdp_core/src/storage';
+import { INamedSet } from 'tdp_core';
 export declare class SpeciesSelectorMenuSection implements IStartMenuSection {
     private readonly parent;
     readonly desc: IPluginDesc;

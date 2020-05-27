@@ -1,7 +1,7 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import {RangeLike, parse} from 'phovea_core';
+import {RangeLike, ParseRangeUtils} from 'phovea_core';
 import {INamedSet, ENamedSetType} from 'tdp_core';
 import {IDType} from 'phovea_core';
 
@@ -26,7 +26,7 @@ export class FieldUtils {
    * limit the number of score rows if it doesn't exceed some criteria
    */
   static limitScoreRows(param: any, ids: RangeLike, idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet) {
-    const range = parse(ids);
+    const range = ParseRangeUtils.parseRangeLike(ids);
     if (range.dim(0).length < maxDirectRows) {
       param[`filter_rangeOf${idTypeOfIDs.id}4${entity}`] = range.toString();
       return;

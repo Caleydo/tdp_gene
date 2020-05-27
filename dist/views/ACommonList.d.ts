@@ -1,9 +1,9 @@
 /**
  * Created by sam on 06.03.2017.
  */
-import { AStartList, IAStartListOptions } from 'tdp_core/src/views/AStartList';
-import { ISelection, IViewContext } from 'tdp_core/src/views/interfaces';
-import { IParams } from 'tdp_core/src/rest';
+import { AStartList, IAStartListOptions } from 'tdp_core';
+import { ISelection, IViewContext } from 'tdp_core';
+import { IParams } from 'tdp_core';
 export interface ICommonDBConfig {
     idType: string;
     name: string;
@@ -23,9 +23,9 @@ export declare abstract class ACommonList extends AStartList {
     protected readonly dataSource: ICommonDBConfig;
     private search;
     constructor(context: IViewContext, selection: ISelection, parent: HTMLElement, dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>);
-    protected loadColumnDesc(): any;
+    protected loadColumnDesc(): Promise<Readonly<import("tdp_core").IDatabaseViewDesc>>;
     protected buildFilter(): IParams;
-    protected loadRows(): any;
+    protected loadRows(): Promise<import("tdp_core").IRow[]>;
     protected isValidFilter(key: string): boolean;
 }
 export {};

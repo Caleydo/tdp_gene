@@ -2,9 +2,9 @@
  * Created by Holger Stitz on 12.08.2016.
  */
 import {ISelection} from 'tdp_core';
-import {resolveId} from 'tdp_core';
+import {ResolveUtils} from 'tdp_core';
 import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core';
-import {errorAlert} from 'tdp_core';
+import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
 import {Range} from 'phovea_core';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
@@ -136,7 +136,7 @@ export abstract class ACoExpression extends AD3View {
         const promise = this.loadGeneList(genesEnsembl);
 
         // on error
-        promise.catch(errorAlert)
+        promise.catch(ErrorAlertHandler.getInstance().errorAlert)
           .catch((error) => {
             console.error(error);
             this.setBusy(false);
@@ -228,7 +228,7 @@ export abstract class ACoExpression extends AD3View {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d: ICoExprDataFormat) {
       const $id = d3.select(this);
-      const promise = resolveId(idtype, d.id, that.idType)
+      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
         .then((name) => {
           return Promise.all([
             that.loadData(name),
@@ -236,7 +236,7 @@ export abstract class ACoExpression extends AD3View {
           ]);
         });
       // on error
-      promise.catch(errorAlert)
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
         .catch((error) => {
           console.error(error);
           that.setBusy(false);
@@ -404,7 +404,7 @@ export abstract class ACoExpression extends AD3View {
         const id: number = d._id;
         const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
 
-        if (selectOperation === SelectionUtils.SelectOperation.SET) {
+        if (selectOperation === SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);

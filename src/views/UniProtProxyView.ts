@@ -4,7 +4,7 @@
 
 import {GeneProxyView} from './GeneProxyView';
 import {FormElementType, IFormSelectElement} from 'tdp_core';
-import {FORM_ID_SELECTED_ITEM} from 'tdp_core';
+import {ProxyView} from 'tdp_core';
 
 /**
  * helper view for proxying an existing external website
@@ -35,7 +35,7 @@ export class UniProtProxyView extends GeneProxyView {
       {
         type: FormElementType.SELECT,
         label: 'Gene',
-        id: FORM_ID_SELECTED_ITEM,
+        id: ProxyView.FORM_ID_SELECTED_ITEM,
         options: {
           optionsData: [],
         },
@@ -55,7 +55,7 @@ export class UniProtProxyView extends GeneProxyView {
 
   protected parameterChanged(name: string) {
     super.parameterChanged(name);
-    if(name === FORM_ID_SELECTED_ITEM) {
+    if(name === ProxyView.FORM_ID_SELECTED_ITEM) {
       this.updateUniProtSelect()
         .catch(() => {
           this.updateProxyView();
@@ -85,7 +85,7 @@ export class UniProtProxyView extends GeneProxyView {
   private updateUniProtSelect(forceUseLastSelection = false) {
     const selectedItemSelect:IFormSelectElement = (<IFormSelectElement>this.getParameterElement(UniProtProxyView.SELECTED_UNIPROT_ITEM));
 
-    const ensg = this.getParameter(FORM_ID_SELECTED_ITEM).value;
+    const ensg = this.getParameter(ProxyView.FORM_ID_SELECTED_ITEM).value;
 
     //convert to uid
     return this.selection.idtype.map([ensg]).then((ids) => {

@@ -1,9 +1,9 @@
-import { resolveId } from 'tdp_core/src/views/resolve';
-import { FormElementType } from 'tdp_core/src/form';
-import { errorAlert } from 'tdp_core/src/notifications';
+import { ResolveUtils } from 'tdp_core';
+import { FormElementType } from 'tdp_core';
+import { ErrorAlertHandler } from 'tdp_core';
 import * as d3 from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';
-import { AD3View } from 'tdp_core/src/views/AD3View';
+import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
 import { jStat } from 'jStat';
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
@@ -112,7 +112,7 @@ export class ACoExpression extends AD3View {
             //console.log('Ensembl', genesEnsembl);
             const promise = this.loadGeneList(genesEnsembl);
             // on error
-            promise.catch(errorAlert)
+            promise.catch(ErrorAlertHandler.getInstance().errorAlert)
                 .catch((error) => {
                 console.error(error);
                 this.setBusy(false);
@@ -180,7 +180,7 @@ export class ACoExpression extends AD3View {
         const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
         enterOrUpdateAll.each(function (d) {
             const $id = d3.select(this);
-            const promise = resolveId(idtype, d.id, that.idType)
+            const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
                 .then((name) => {
                 return Promise.all([
                     that.loadData(name),
@@ -188,7 +188,7 @@ export class ACoExpression extends AD3View {
                 ]);
             });
             // on error
-            promise.catch(errorAlert)
+            promise.catch(ErrorAlertHandler.getInstance().errorAlert)
                 .catch((error) => {
                 console.error(error);
                 that.setBusy(false);
@@ -316,7 +316,7 @@ export class ACoExpression extends AD3View {
             const oldSelection = this.getItemSelection();
             const id = d._id;
             const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
-            if (selectOperation === SelectionUtils.SelectOperation.SET) {
+            if (selectOperation === SelectOperation.SET) {
                 d3.selectAll('circle.mark.clicked').classed('clicked', false);
             }
             d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);

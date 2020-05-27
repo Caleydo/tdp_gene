@@ -1,8 +1,8 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import { parse } from 'phovea_core';
-import { ENamedSetType } from 'tdp_core/src/storage/interfaces';
+import { ParseRangeUtils } from 'phovea_core';
+import { ENamedSetType } from 'tdp_core';
 export class FieldUtils {
     /**
      * converts the field in the given array 2^<value>
@@ -21,7 +21,7 @@ export class FieldUtils {
      * limit the number of score rows if it doesn't exceed some criteria
      */
     static limitScoreRows(param, ids, idTypeOfIDs, entity, maxDirectRows, namedSet) {
-        const range = parse(ids);
+        const range = ParseRangeUtils.parseRangeLike(ids);
         if (range.dim(0).length < maxDirectRows) {
             param[`filter_rangeOf${idTypeOfIDs.id}4${entity}`] = range.toString();
             return;

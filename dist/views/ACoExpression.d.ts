@@ -1,7 +1,7 @@
-import { IFormSelectDesc, IFormSelectOption } from 'tdp_core/src/form';
+import { IFormSelectDesc, IFormSelectOption } from 'tdp_core';
 import * as d3 from 'd3';
 import { Range } from 'phovea_core';
-import { AD3View } from 'tdp_core/src/views/AD3View';
+import { AD3View } from 'tdp_core';
 export interface IGeneOption extends IFormSelectOption {
     data: {
         id: string;
