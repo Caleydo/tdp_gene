@@ -4,6 +4,7 @@
 import { GeneProxyView } from './GeneProxyView';
 import { FormElementType } from 'tdp_core';
 import { ProxyView } from 'tdp_core';
+import { IDTypeManager } from 'phovea_core';
 /**
  * helper view for proxying an existing external website
  */
@@ -76,7 +77,7 @@ export class UniProtProxyView extends GeneProxyView {
         //convert to uid
         return this.selection.idtype.map([ensg]).then((ids) => {
             // convert to uniprot
-            return this.selection.idtype.mapToName(ids, UniProtProxyView.OUTPUT_IDTYPE);
+            return IDTypeManager.getInstance().mapToName(this.selection.idtype, ids, UniProtProxyView.OUTPUT_IDTYPE);
         }).then((uniProtIds) => {
             // use uniProtIds[0] since we passed only one selected _id
             if (uniProtIds[0] === null) {

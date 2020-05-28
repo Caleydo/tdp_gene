@@ -55,7 +55,7 @@ export class SpeciesUtils {
     if (idType.id === Categories.GENE_IDTYPE) {
       const targetMapping = 'GeneSymbol';
       const species = SpeciesUtils.getSelectedSpecies();
-      const mapsTo = await idType.getCanBeMappedTo();
+      const mapsTo = await IDTypeManager.getInstance().getCanBeMappedTo(idType);
       let target = mapsTo.find((d) => d.name === targetMapping + '_' + species);
       if (!target) {
         target = mapsTo.find((d) => d.name === targetMapping);
@@ -72,7 +72,7 @@ export class SpeciesUtils {
       return selection.range;
     }
     // assume mappable
-    return selection.idtype.mapToFirstID(selection.range, target).then((r) => Range.list(r));
+    return IDTypeManager.getInstance().mapToFirstID(selection.idtype, selection.range, target).then((r) => Range.list(r));
   }
 
 
@@ -89,7 +89,7 @@ export class SpeciesUtils {
         return ensgs.map((ensg) => ({value: ensg, name: ensg, data: [ensg, ensg]}));
       }
       // map and use names
-      return base.mapToFirstName(ids, target).then((names) => {
+      return IDTypeManager.getInstance().mapToFirstName(base, ids, target).then((names) => {
         return names.map((name, i) => ({
           value: ensgs[i],
           name: name ? `${name} (${ensgs[i]})` : ensgs[i],
@@ -109,7 +109,7 @@ export class SpeciesUtils {
         const idType = IDTypeManager.getInstance().resolveIdType(importResults.idType);
 
         const geneSymbols = data.map((row) => row[importResults.idColumn]);
-        const ensgs = await idType.mapNameToName(geneSymbols, Categories.GENE_IDTYPE);
+        const ensgs = await IDTypeManager.getInstance().mapNameToName(idType, geneSymbols, Categories.GENE_IDTYPE);
 
         // append converted ENSGs to each row
         // ensgs is an Array of Arrays
