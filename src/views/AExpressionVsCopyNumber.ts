@@ -12,7 +12,7 @@ import {FormElementType, IFormSelectDesc} from 'tdp_core/src/form';
 import {resolveId} from 'tdp_core/src/views';
 import {AD3View} from 'tdp_core/src/views/AD3View';
 import {colorScale, integrateColors, legend} from './utils';
-import {jStat} from 'jStat';
+import {jStat} from 'jstat';
 
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
