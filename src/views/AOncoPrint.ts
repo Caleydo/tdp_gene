@@ -248,7 +248,7 @@ export abstract class AOncoPrint extends AView {
       $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
     });
       // append the legen for missing values
-    $mutLegend.append('li').attr('data-mut',unknownMutationValue ).text('Missing Values');
+    $mutLegend.append('li').attr('data-mut', unknownMutationValue ).text('Missing Values');
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
