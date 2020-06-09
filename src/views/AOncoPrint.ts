@@ -238,6 +238,8 @@ export abstract class AOncoPrint extends AView {
     copyNumberCat.forEach((d) => {
       $cnLegend.append('li').attr('data-cnv', d.value).text(d.name);
     });
+    // append the legend for missing values
+    $cnLegend.append('li').attr('data-cnv', unknownCopyNumberValue).text('Missing Values');
 
     const $mutLegend = $legend.append('ul');
     $mutLegend.append('li').classed('title', true).text('Mutation');
@@ -245,6 +247,8 @@ export abstract class AOncoPrint extends AView {
     mutationCat.forEach((d) => {
       $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
     });
+      // append the legend for missing values
+    $mutLegend.append('li').attr('data-mut', unknownMutationValue ).text('Missing Values');
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
