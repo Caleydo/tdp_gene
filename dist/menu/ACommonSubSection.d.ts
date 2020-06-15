@@ -3,7 +3,7 @@
  */
 import { Species } from '../common/common';
 import { IStartMenuSubSection, IStartMenuSubSectionDesc } from '../common/extensions';
-import { IStartMenuSectionOptions } from 'ordino/src/extensions';
+import { IStartMenuSectionOptions } from 'ordino';
 import { NamedSetList } from 'tdp_core';
 import { INamedSet } from 'tdp_core';
 import { ICommonDBConfig } from '../views/ACommonList';

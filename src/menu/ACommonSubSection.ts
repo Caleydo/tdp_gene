@@ -5,7 +5,7 @@
 import {SpeciesUtils, Species} from '../common/common';
 import {IDTypeManager, IDType} from 'phovea_core';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
-import {IStartMenuSectionOptions} from 'ordino/src/extensions';
+import {IStartMenuSectionOptions} from 'ordino';
 import {NamedSetList} from 'tdp_core';
 import {ENamedSetType, INamedSet, RestStorageUtils} from 'tdp_core';
 import {RestBaseUtils} from 'tdp_core';

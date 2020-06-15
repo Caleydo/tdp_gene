@@ -1,7 +1,7 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import '../scss/style.scss';
+import '../scss/main.scss';
 import { Categories } from '../common/constants';
 import { select, format, event as d3event } from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';

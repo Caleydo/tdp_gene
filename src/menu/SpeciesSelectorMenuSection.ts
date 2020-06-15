@@ -7,8 +7,8 @@ import {IPluginDesc, PluginRegistry} from 'phovea_core';
 import {Species} from '../common/common';
 import {select, event as d3event, Selection} from 'd3';
 import * as $ from 'jquery';
-import '../scss/style.scss';
-import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino/src/extensions';
+import '../scss/main.scss';
+import {IStartMenuSection, IStartMenuSectionOptions} from 'ordino';
 import {INamedSet} from 'tdp_core';
 import {
   EXTENSION_POINT_STARTMENU_SUBSECTION, IStartMenuSubSection,

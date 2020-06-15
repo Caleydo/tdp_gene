@@ -2,7 +2,7 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import '../scss/style.scss';
+import '../scss/main.scss';
 
 import {Categories} from '../common/constants';
 import {select, scale, format, event as d3event, Selection} from 'd3';

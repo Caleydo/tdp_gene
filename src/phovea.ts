@@ -165,4 +165,13 @@ export default function (registry: IRegistry) {
     factory: 'geneIDTypeDetector',
     idType: 'Ensembl'
   });
+  /// #if include('ordino')
+  registry.push('ordinoStartMenuSection', 'section_species', function() { return import('./menu/SpeciesSelectorMenuSection').then((s) => s.SpeciesSelectorMenuSection); }, {
+    name: 'Predefined Datasets',
+    cssClass: 'speciesSelector',
+    priority: 10
+  });
+  /// #endif
+
+
 }

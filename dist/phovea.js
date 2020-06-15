@@ -148,5 +148,12 @@ export default function (registry) {
         factory: 'geneIDTypeDetector',
         idType: 'Ensembl'
     });
+    /// #if include('ordino')
+    registry.push('ordinoStartMenuSection', 'section_species', function () { return import('./menu/SpeciesSelectorMenuSection').then((s) => s.SpeciesSelectorMenuSection); }, {
+        name: 'Predefined Datasets',
+        cssClass: 'speciesSelector',
+        priority: 10
+    });
+    /// #endif
 }
 //# sourceMappingURL=phovea.js.map

@@ -1,7 +1,7 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import '../scss/style.scss';
+import '../scss/main.scss';
 import { FormSubtype } from '../provider/forms';
 import { ErrorAlertHandler } from 'tdp_core';
 import * as d3 from 'd3';

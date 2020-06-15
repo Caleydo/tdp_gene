@@ -1,7 +1,7 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import '../scss/style.scss';
+import '../scss/main.scss';
 import { IDType } from 'phovea_core';
 import { Range } from 'phovea_core';
 import 'jquery-ui/ui/widgets/sortable';

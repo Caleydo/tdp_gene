@@ -6,7 +6,7 @@ import { PluginRegistry } from 'phovea_core';
 import { Species } from '../common/common';
 import { select, event as d3event } from 'd3';
 import * as $ from 'jquery';
-import '../scss/style.scss';
+import '../scss/main.scss';
 import { EXTENSION_POINT_STARTMENU_SUBSECTION } from '../common/extensions';
 const tabSessionKey = 'entityType';
 const defaultTabSessionValue = 'celllinedb_genes_start'; //ensembl
