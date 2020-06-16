@@ -22,4 +22,4 @@ export var Categories;
     Categories.unknownMutationValue = Categories.mutationCat[Categories.mutationCat.length - 1].value;
     Categories.GENE_IDTYPE = 'Ensembl';
 })(Categories || (Categories = {}));
-//# sourceMappingURL=constants.js.map
+//# sourceMappingURL=Categories.js.map

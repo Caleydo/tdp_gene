@@ -7,7 +7,7 @@ import {IDType} from 'phovea_core';
 import {IFormSelectOption} from 'tdp_core';
 import {ISelection} from 'tdp_core';
 import {IDTypeManager} from 'phovea_core';
-import {Categories} from './constants';
+import {Categories} from './Categories';
 import {Range} from 'phovea_core';
 
 // has to work for all data sources (gene, tissue, cell line)

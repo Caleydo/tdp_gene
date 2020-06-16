@@ -3,7 +3,7 @@
  */
 import { UserSession } from 'phovea_core';
 import { IDTypeManager } from 'phovea_core';
-import { Categories } from './constants';
+import { Categories } from './Categories';
 import { Range } from 'phovea_core';
 export var Species;
 (function (Species) {

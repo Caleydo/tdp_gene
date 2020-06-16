@@ -4,7 +4,7 @@
 
 import '../scss/main.scss';
 
-import {Categories} from '../common/constants';
+import {Categories} from '../common/Categories';
 import {select, scale, format, event as d3event, Selection} from 'd3';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
 import {IDType} from 'phovea_core';
