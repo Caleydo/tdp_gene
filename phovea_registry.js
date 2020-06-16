@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  **************************************************************************** */
-import {register} from 'phovea_core';
+import {PluginRegistry} from 'phovea_core';
 import reg from './dist/phovea';
 /**
  * build a registry by registering all phovea modules
@@ -14,4 +14,4 @@ import 'tdp_core/phovea_registry.js';
 import 'ordino/phovea_registry.js';
 /// #endif
 //self
-register('tdp_gene', reg);
+PluginRegistry.getInstance().register('tdp_gene', reg);
