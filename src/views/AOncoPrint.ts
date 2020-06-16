@@ -11,8 +11,7 @@ import {IDType} from 'phovea_core';
 import {Range} from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import {IView} from 'tdp_core';
-import {AView} from 'tdp_core/src/views/AView';
+import {IView, AView} from 'tdp_core';
 import {ResolveUtils} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 

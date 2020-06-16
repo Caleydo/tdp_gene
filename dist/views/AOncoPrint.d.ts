@@ -5,7 +5,7 @@ import '../scss/main.scss';
 import { IDType } from 'phovea_core';
 import { Range } from 'phovea_core';
 import 'jquery-ui/ui/widgets/sortable';
-import { AView } from 'tdp_core/src/views/AView';
+import { AView } from 'tdp_core';
 export interface ISample {
     name: string;
     id: number;

@@ -103,7 +103,7 @@ export default function (registry) {
         },
         topics: ['external']
     };
-    // tdpView('humanproteomemap', () => import('tdp_core/src/views/ChooserProxyView'), {
+    // tdpView('humanproteomemap', () => import('tdp_core/dist/views/ChooserProxyView'), {
     //   name: 'Human Proteome Map',
     //   site: 'http://www.humanproteomemap.org/protein.php?hpm_id={gene}',
     //   helpUrl: 'http://www.humanproteomemap.org/faqs.html',
@@ -114,21 +114,21 @@ export default function (registry) {
     //   readableIDType: 'GeneSymbol',
     //   topics: ['protein', 'external']
     // });
-    tdpView('genenames', () => import('tdp_core/src/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
+    tdpView('genenames', () => import('tdp_core/dist/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
         name: 'Genenames',
         site: 'https://www.genenames.org/cgi-bin/gene_symbol_report?match={gene}',
         preview: () => import('./assets/previews/genenames.jpg'),
         description: 'Reference for human gene symbols',
         helpUrl: 'https://www.genenames.org/about/overview'
     }, common);
-    tdpView('ClinVar', () => import('tdp_core/src/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
+    tdpView('ClinVar', () => import('tdp_core/dist/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
         name: 'ClinVar',
         site: 'https://www.ncbi.nlm.nih.gov/clinvar/?term={gene}',
         helpUrl: 'https://www.ncbi.nlm.nih.gov/clinvar/intro/',
         preview: () => import('./assets/previews/clinvar.png'),
         description: 'relationships among human variations and phenotypes, with supporting evidence'
     }, common);
-    tdpView('cosmic_gene', () => import('tdp_core/src/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
+    tdpView('cosmic_gene', () => import('tdp_core/dist/views/ChooserProxyView').then((c) => c.ChooserProxyView), {
         name: 'COSMIC',
         site: 'https://cancer.sanger.ac.uk/cosmic/gene/analysis?genome=38&ln={gene}',
         preview: () => import('./assets/previews/cosmic_banner.png'),

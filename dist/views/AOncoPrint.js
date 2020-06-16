@@ -8,7 +8,7 @@ import { SelectionUtils, SelectOperation } from 'phovea_core';
 import { Range } from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import { AView } from 'tdp_core/src/views/AView';
+import { AView } from 'tdp_core';
 import { ResolveUtils } from 'tdp_core';
 import { ErrorAlertHandler } from 'tdp_core';
 function unknownSample(sample, sampleId) {
