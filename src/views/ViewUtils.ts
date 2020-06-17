@@ -1,12 +1,13 @@
 import {scale as d3Scale} from 'd3';
 
 
-const base = d3Scale.category20().range().slice();
-base.splice(2, 2); // splice out the orange since used for selection
-// reorder such that repeat after the primary colors
-const colors = this.base.filter((d, i) => i%2 === 0).concat(this.base.filter((d, i) => i%2 === 1));
 
 export class ViewUtils {
+
+  static readonly base = d3Scale.category20().range().slice().splice(2, 2); // splice out the orange since used for selection;
+  // reorder such that repeat after the primary colors
+  static colors = ViewUtils.base.filter((d, i) => i%2 === 0).concat(ViewUtils.base.filter((d, i) => i%2 === 1));
+
 
   static integrateColors(scale: d3Scale.Ordinal<string, string>, colors: string[]) {
     const old = new Set(scale.domain());
@@ -17,7 +18,7 @@ export class ViewUtils {
   }
 
   static colorScale() {
-    return d3Scale.ordinal<string, string>().range(colors);
+    return d3Scale.ordinal<string, string>().range(ViewUtils.colors);
   }
 
   static legend(legend: HTMLElement, scale: d3Scale.Ordinal<string, string>) {

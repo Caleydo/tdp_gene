@@ -1,8 +1,4 @@
 import { scale as d3Scale } from 'd3';
-const base = d3Scale.category20().range().slice();
-base.splice(2, 2); // splice out the orange since used for selection
-// reorder such that repeat after the primary colors
-const colors = this.base.filter((d, i) => i % 2 === 0).concat(this.base.filter((d, i) => i % 2 === 1));
 export class ViewUtils {
     static integrateColors(scale, colors) {
         const old = new Set(scale.domain());
@@ -12,7 +8,7 @@ export class ViewUtils {
         scale.domain(scale.domain().concat(colors));
     }
     static colorScale() {
-        return d3Scale.ordinal().range(colors);
+        return d3Scale.ordinal().range(ViewUtils.colors);
     }
     static legend(legend, scale) {
         legend.classList.add('tdp-legend');
@@ -53,4 +49,7 @@ export class ViewUtils {
         }));
     }
 }
+ViewUtils.base = d3Scale.category20().range().slice().splice(2, 2); // splice out the orange since used for selection;
+// reorder such that repeat after the primary colors
+ViewUtils.colors = ViewUtils.base.filter((d, i) => i % 2 === 0).concat(ViewUtils.base.filter((d, i) => i % 2 === 1));
 //# sourceMappingURL=ViewUtils.js.map
