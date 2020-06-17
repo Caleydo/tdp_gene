@@ -156,7 +156,7 @@ export default function (registry) {
         idType: 'Ensembl'
     });
     /// #if include('ordino')
-    registry.push('ordinoStartMenuSection', 'section_species', function () { return import('./menu/SpeciesSelectorMenuSection').then((s) => s.SpeciesSelectorMenuSection); }, {
+    registry.push('ordinoStartMenuSection', 'section_species', function () { return import('./menu/SpeciesSelectorMenuSection'); }, {
         factory: 'new SpeciesSelectorMenuSection',
         name: 'Predefined Datasets',
         cssClass: 'speciesSelector',
