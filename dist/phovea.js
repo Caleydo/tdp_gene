@@ -150,9 +150,9 @@ export default function (registry) {
     registry.push('tdpListFilters', 'SpeciesFilter', () => import('./common/common').then((c) => c.SpeciesUtils), {
         factory: 'filterSpecies'
     });
-    registry.push('idTypeDetector', 'gene_idtype_detector', () => import('./provider/GeneIDTypeDetector').then((g) => g.GeneIDTypeDetector), {
+    registry.push('idTypeDetector', 'gene_idtype_detector', () => import('./provider/GeneIDTypeDetector'), {
         name: 'IDTypeDetector',
-        factory: 'geneIDTypeDetector',
+        factory: 'new GeneIDTypeDetector',
         idType: 'Ensembl'
     });
     /// #if include('ordino')
