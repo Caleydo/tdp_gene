@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';
 import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
-import { jStat } from 'jStat';
+import { jStat } from 'jstat';
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 /**
  * Filter expression values with 0, because log scale cannot handle log(0)

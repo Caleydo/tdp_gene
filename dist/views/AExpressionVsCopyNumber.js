@@ -10,7 +10,7 @@ import { FormElementType } from 'tdp_core';
 import { ResolveUtils } from 'tdp_core';
 import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
-import { jStat } from 'jStat';
+import { jStat } from 'jstat';
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 export class AExpressionVsCopyNumber extends AD3View {
     constructor() {

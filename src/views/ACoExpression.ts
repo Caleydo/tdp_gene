@@ -10,7 +10,7 @@ import {Range} from 'phovea_core';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
 import {AD3View} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
-import {jStat} from 'jStat';
+import {jStat} from 'jstat';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 

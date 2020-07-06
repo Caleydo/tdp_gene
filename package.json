@@ -63,7 +63,7 @@
     "typescript": "~3.8.2"
   },
   "dependencies": {
-    "jStat": "1.8.6",
+    "jstat": "^1.9.3",
     "jquery-ui": "1.12.1",
     "tdp_core": "github:datavisyn/tdp_core#vstoiber/refactoring"
   },
