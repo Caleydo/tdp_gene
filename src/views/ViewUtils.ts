@@ -4,7 +4,8 @@ import {scale as d3Scale} from 'd3';
 
 export class ViewUtils {
 
-  static readonly base = d3Scale.category20().range().slice().splice(2, 2); // splice out the orange since used for selection;
+  static base = d3Scale.category20().range().slice(); // splice out the orange since used for selection;
+  static removed = ViewUtils.base.splice(2, 2);
   // reorder such that repeat after the primary colors
   static colors = ViewUtils.base.filter((d, i) => i%2 === 0).concat(ViewUtils.base.filter((d, i) => i%2 === 1));
 

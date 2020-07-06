@@ -49,7 +49,8 @@ export class ViewUtils {
         }));
     }
 }
-ViewUtils.base = d3Scale.category20().range().slice().splice(2, 2); // splice out the orange since used for selection;
+ViewUtils.base = d3Scale.category20().range().slice(); // splice out the orange since used for selection;
+ViewUtils.removed = ViewUtils.base.splice(2, 2);
 // reorder such that repeat after the primary colors
 ViewUtils.colors = ViewUtils.base.filter((d, i) => i % 2 === 0).concat(ViewUtils.base.filter((d, i) => i % 2 === 1));
 //# sourceMappingURL=ViewUtils.js.map
