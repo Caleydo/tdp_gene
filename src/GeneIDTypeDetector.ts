@@ -1,3 +1,11 @@
+/**
+ * Detect items from a data array starting `ENS` or `LRG`.
+ * Returns a number between 0 and 1 defining the fraction of matching genes in the array.
+ *
+ * @param data Data array with objects or strings
+ * @param accessor Accessor function to retrieve a certain field from a data item
+ * @param sampleSize Number of samples to test; can be used to limit iterations for large arrays
+ */
 function detectIDType(data: any[], accessor: (row: any) => string, sampleSize: number): number {
   const testSize = Math.min(data.length, sampleSize);
   if (testSize <= 0) {
@@ -10,7 +18,7 @@ function detectIDType(data: any[], accessor: (row: any) => string, sampleSize: n
   for(let i = 0; i < testSize; ++i) {
     const v = accessor(data[i]);
 
-    if (v == null || v.trim().length === 0) {
+    if (v == null || typeof(v) !== 'string' || v.trim().length === 0) {
       continue; //skip empty samples
     }
 
