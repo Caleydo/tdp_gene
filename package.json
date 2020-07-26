@@ -31,6 +31,7 @@
   },
   "scripts": {
     "clean": "rimraf dist lib",
+    "delete-dependencies": "rimraf node_modules",
     "compile": "tsc",
     "compile:watch": "tsc -w",
     "postcompile": "npm run copy",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@types/jest": "~26.0.5",
+    "@types/d3": "~3.5.36",
     "identity-obj-proxy": "~3.0.0",
     "jest": "~26.1.0",
     "jest-raw-loader": "~1.0.1",
@@ -66,9 +68,9 @@
   "dependencies": {
     "jstat": "^1.9.3",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#vstoiber/refactoring"
+    "tdp_core": "github:datavisyn/tdp_core#develop"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#vstoiber/use_refactoring_branches"
+    "ordino": "github:Caleydo/ordino#develop"
   }
 }
