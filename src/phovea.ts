@@ -167,11 +167,14 @@ export default function (registry: IRegistry) {
     factory: 'filterSpecies'
   });
 
-  registry.push('idTypeDetector', 'gene_idtype_detector', () => import('./provider/GeneIDTypeDetector'), {
+  registry.push('idTypeDetector', 'gene_idtype_detector', () => {
+    return import('./provider/GeneIDTypeDetector').then((v) => v.GeneIDTypeDetector);
+  }, {
     name: 'IDTypeDetector',
-    factory: 'new GeneIDTypeDetector',
+    factory: 'geneIDTypeDetector',
     idType: 'Ensembl'
   });
+
   /// #if include('ordino')
   registry.push('ordinoStartMenuSection', 'section_species', function() { return import('./menu/SpeciesSelectorMenuSection'); }, {
     factory: 'new SpeciesSelectorMenuSection',
