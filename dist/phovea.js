@@ -97,6 +97,7 @@ export default function (registry) {
     const common = {
         argument: 'gene',
         idtype: 'GeneSymbol',
+        readableIDType: 'GeneSymbol',
         selection: 'chooser',
         group: {
             name: 'External Resources'
