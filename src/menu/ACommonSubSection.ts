@@ -2,19 +2,19 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 
-import {getSelectedSpecies, availableSpecies, SPECIES_SESSION_KEY} from '../common';
-import {resolve, IDType} from 'phovea_core/src/idtype';
-import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../extensions';
-import {IStartMenuSectionOptions} from 'ordino/src/extensions';
-import NamedSetList from 'tdp_core/src/storage/NamedSetList';
-import {ENamedSetType, INamedSet, saveNamedSet} from 'tdp_core/src/storage';
-import {getTDPData} from 'tdp_core/src/rest';
-import {FormElementType, FormBuilder} from 'tdp_core/src/form';
-import editDialog from 'tdp_core/src/storage/editDialog';
+import {SpeciesUtils, Species} from '../common/common';
+import {IDTypeManager, IDType} from 'phovea_core';
+import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
+import {IStartMenuSectionOptions} from 'ordino';
+import {NamedSetList} from 'tdp_core';
+import {ENamedSetType, INamedSet, RestStorageUtils} from 'tdp_core';
+import {RestBaseUtils} from 'tdp_core';
+import {FormElementType, FormBuilder} from 'tdp_core';
+import {StoreUtils} from 'tdp_core';
 import {select, Selection} from 'd3';
 import {ICommonDBConfig} from '../views/ACommonList';
-import FormSelect3 from 'tdp_core/src/form/elements/FormSelect3';
-import {IForm} from 'tdp_core/src/form/interfaces';
+import {FormSelect3} from 'tdp_core';
+import {IForm} from 'tdp_core';
 
 export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected readonly data: NamedSetList;
@@ -24,7 +24,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
    * Set the idType and the default data and build the list
    */
   constructor(parent: HTMLElement, public readonly desc: IStartMenuSubSectionDesc, protected readonly dataSource: ICommonDBConfig, protected readonly options: IStartMenuSectionOptions) {
-    this.idType = resolve(desc.idType);
+    this.idType = IDTypeManager.getInstance().resolveIdType(desc.idType);
     const createSession = (namedSet: INamedSet) => {
       if (options.session) {
         options.session((<any>this.desc).viewId, {namedSet}, this.getDefaultSessionValues());
@@ -32,16 +32,16 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
         console.error('no session factory object given to push new view');
       }
     };
-    this.data = new NamedSetList(resolve(desc.idType), createSession, parent.ownerDocument);
+    this.data = new NamedSetList(IDTypeManager.getInstance().resolveIdType(desc.idType), createSession, parent.ownerDocument);
 
     parent.appendChild(this.data.node);
 
     // convert all available species to namedsets
-    const defaultNamedSets = availableSpecies.map((species) => {
+    const defaultNamedSets = Species.availableSpecies.map((species) => {
       return <INamedSet>{
         name: 'All',
         type: ENamedSetType.CUSTOM,
-        subTypeKey: SPECIES_SESSION_KEY,
+        subTypeKey: Species.SPECIES_SESSION_KEY,
         subTypeFromSession: true,
         subTypeValue: species.value,
         description: '',
@@ -75,7 +75,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       id,
       name: id,
       description,
-      subTypeKey: SPECIES_SESSION_KEY,
+      subTypeKey: Species.SPECIES_SESSION_KEY,
       subTypeFromSession: false,
       subTypeValue: species,
       idType: ''
@@ -83,7 +83,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   }
 
   protected loadPanels(): Promise<INamedSet[]> {
-    return getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels: { id: string, description: string, species: string }[]) => {
+    return RestBaseUtils.getTDPData(this.dataSource.db, `${this.dataSource.base}_panel`).then((panels: { id: string, description: string, species: string }[]) => {
       return panels.map(ACommonSubSection.panel2NamedSet);
     });
   }
@@ -99,7 +99,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
   protected getDefaultSessionValues() {
     // initialize the session with the selected species
     return {
-      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies()
     };
   }
 
@@ -140,15 +140,15 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     });
 
     $saveSetButton.on('click', () => {
-      editDialog(null, async (name, description, isPublic) => {
+      StoreUtils.editDialog(null, async (name, description, isPublic) => {
         const idStrings = searchField.value;
 
-        const idType = resolve(this.dataSource.idType);
+        const idType = IDTypeManager.getInstance().resolveIdType(this.dataSource.idType);
         const ids = await idType.map(idStrings);
 
-        const response = await saveNamedSet(name, idType, ids, {
-          key: SPECIES_SESSION_KEY,
-          value: getSelectedSpecies()
+        const response = await RestStorageUtils.saveNamedSet(name, idType, ids, {
+          key: Species.SPECIES_SESSION_KEY,
+          value: SpeciesUtils.getSelectedSpecies()
         }, description, isPublic);
         this.push(response);
       });
@@ -164,5 +164,3 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
       .text(text);
   }
 }
-
-export default ACommonSubSection;

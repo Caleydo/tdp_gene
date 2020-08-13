@@ -2,10 +2,10 @@
  * Created by sam on 06.03.2017.
  */
 
-import {AStartList, IAStartListOptions} from 'tdp_core/src/views/AStartList';
-import {ISelection, IViewContext} from 'tdp_core/src/views';
-import {getTDPDesc, getTDPFilteredRows, IParams} from 'tdp_core/src/rest';
-import {getSelectedSpecies, SPECIES_SESSION_KEY} from '../common';
+import {AStartList, IAStartListOptions} from 'tdp_core';
+import {ISelection, IViewContext} from 'tdp_core';
+import {RestBaseUtils, IParams} from 'tdp_core';
+import {SpeciesUtils, Species} from '../common/common';
 
 export interface ICommonDBConfig {
   idType: string;
@@ -34,8 +34,8 @@ export abstract class ACommonList extends AStartList {
       itemName: dataSource.name,
       itemIDType: dataSource.idType,
       subType: {
-        key: SPECIES_SESSION_KEY,
-        value: getSelectedSpecies()
+        key: Species.SPECIES_SESSION_KEY,
+        value: SpeciesUtils.getSelectedSpecies()
       }
     }, options));
 
@@ -45,12 +45,12 @@ export abstract class ACommonList extends AStartList {
   }
 
   protected loadColumnDesc() {
-    return getTDPDesc(this.dataSource.db, this.dataSource.base);
+    return RestBaseUtils.getTDPDesc(this.dataSource.db, this.dataSource.base);
   }
 
   protected buildFilter(): IParams {
     const filter: IParams = {
-      [SPECIES_SESSION_KEY]: getSelectedSpecies()
+      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies()
     };
 
     Object.assign(filter, this.buildNamedSetFilters(`namedset4${((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)}`, (key) => this.isValidFilter(key)));
@@ -62,12 +62,10 @@ export abstract class ACommonList extends AStartList {
   }
 
   protected loadRows() {
-    return getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
+    return RestBaseUtils.getTDPFilteredRows(this.dataSource.db, this.dataSource.base, {}, this.buildFilter());
   }
 
   protected isValidFilter(key: string) {
     return key !== '';
   }
 }
-
-export default ACommonList;

@@ -1,16 +1,16 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-
-import {ISelection, resolveId} from 'tdp_core/src/views';
-import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core/src/form';
-import {showErrorModalDialog} from 'tdp_core/src/dialogs';
+import {ISelection} from 'tdp_core';
+import {ResolveUtils} from 'tdp_core';
+import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core';
+import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
-import {Range} from 'phovea_core/src/range';
-import {toSelectOperation, SelectOperation, integrateSelection} from 'phovea_core/src/idtype';
-import {AD3View} from 'tdp_core/src/views/AD3View';
-import {integrateColors, colorScale, legend} from './utils';
-import {jStat} from 'jStat';
+import {Range} from 'phovea_core';
+import {SelectionUtils, SelectOperation} from 'phovea_core';
+import {AD3View} from 'tdp_core';
+import {ViewUtils} from './ViewUtils';
+import {jStat} from 'jstat';
 
 const FORM_ID_REFERENCE_GENE = 'referenceGene';
 
@@ -19,7 +19,7 @@ const FORM_ID_REFERENCE_GENE = 'referenceGene';
  * @param rows
  * @returns {any}
  */
-function filterZeroValues(rows: IDataFormatRow[]) {
+function filterZeroValues(rows: ICoExprDataFormatRow[]) {
   const rows2 = rows.filter((d) => d.expression !== 0 && d.expression !== undefined);
   console.log(`filtered ${rows.length - rows2.length} zero values`);
   return rows2;
@@ -40,11 +40,11 @@ export abstract class ACoExpression extends AD3View {
   protected $legend: d3.Selection<any>;
 
   private refGene: IGeneOption = null;
-  private refGeneExpression: IDataFormatRow[] = [];
+  private refGeneExpression: ICoExprDataFormatRow[] = [];
 
   private readonly x = d3.scale.log();
   private readonly y = d3.scale.log();
-  private readonly color = colorScale();
+  private readonly color = ViewUtils.colorScale();
   private readonly xAxis = d3.svg.axis().orient('bottom').scale(this.x).tickFormat(this.x.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
   private readonly yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));//.tickFormat((d) => d.toFixed(1));
 
@@ -136,7 +136,7 @@ export abstract class ACoExpression extends AD3View {
         const promise = this.loadGeneList(genesEnsembl);
 
         // on error
-        promise.catch(showErrorModalDialog)
+        promise.catch(ErrorAlertHandler.getInstance().errorAlert)
           .catch((error) => {
             console.error(error);
             this.setBusy(false);
@@ -178,14 +178,14 @@ export abstract class ACoExpression extends AD3View {
     return filterZeroValues(rows);
   }
 
-  protected abstract loadData(ensg: string): Promise<IDataFormatRow[]>;
+  protected abstract loadData(ensg: string): Promise<ICoExprDataFormatRow[]>;
 
   protected abstract loadGeneList(ensgs: string[]): Promise<{id: string, symbol: string, _id: number}[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
 
-  private updateChart(refGene: IGeneOption, refGeneExpression: IDataFormatRow[], updateAll = false) {
+  private updateChart(refGene: IGeneOption, refGeneExpression: ICoExprDataFormatRow[], updateAll = false) {
     const that = this;
     const ids = this.selection.range.dim(0).asList();
     const idtype = this.selection.idtype;
@@ -197,7 +197,7 @@ export abstract class ACoExpression extends AD3View {
       this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
-      legend(<HTMLElement>this.$legend.node(), this.color);
+      ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
@@ -205,11 +205,11 @@ export abstract class ACoExpression extends AD3View {
       this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
-      legend(<HTMLElement>this.$legend.node(), this.color);
+      ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
       return;
     }
 
-    const data: IDataFormat[] = ids
+    const data: ICoExprDataFormat[] = ids
       .filter((id) => id !== refGene.data._id) // skip refGene, because it's already loaded
       .map((id) => {
         return {id, geneName: '', rows: []};
@@ -226,9 +226,9 @@ export abstract class ACoExpression extends AD3View {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
 
-    enterOrUpdateAll.each(function (this: HTMLElement, d: IDataFormat) {
+    enterOrUpdateAll.each(function (this: HTMLElement, d: ICoExprDataFormat) {
       const $id = d3.select(this);
-      const promise = resolveId(idtype, d.id, that.idType)
+      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
         .then((name) => {
           return Promise.all([
             that.loadData(name),
@@ -236,7 +236,7 @@ export abstract class ACoExpression extends AD3View {
           ]);
         });
       // on error
-      promise.catch(showErrorModalDialog)
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
         .catch((error) => {
           console.error(error);
           that.setBusy(false);
@@ -305,7 +305,7 @@ export abstract class ACoExpression extends AD3View {
       .attr('class', 'spearmancoeff');
   }
 
-  private resizeChart($parent: d3.Selection<IDataFormat>) {
+  private resizeChart($parent: d3.Selection<ICoExprDataFormat>) {
     this.x.range([0, this.width]);
     this.y.range([this.height, 0]);
 
@@ -330,7 +330,7 @@ export abstract class ACoExpression extends AD3View {
       });*/
   }
 
-  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: IDataFormatRow[], data: IDataFormat, $parent: d3.Selection<IDataFormat>) {
+  private updateChartData(refGene: {id: string, symbol: string}, refGeneExpression: ICoExprDataFormatRow[], data: ICoExprDataFormat, $parent: d3.Selection<ICoExprDataFormat>) {
     const geneName = data.geneName;
 
     // hide small multiple co-expression plot because it would just project the ref gene on its own
@@ -354,8 +354,8 @@ export abstract class ACoExpression extends AD3View {
 
     this.x.domain([1, d3.max(refGeneExpression, (d) => d.expression)]).clamp(true);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
-    integrateColors(this.color, rows.map((d) => d.color));
-    legend(<HTMLElement>this.$legend.node(), this.color);
+    ViewUtils.integrateColors(this.color, rows.map((d) => d.color));
+    ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
 
 
     const attribute = this.getAttributeName();
@@ -364,8 +364,8 @@ export abstract class ACoExpression extends AD3View {
 
 
     // get smaller and larger array to build intersection between both
-    const largerArray: IDataFormatRow[] = (refGeneExpression.length <= rows.length) ? rows : refGeneExpression;
-    const smallerArray: IDataFormatRow[] = (refGeneExpression.length <= rows.length) ? refGeneExpression : rows;
+    const largerArray: ICoExprDataFormatRow[] = (refGeneExpression.length <= rows.length) ? rows : refGeneExpression;
+    const smallerArray: ICoExprDataFormatRow[] = (refGeneExpression.length <= rows.length) ? refGeneExpression : rows;
 
     const firstIsReference = refGeneExpression.length <= rows.length;
 
@@ -399,10 +399,10 @@ export abstract class ACoExpression extends AD3View {
       .on('click', (d) => {
         const target: EventTarget = (<Event>d3.event).target;
 
-        const selectOperation: SelectOperation = toSelectOperation(<MouseEvent>d3.event);
+        const selectOperation: SelectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
         const id: number = d._id;
-        const newSelection = integrateSelection(oldSelection.range, [id], selectOperation);
+        const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
@@ -434,18 +434,16 @@ export abstract class ACoExpression extends AD3View {
 
 }
 
-export default ACoExpression;
-
-export interface IDataFormatRow {
+export interface ICoExprDataFormatRow {
   samplename: string;
   expression: number;
   color?: string;
   _id: number;
 }
 
-export interface IDataFormat {
+export interface ICoExprDataFormat {
   id: number;
   geneName: string;
-  rows: IDataFormatRow[];
+  rows: ICoExprDataFormatRow[];
 }
 

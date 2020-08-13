@@ -2,19 +2,18 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import '../style.scss';
+import '../scss/main.scss';
 
-import {copyNumberCat, mutationCat, unknownCopyNumberValue, unknownMutationValue} from '../constants';
-import {select, scale, format, event as d3event, Selection} from 'd3';
-import {toSelectOperation} from 'phovea_core/src/idtype/IIDType';
-import {SelectOperation} from 'phovea_core/src/idtype';
-import IDType from 'phovea_core/src/idtype/IDType';
-import Range from 'phovea_core/src/range/Range';
-import {none, list as rlist} from 'phovea_core/src/range';
+import {Categories} from '../common/Categories';
+import {select, format, event as d3event, Selection} from 'd3';
+import {SelectionUtils, SelectOperation} from 'phovea_core';
+import {IDType} from 'phovea_core';
+import {Range} from 'phovea_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
-import {AView, IView, resolveId} from 'tdp_core/src/views';
-import {showErrorModalDialog} from 'phovea_ui/src/errors';
+import {IView, AView} from 'tdp_core';
+import {ResolveUtils} from 'tdp_core';
+import {ErrorAlertHandler} from 'tdp_core';
 
 export interface ISample {
   name: string;
@@ -43,18 +42,18 @@ function unknownSample(sample: string, sampleId: number): IDataFormatRow {
   return {
     name: sample,
     sampleId,
-    cn: unknownCopyNumberValue, // unknown --> see Common.
+    cn: Categories.unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
-    aa_mutated: unknownMutationValue // unknown
+    aa_mutated: Categories.unknownMutationValue // unknown
   };
 }
 
 function isMissingMutation(v: boolean) {
-  return v === null || v === unknownMutationValue;
+  return v === null || v === Categories.unknownMutationValue;
 }
 
 function isMissingCNV(v: number) {
-  return v === null || v === unknownCopyNumberValue;
+  return v === null || v === Categories.unknownCopyNumberValue;
 }
 
 function computeAlterationFrequency(rows: IDataFormatRow[]) {
@@ -235,16 +234,20 @@ export abstract class AOncoPrint extends AView {
     const $cnLegend = $legend.append('ul');
     $cnLegend.append('li').classed('title', true).text('Copy Number');
 
-    copyNumberCat.forEach((d) => {
+    Categories.copyNumberCat.forEach((d) => {
       $cnLegend.append('li').attr('data-cnv', d.value).text(d.name);
     });
+    // append the legend for missing values
+    $cnLegend.append('li').attr('data-cnv', Categories.unknownCopyNumberValue).text('Missing Values');
 
     const $mutLegend = $legend.append('ul');
     $mutLegend.append('li').classed('title', true).text('Mutation');
 
-    mutationCat.forEach((d) => {
+    Categories.mutationCat.forEach((d) => {
       $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
     });
+      // append the legend for missing values
+    $mutLegend.append('li').attr('data-mut', Categories.unknownMutationValue ).text('Missing Values');
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -300,7 +303,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
 
     const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : resolveId(idtype, d.id, this.idType))
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType))
         .then((ensg: string) => {
           d.ensg = ensg;
           return Promise.all<any>([
@@ -311,7 +314,7 @@ export abstract class AOncoPrint extends AView {
         });
 
       // on error
-      promise.catch(showErrorModalDialog)
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
         .catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
@@ -384,7 +387,7 @@ export abstract class AOncoPrint extends AView {
     $cells.enter().append('td')
       .classed('cell', true)
       .on('click', (row) => {
-        this.selectSample(row.sampleId, toSelectOperation(<MouseEvent>d3event));
+        this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(<MouseEvent>d3event));
       })
       .append('div')
       .classed('mut', true);
@@ -393,7 +396,7 @@ export abstract class AOncoPrint extends AView {
       .attr('data-title', (d) => d.name) //JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
       .attr('data-cnv', (d) => String(d.cn))
-      .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? unknownMutationValue : d.aa_mutated))
+      .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? Categories.unknownMutationValue : d.aa_mutated))
       .classed('selected', (d) => this.isSampleSelected(d.sampleId));
 
     $cells.exit().remove();
@@ -412,11 +415,11 @@ export abstract class AOncoPrint extends AView {
     const {range} = this.getItemSelection();
     const current = range.dim(0);
     let newSelection: Range = null;
-    const single = rlist([sampleId]);
+    const single = Range.list([sampleId]);
     switch (op) {
       case SelectOperation.SET:
         if (current.contains(sampleId)) {
-          newSelection = none();
+          newSelection = Range.none();
         } else {
           newSelection = single;
         }
@@ -484,7 +487,4 @@ export abstract class AOncoPrint extends AView {
     });
   }
 }
-
-export default AOncoPrint;
-
 
