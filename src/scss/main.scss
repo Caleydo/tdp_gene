@@ -1,6 +1,10 @@
+@import '~tdp_core/dist/scss/abstracts/variables';
+@import '~font-awesome/scss/variables';
+@import '~font-awesome/scss/mixins';
+
 // styles for views
-@import "onco_print";
-@import "expression_vs_copynumber";
-@import "species";
-@import "startMenu";
-@import "legend";
+@import "./components/onco_print";
+@import "./components/expression_vs_copynumber";
+@import "./components/species";
+@import "./components/startMenu";
+@import "./components/legend";
