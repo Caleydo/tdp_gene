@@ -1,3 +1,5 @@
+@import '~tdp_core/dist/scss/vars';
+
 $oncoprint_cell_height: 25px !default;
 $oncoprint_cell_width: 7px !default;
 $oncoprint_cell_padding: 2px !default;
@@ -15,7 +17,7 @@ $oncoprint_cnv_normal: '0';
 $oncoprint_cnv_normal_color: #dcdcdc;
 $oncoprint_cnv_normal_border: transparent;
 
-$oncoprint_cnv_unknown: 'null';
+$oncoprint_cnv_unknown: 'NaN';
 $oncoprint_cnv_unknown_color: #FCFCFC;
 $oncoprint_cnv_unknown_border: #dcdcdc;
 
@@ -25,7 +27,7 @@ $oncoprint_mut_mutated_border: transparent;
 $oncoprint_mut_not_mutated: 'false';
 $oncoprint_mut_not_mutated_color: #aaa;
 $oncoprint_mut_not_mutated_border: transparent;
-$oncoprint_mut_unknown: 'null';
+$oncoprint_mut_unknown: 'NaN';
 $oncoprint_mut_unknown_color: transparent;
 $oncoprint_mut_unknown_border: #999;
 
@@ -93,7 +95,7 @@ div.parameters .oncoPrintScale {
 .oncoPrint {
   display: flex;
   flex-direction: column;
-
+  overflow-x: hidden;
   .legend {
     border-top: 1px solid $core_border;
     width: 100%;

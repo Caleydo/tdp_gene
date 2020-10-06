@@ -395,7 +395,7 @@ export abstract class AOncoPrint extends AView {
     $cells
       .attr('data-title', (d) => d.name) //JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
-      .attr('data-cnv', (d) => String(d.cn))
+      .attr('data-cnv', (d) => String(isMissingCNV(d.cn) ? Categories.unknownCopyNumberValue : d.cn))
       .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? Categories.unknownMutationValue : d.aa_mutated))
       .classed('selected', (d) => this.isSampleSelected(d.sampleId));
 
