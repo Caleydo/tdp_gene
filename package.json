@@ -68,9 +68,9 @@
   "dependencies": {
     "jstat": "^1.9.3",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#develop"
+    "tdp_core": "github:datavisyn/tdp_core#dmoitzi/refactor_stylesheets_organiation_and_imports"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop"
+    "ordino": "github:Caleydo/ordino#dmoitzi/refactor_stylesheets_organiation_and_imports"
   }
 }
