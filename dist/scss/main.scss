@@ -1,6 +1,6 @@
-@import '~tdp_core/dist/scss/abstracts/variables';
-@import '~font-awesome/scss/variables';
-@import '~font-awesome/scss/mixins';
+@import './abstracts/variables';
+
+@import '~tdp_core/dist/scss/main';
 
 // styles for views
 @import "./components/onco_print";
