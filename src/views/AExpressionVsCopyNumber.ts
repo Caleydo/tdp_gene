@@ -1,7 +1,6 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import '../scss/main.scss';
 
 import {Range} from 'phovea_core';
 import {FormSubtype} from '../provider/forms';
