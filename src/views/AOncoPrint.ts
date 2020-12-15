@@ -179,7 +179,7 @@ export abstract class AOncoPrint extends AView {
     // inject stats
     const base = <HTMLElement>params.querySelector('form') || params;
     base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
-  <button class="fa fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fa fa-search-plus"></button>
+  <button class="fas fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fas fa-search-plus"></button>
 </div>`);
     let s = 0;
     const scaleElem = <HTMLElement>base.lastElementChild!;
