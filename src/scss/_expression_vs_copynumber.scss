@@ -6,14 +6,12 @@
       font-weight: 500;
   }
 
-  svg {
-    .axis path,
-    .axis line {
-      fill: none;
-      stroke-width: 1;
-      stroke: black;
-      shape-rendering: crispEdges;
-    }
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke-width: 1;
+    stroke: $core_color_almost_black;
+    shape-rendering: crispEdges;
   }
 
   .mark {
