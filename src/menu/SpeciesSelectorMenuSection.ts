@@ -80,7 +80,7 @@ export class SpeciesSelectorMenuSection implements IStartMenuSection {
           text = d.name.substr(0, 1).toUpperCase();
         }
 
-        return `<i class="fa ${className} fa-fw fa-3x" aria-hidden="true">${text}</i>`;
+        return `<i class="fas ${className} fa-fw fa-3x" aria-hidden="true">${text}</i>`;
       });
 
   }
@@ -136,7 +136,7 @@ export class SpeciesSelectorMenuSection implements IStartMenuSection {
     $enter.append('div').classed('body', true)
       .html(`
         <div class="loading">
-          <i class="fa fa-spinner fa-pulse fa-fw"></i>
+          <i class="fas fa-spinner fa-pulse fa-fw"></i>
           <span class="sr-only">Loading...</span>
         </div>
       `);

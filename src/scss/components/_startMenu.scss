@@ -128,9 +128,9 @@
   }
 
   .speciesSelector > header > h1 > label:before {
-    @include fa-icon();
-    content: $fa-var-database;
-    width: (18em / 14);
+    @extend .fas;
+    content: fa-content($fa-var-database);
+    width: 1.8em;
     text-align: center;
   }
 }

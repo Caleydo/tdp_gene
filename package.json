@@ -68,9 +68,9 @@
   "dependencies": {
     "jstat": "^1.9.3",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#dmoitzi/refactor_stylesheets_organiation_and_imports"
+    "tdp_core": "github:datavisyn/tdp_core#fontawesome-v5"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#dmoitzi/refactor_stylesheets_organiation_and_imports"
+    "ordino": "github:Caleydo/ordino#fontawesome-v5"
   }
 }
