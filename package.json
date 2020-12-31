@@ -71,6 +71,6 @@
     "tdp_core": "github:datavisyn/tdp_core#bootstrap-v4"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop"
+    "ordino": "github:Caleydo/ordino#welcome-page"
   }
 }
