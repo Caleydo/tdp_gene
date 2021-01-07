@@ -1,7 +1,6 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import '../scss/main.scss';
 import { Categories } from '../common/Categories';
 import { select, format, event as d3event } from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';
@@ -140,7 +139,7 @@ export class AOncoPrint extends AView {
         // inject stats
         const base = params.querySelector('form') || params;
         base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
-  <button class="fa fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fa fa-search-plus"></button>
+  <button class="fas fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fas fa-search-plus"></button>
 </div>`);
         let s = 0;
         const scaleElem = base.lastElementChild;

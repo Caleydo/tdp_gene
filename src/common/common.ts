@@ -160,4 +160,3 @@ export class SpeciesUtils {
     return !filter.species || filter.species === SpeciesUtils.getSelectedSpecies();
   }
 }
-

@@ -1,11 +1,17 @@
-@import '~tdp_core/dist/scss/vars';
-
 .expressionVsCopyNumber, .coExpression {
 
   .title {
       font-weight: 500;
   }
 
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke-width: 1;
+    stroke: $core_color_almost_black;
+    shape-rendering: crispEdges;
+  }
+  
   .mark {
     fill: $core_color_almost_black;
     fill-opacity: 0.8;
