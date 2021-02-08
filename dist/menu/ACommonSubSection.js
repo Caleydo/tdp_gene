@@ -2,7 +2,7 @@
  * Created by Holger Stitz on 10.08.2016.
  */
 import { SpeciesUtils, Species } from '../common/common';
-import { IDTypeManager } from 'phovea_core';
+import { IDTypeManager, I18nextManager } from 'phovea_core';
 import { NamedSetList } from 'tdp_core';
 import { ENamedSetType, RestStorageUtils } from 'tdp_core';
 import { RestBaseUtils } from 'tdp_core';
@@ -116,7 +116,7 @@ export class ACommonSubSection {
             }, this.getDefaultSessionValues());
         });
         $saveSetButton.on('click', () => {
-            StoreUtils.editDialog(null, async (name, description, isPublic) => {
+            StoreUtils.editDialog(null, I18nextManager.getInstance().i18n.t(`tdp:core.editDialog.listOfEntities.default`), async (name, description, isPublic) => {
                 const idStrings = searchField.value;
                 const idType = IDTypeManager.getInstance().resolveIdType(this.dataSource.idType);
                 const ids = await idType.map(idStrings);

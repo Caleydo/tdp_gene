@@ -3,7 +3,7 @@
  */
 
 import {SpeciesUtils, Species} from '../common/common';
-import {IDTypeManager, IDType} from 'phovea_core';
+import {IDTypeManager, IDType, I18nextManager} from 'phovea_core';
 import {IStartMenuSubSection, IStartMenuSubSectionDesc} from '../common/extensions';
 import {IStartMenuSectionOptions} from 'ordino';
 import {NamedSetList} from 'tdp_core';
@@ -140,7 +140,7 @@ export abstract class ACommonSubSection implements IStartMenuSubSection {
     });
 
     $saveSetButton.on('click', () => {
-      StoreUtils.editDialog(null, async (name, description, isPublic) => {
+      StoreUtils.editDialog(null, I18nextManager.getInstance().i18n.t(`tdp:core.editDialog.listOfEntities.default`), async (name, description, isPublic) => {
         const idStrings = searchField.value;
 
         const idType = IDTypeManager.getInstance().resolveIdType(this.dataSource.idType);
