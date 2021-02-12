@@ -1,6 +1,8 @@
+@import './abstracts/variables';
+
 // styles for views
-@import "onco_print";
-@import "expression_vs_copynumber";
-@import "species";
-@import "startMenu";
-@import "legend";
+@import "./components/onco_print";
+@import "./components/expression_vs_copynumber";
+@import "./components/species";
+@import "./components/startMenu";
+@import "./components/legend";

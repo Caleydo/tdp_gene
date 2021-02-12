@@ -1,37 +1,35 @@
-@import '~tdp_core/dist/scss/vars';
-
 $oncoprint_cell_height: 25px !default;
 $oncoprint_cell_width: 7px !default;
 $oncoprint_cell_padding: 2px !default;
 $oncoprint_cell_mutation: 8px !default;
 
-$oncoprint_cnv_amplified: '2';
-$oncoprint_cnv_amplified_color: #efb3bc;
-$oncoprint_cnv_amplified_border: transparent;
+$oncoprint_cnv_amplified: '2' !default;
+$oncoprint_cnv_amplified_color: #efb3bc !default;
+$oncoprint_cnv_amplified_border: transparent !default;
 
-$oncoprint_cnv_deep_deletion: '-2';
-$oncoprint_cnv_deep_deletion_color: #92c5de;
-$oncoprint_cnv_deep_deletion_border: transparent;
+$oncoprint_cnv_deep_deletion: '-2' !default;
+$oncoprint_cnv_deep_deletion_color: #92c5de !default;
+$oncoprint_cnv_deep_deletion_border: transparent !default;
 
-$oncoprint_cnv_normal: '0';
-$oncoprint_cnv_normal_color: #dcdcdc;
-$oncoprint_cnv_normal_border: transparent;
+$oncoprint_cnv_normal: '0' !default;
+$oncoprint_cnv_normal_color: #dcdcdc !default;
+$oncoprint_cnv_normal_border: transparent !default;
 
-$oncoprint_cnv_unknown: 'null';
-$oncoprint_cnv_unknown_color: #FCFCFC;
-$oncoprint_cnv_unknown_border: #dcdcdc;
+$oncoprint_cnv_unknown: 'NaN' !default;
+$oncoprint_cnv_unknown_color: #FCFCFC !default;
+$oncoprint_cnv_unknown_border: #dcdcdc !default;
 
-$oncoprint_mut_mutated: 'true';
-$oncoprint_mut_mutated_color: #1BA64E;
-$oncoprint_mut_mutated_border: transparent;
-$oncoprint_mut_not_mutated: 'false';
-$oncoprint_mut_not_mutated_color: #aaa;
-$oncoprint_mut_not_mutated_border: transparent;
-$oncoprint_mut_unknown: 'null';
-$oncoprint_mut_unknown_color: transparent;
-$oncoprint_mut_unknown_border: #999;
+$oncoprint_mut_mutated: 'true' !default;
+$oncoprint_mut_mutated_color: #1BA64E !default;
+$oncoprint_mut_mutated_border: transparent !default;
+$oncoprint_mut_not_mutated: 'false' !default;
+$oncoprint_mut_not_mutated_color: #aaa !default;
+$oncoprint_mut_not_mutated_border: transparent !default;
+$oncoprint_mut_unknown: 'NaN' !default;
+$oncoprint_mut_unknown_color: transparent !default;
+$oncoprint_mut_unknown_border: #999 !default;
 
-$oncoprint_label_width: 10em;
+$oncoprint_label_width: 10em !default;
 
 div.parameters .oncoPrintScale {
   display: inline-flex;
@@ -95,6 +93,7 @@ div.parameters .oncoPrintScale {
 .oncoPrint {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 
   .legend {
     border-top: 1px solid $core_border;

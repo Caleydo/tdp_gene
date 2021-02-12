@@ -2,7 +2,6 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import '../scss/main.scss';
 
 import {Categories} from '../common/Categories';
 import {select, format, event as d3event, Selection} from 'd3';
@@ -180,7 +179,7 @@ export abstract class AOncoPrint extends AView {
     // inject stats
     const base = <HTMLElement>params.querySelector('form') || params;
     base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
-  <button class="fa fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fa fa-search-plus"></button>
+  <button class="fas fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fas fa-search-plus"></button>
 </div>`);
     let s = 0;
     const scaleElem = <HTMLElement>base.lastElementChild!;
@@ -395,7 +394,7 @@ export abstract class AOncoPrint extends AView {
     $cells
       .attr('data-title', (d) => d.name) //JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
-      .attr('data-cnv', (d) => String(d.cn))
+      .attr('data-cnv', (d) => String(isMissingCNV(d.cn) ? Categories.unknownCopyNumberValue : d.cn))
       .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? Categories.unknownMutationValue : d.aa_mutated))
       .classed('selected', (d) => this.isSampleSelected(d.sampleId));
 
@@ -487,4 +486,3 @@ export abstract class AOncoPrint extends AView {
     });
   }
 }
-
