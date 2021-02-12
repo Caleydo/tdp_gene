@@ -71,6 +71,6 @@
     "tdp_core": "^11.0.0"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#release-9.0.0"
+    "ordino": "github:Caleydo/ordino#semver:^9.0.0"
   }
 }
