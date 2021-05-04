@@ -56,7 +56,7 @@ export abstract class ACoExpression extends AD3View {
 
     this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
-      .classed('hidden', true);
+      .attr('hidden', true);
 
     this.$legend = this.$node.append('div');
 
@@ -194,7 +194,7 @@ export abstract class ACoExpression extends AD3View {
     const noData = refGeneExpression == null || refGeneExpression.length === 0;
 
     if (isEmpty) {
-      this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
+      this.$errorMessage.text('Select two or more genes.').attr('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
       ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
@@ -202,7 +202,7 @@ export abstract class ACoExpression extends AD3View {
     }
 
     if (noData) {
-      this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
+      this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).attr('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
       ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
@@ -216,7 +216,7 @@ export abstract class ACoExpression extends AD3View {
       });
 
     // show/hide message and loading indicator if two less genes are selected
-    this.$errorMessage.classed('hidden', (data.length > 0));
+    this.$errorMessage.attr('hidden', (data.length > 0));
     this.setBusy(data.length > 0);
 
     const $plots = this.$node.selectAll('div.plots').data(data, (d) => d.id.toString());
