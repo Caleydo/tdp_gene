@@ -52,8 +52,9 @@
     "dist": "mkdir lib && cd dist && tar cvzf ../lib/tdp_gene.tar.gz *"
   },
   "devDependencies": {
-    "@types/jest": "~26.0.20",
     "@types/d3": "~3.5.36",
+    "@types/jest": "~26.0.20",
+    "@types/jquery": "~3.5.5",
     "identity-obj-proxy": "~3.0.0",
     "jest": "~26.6.3",
     "jest-raw-loader": "~1.0.1",
@@ -66,7 +67,9 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
+    "d3": "~3.5.17",
     "jstat": "^1.9.4",
+    "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
     "tdp_core": "github:datavisyn/tdp_core#bootstrap-v4"
   },
