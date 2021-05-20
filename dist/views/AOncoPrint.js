@@ -196,7 +196,7 @@ export class AOncoPrint extends AView {
         // append the legend for missing values
         $mutLegend.append('li').attr('data-mut', Categories.unknownMutationValue).text('Missing Values');
         $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
-      <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
       <p>Please note:</p>
       <ul>
          <li>The indicated copy number states are only estimates, which can be affected by sample purity, ploidy, and other factors.</li>
