@@ -14,7 +14,7 @@ const spearmancoeffTitle = 'Spearman Coefficient: ';
 export class AExpressionVsCopyNumber extends AD3View {
     constructor() {
         super(...arguments);
-        this.margin = { top: 40, right: 5, bottom: 50, left: 50 };
+        this.margin = { top: 40, right: 5, bottom: 50, left: 90 };
         this.width = 280 - this.margin.left - this.margin.right;
         this.height = 320 - this.margin.top - this.margin.bottom;
         this.x = d3.scale.linear();

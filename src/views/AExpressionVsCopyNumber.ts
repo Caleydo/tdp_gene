@@ -16,7 +16,7 @@ import {jStat} from 'jstat';
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 90};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
