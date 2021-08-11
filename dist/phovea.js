@@ -159,12 +159,12 @@ export default function (registry) {
         idType: 'Ensembl'
     });
     /// #if include('ordino')
-    registry.push('ordinoStartMenuSection', 'section_species', function () { return import('./menu/SpeciesSelectorMenuSection'); }, {
-        factory: 'new SpeciesSelectorMenuSection',
-        name: 'Predefined Datasets',
-        cssClass: 'speciesSelector',
-        priority: 10
-    });
+    // registry.push('ordinoStartMenuSection', 'section_species', function() { return import('./menu/SpeciesSelectorMenuSection'); }, {
+    //   factory: 'new SpeciesSelectorMenuSection',
+    //   name: 'Predefined Datasets',
+    //   cssClass: 'speciesSelector',
+    //   priority: 10
+    // });
     /// #endif
 }
 //# sourceMappingURL=phovea.js.map
