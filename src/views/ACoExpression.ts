@@ -32,7 +32,7 @@ export interface IGeneOption extends IFormSelectOption {
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class ACoExpression extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 90};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
@@ -446,4 +446,3 @@ export interface ICoExprDataFormat {
   geneName: string;
   rows: ICoExprDataFormatRow[];
 }
-
