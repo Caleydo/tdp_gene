@@ -175,10 +175,7 @@ export abstract class AOncoPrint extends AView {
     await super.init(params, onParameterChange);
 
     // inject stats
-    console.log(params);
     const base = <HTMLElement>params.querySelector('form')|| params;
-    const test =  params.getElementsByTagName('form');
-    console.log(test);
     base.insertAdjacentHTML('afterbegin', `
     <div class="col-sm-auto my-2 oncoPrintScale" data-scale="">
       <button class="fas fa-search-minus"></button>
