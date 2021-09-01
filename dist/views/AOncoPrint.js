@@ -132,15 +132,21 @@ export class AOncoPrint extends AView {
          * @type {boolean}
          */
         this.manuallyResorted = false;
-        this.scaleFactor = '';
     }
-    init(params, onParameterChange) {
-        super.init(params, onParameterChange);
+    async init(params, onParameterChange) {
+        await super.init(params, onParameterChange);
         // inject stats
         const base = params.querySelector('form') || params;
-        base.insertAdjacentHTML('beforeend', `<div class="col-sm-auto my-2 oncoPrintScale" data-scale="">
-  <button class="fas fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fas fa-search-plus"></button>
-</div>`);
+        base.insertAdjacentHTML('afterbegin', `
+    <div class="col-sm-auto my-2 oncoPrintScale" data-scale="">
+      <button class="fas fa-search-minus"></button>
+      <div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <button class="fas fa-search-plus"></button>
+    </div>`);
         let s = 0;
         const scaleElem = base.lastElementChild;
         scaleElem.firstElementChild.addEventListener('click', (e) => {
@@ -155,7 +161,6 @@ export class AOncoPrint extends AView {
             s = Math.max(s - 1, 0);
             scaleElem.dataset.scale = this.node.dataset.scale = 's'.repeat(s);
         });
-        return Promise.resolve();
     }
     initImpl() {
         super.initImpl();
