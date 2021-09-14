@@ -2,8 +2,7 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 import { Range } from 'phovea_core';
-import { IFormSelectDesc } from 'tdp_core';
-import { AD3View } from 'tdp_core';
+import { IFormElementDesc, AD3View } from 'tdp_core';
 export declare abstract class AExpressionVsCopyNumber extends AD3View {
     private readonly margin;
     private readonly width;
@@ -25,7 +24,7 @@ export declare abstract class AExpressionVsCopyNumber extends AD3View {
         value: string;
         data: any;
     }[];
-    protected getParameterFormDescs(): IFormSelectDesc[];
+    protected getParameterFormDescs(): IFormElementDesc[];
     parameterChanged(name: string): void;
     selectionChanged(): void;
     /**

@@ -1,9 +1,9 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-import {ISelection} from 'tdp_core';
+import {ISelection, IFormElementDesc} from 'tdp_core';
 import {ResolveUtils} from 'tdp_core';
-import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core';
+import {FormElementType, IFormSelectElement, IFormSelectOption} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
 import {Range} from 'phovea_core';
@@ -75,7 +75,7 @@ export abstract class ACoExpression extends AD3View {
       });
   }
 
-  protected getParameterFormDescs(): IFormSelectDesc[] {
+  protected getParameterFormDescs(): IFormElementDesc[] {
     return [
       {
         type: FormElementType.SELECT,
