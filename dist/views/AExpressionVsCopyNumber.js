@@ -2,19 +2,16 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 import { FormSubtype } from '../provider/forms';
-import { ErrorAlertHandler } from 'tdp_core';
+import { ErrorAlertHandler, FormElementType, ResolveUtils, AD3View } from 'tdp_core';
 import * as d3 from 'd3';
 import { SelectionUtils, SelectOperation } from 'phovea_core';
-import { FormElementType } from 'tdp_core';
-import { ResolveUtils } from 'tdp_core';
-import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
 import { jStat } from 'jstat';
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 export class AExpressionVsCopyNumber extends AD3View {
     constructor() {
         super(...arguments);
-        this.margin = { top: 40, right: 5, bottom: 50, left: 50 };
+        this.margin = { top: 40, right: 5, bottom: 50, left: 90 };
         this.width = 280 - this.margin.left - this.margin.right;
         this.height = 320 - this.margin.top - this.margin.bottom;
         this.x = d3.scale.linear();

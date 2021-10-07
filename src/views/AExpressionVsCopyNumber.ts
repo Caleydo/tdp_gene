@@ -4,19 +4,16 @@
 
 import {Range} from 'phovea_core';
 import {FormSubtype} from '../provider/forms';
-import {ErrorAlertHandler} from 'tdp_core';
+import {ErrorAlertHandler, IFormElementDesc, FormElementType, ResolveUtils, AD3View} from 'tdp_core';
 import * as d3 from 'd3';
 import {SelectionUtils, SelectOperation} from 'phovea_core';
-import {FormElementType, IFormSelectDesc} from 'tdp_core';
-import {ResolveUtils} from 'tdp_core';
-import {AD3View} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
 import {jStat} from 'jstat';
 
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 90};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
@@ -38,7 +35,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
   protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
 
-  protected getParameterFormDescs(): IFormSelectDesc[] {
+  protected getParameterFormDescs(): IFormElementDesc[] {
     return [
       {
         type: FormElementType.SELECT,

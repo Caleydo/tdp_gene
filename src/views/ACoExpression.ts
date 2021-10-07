@@ -1,9 +1,9 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-import {ISelection} from 'tdp_core';
+import {ISelection, IFormElementDesc} from 'tdp_core';
 import {ResolveUtils} from 'tdp_core';
-import {FormElementType, IFormSelectDesc, IFormSelectElement, IFormSelectOption} from 'tdp_core';
+import {FormElementType, IFormSelectElement, IFormSelectOption} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
 import {Range} from 'phovea_core';
@@ -32,7 +32,7 @@ export interface IGeneOption extends IFormSelectOption {
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class ACoExpression extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 50};
+  private readonly margin = {top: 40, right: 5, bottom: 50, left: 90};
   private readonly width = 280 - this.margin.left - this.margin.right;
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
@@ -56,7 +56,7 @@ export abstract class ACoExpression extends AD3View {
 
     this.$errorMessage = this.$node.append('p')
       .classed('nodata', true)
-      .classed('hidden', true);
+      .attr('hidden', true);
 
     this.$legend = this.$node.append('div');
 
@@ -75,7 +75,7 @@ export abstract class ACoExpression extends AD3View {
       });
   }
 
-  protected getParameterFormDescs(): IFormSelectDesc[] {
+  protected getParameterFormDescs(): IFormElementDesc[] {
     return [
       {
         type: FormElementType.SELECT,
@@ -194,7 +194,7 @@ export abstract class ACoExpression extends AD3View {
     const noData = refGeneExpression == null || refGeneExpression.length === 0;
 
     if (isEmpty) {
-      this.$errorMessage.text('Select two or more genes.').classed('hidden', false);
+      this.$errorMessage.text('Select two or more genes.').attr('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
       ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
@@ -202,7 +202,7 @@ export abstract class ACoExpression extends AD3View {
     }
 
     if (noData) {
-      this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).classed('hidden', false);
+      this.$errorMessage.text(this.getNoDataErrorMessage(refGene)).attr('hidden', false);
       this.$node.selectAll('div.plots').remove();
       this.color.domain([]); // reset
       ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
@@ -216,7 +216,7 @@ export abstract class ACoExpression extends AD3View {
       });
 
     // show/hide message and loading indicator if two less genes are selected
-    this.$errorMessage.classed('hidden', (data.length > 0));
+    this.$errorMessage.attr('hidden', (data.length > 0));
     this.setBusy(data.length > 0);
 
     const $plots = this.$node.selectAll('div.plots').data(data, (d) => d.id.toString());
@@ -446,4 +446,3 @@ export interface ICoExprDataFormat {
   geneName: string;
   rows: ICoExprDataFormatRow[];
 }
-

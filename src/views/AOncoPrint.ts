@@ -171,16 +171,22 @@ export abstract class AOncoPrint extends AView {
    */
   private manuallyResorted: boolean = false;
 
-  private scaleFactor: '' | 's' | 'ss' | 'sss' = '';
-
-  init(params: HTMLElement, onParameterChange: (name: string, value: any, previousValue: any) => Promise<any>) {
-    super.init(params, onParameterChange);
+  async init(params: HTMLElement, onParameterChange: (name: string, value: any, previousValue: any) => Promise<any>) {
+    await super.init(params, onParameterChange);
 
     // inject stats
-    const base = <HTMLElement>params.querySelector('form') || params;
-    base.insertAdjacentHTML('beforeend', `<div class="form-group oncoPrintScale" data-scale="">
-  <button class="fas fa-search-minus"></button><div><div></div><div></div><div></div></div><button class="fas fa-search-plus"></button>
-</div>`);
+    const base = <HTMLElement>params.querySelector('form')|| params;
+    base.insertAdjacentHTML('afterbegin', `
+    <div class="col-sm-auto my-2 oncoPrintScale" data-scale="">
+      <button class="fas fa-search-minus"></button>
+      <div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <button class="fas fa-search-plus"></button>
+    </div>`);
+
     let s = 0;
     const scaleElem = <HTMLElement>base.lastElementChild!;
 
@@ -196,8 +202,6 @@ export abstract class AOncoPrint extends AView {
       s = Math.max(s - 1, 0);
       scaleElem.dataset.scale = this.node.dataset.scale = 's'.repeat(s);
     });
-
-    return Promise.resolve();
   }
 
   protected initImpl() {
@@ -249,7 +253,7 @@ export abstract class AOncoPrint extends AView {
     $mutLegend.append('li').attr('data-mut', Categories.unknownMutationValue ).text('Missing Values');
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       <p>Please note:</p>
       <ul>
          <li>The indicated copy number states are only estimates, which can be affected by sample purity, ploidy, and other factors.</li>

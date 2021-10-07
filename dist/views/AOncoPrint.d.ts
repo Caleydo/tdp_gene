@@ -32,7 +32,6 @@ export declare abstract class AOncoPrint extends AView {
      * @type {boolean}
      */
     private manuallyResorted;
-    private scaleFactor;
     init(params: HTMLElement, onParameterChange: (name: string, value: any, previousValue: any) => Promise<any>): Promise<void>;
     protected initImpl(): Promise<ISample[]>;
     protected parameterChanged(name: string): void;

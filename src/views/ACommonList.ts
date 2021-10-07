@@ -36,6 +36,9 @@ export abstract class ACommonList extends AStartList {
       subType: {
         key: Species.SPECIES_SESSION_KEY,
         value: SpeciesUtils.getSelectedSpecies()
+      },
+      panelAddColumnBtnOptions: {
+        btnClass: 'btn-primary'
       }
     }, options));
 
