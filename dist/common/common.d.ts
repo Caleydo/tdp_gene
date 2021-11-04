@@ -1,10 +1,10 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { IDType } from 'phovea_core';
+import { IDType } from 'tdp_core';
 import { IFormSelectOption } from 'tdp_core';
 import { ISelection } from 'tdp_core';
-import { Range } from 'phovea_core';
+import { Range } from 'tdp_core';
 interface IAvailableSpecies {
     name: string;
     value: string;

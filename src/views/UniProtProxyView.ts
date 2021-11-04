@@ -5,7 +5,7 @@
 import {GeneProxyView} from './GeneProxyView';
 import {FormElementType, IFormSelectElement} from 'tdp_core';
 import {ProxyView} from 'tdp_core';
-import {IDTypeManager} from 'phovea_core';
+import {IDTypeManager} from 'tdp_core';
 
 /**
  * helper view for proxying an existing external website

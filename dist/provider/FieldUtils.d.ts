@@ -1,9 +1,9 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import { RangeLike } from 'phovea_core';
+import { RangeLike } from 'tdp_core';
 import { INamedSet } from 'tdp_core';
-import { IDType } from 'phovea_core';
+import { IDType } from 'tdp_core';
 export declare class FieldUtils {
     /**
      * converts the field in the given array 2^<value>
