@@ -71,9 +71,9 @@
     "jstat": "^1.9.4",
     "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#develop"
+    "tdp_core": "github:datavisyn/tdp_core#visyn"
   },
   "optionalDependencies": {
-    "ordino": "github:Caleydo/ordino#develop"
+    "ordino": "github:Caleydo/ordino#visyn"
   }
 }
