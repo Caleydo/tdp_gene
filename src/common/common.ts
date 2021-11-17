@@ -2,13 +2,13 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
-import {UserSession} from 'phovea_core';
-import {IDType} from 'phovea_core';
+import {UserSession} from 'tdp_core';
+import {IDType} from 'tdp_core';
 import {IFormSelectOption} from 'tdp_core';
 import {ISelection} from 'tdp_core';
-import {IDTypeManager} from 'phovea_core';
+import {IDTypeManager} from 'tdp_core';
 import {Categories} from './Categories';
-import {Range} from 'phovea_core';
+import {Range} from 'tdp_core';
 
 // has to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {

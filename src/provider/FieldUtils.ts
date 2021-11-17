@@ -1,9 +1,9 @@
 /**
  * Created by sam on 29.05.2017.
  */
-import {RangeLike, ParseRangeUtils} from 'phovea_core';
+import {RangeLike, ParseRangeUtils} from 'tdp_core';
 import {INamedSet, ENamedSetType} from 'tdp_core';
-import {IDType} from 'phovea_core';
+import {IDType} from 'tdp_core';
 
 
 export class FieldUtils {

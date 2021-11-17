@@ -2,7 +2,7 @@ import { ResolveUtils } from 'tdp_core';
 import { FormElementType } from 'tdp_core';
 import { ErrorAlertHandler } from 'tdp_core';
 import * as d3 from 'd3';
-import { SelectionUtils, SelectOperation } from 'phovea_core';
+import { SelectionUtils, SelectOperation } from 'tdp_core';
 import { AD3View } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
 import { jStat } from 'jstat';
