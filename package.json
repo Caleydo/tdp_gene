@@ -71,7 +71,7 @@
     "jstat": "^1.9.4",
     "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "github:datavisyn/tdp_core#vstoiber/add-data-testid-for-cypress"
+    "tdp_core": "github:datavisyn/tdp_core#fengertsberger/add-data-testid-for-cypress"
   },
   "optionalDependencies": {
     "ordino": "github:Caleydo/ordino#fengertsberger/add-data-testid-for-cypress"
