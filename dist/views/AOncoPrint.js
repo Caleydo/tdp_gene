@@ -3,8 +3,8 @@
  */
 import { Categories } from '../common/Categories';
 import { select, format, event as d3event } from 'd3';
-import { SelectionUtils, SelectOperation } from 'phovea_core';
-import { Range } from 'phovea_core';
+import { SelectionUtils, SelectOperation } from 'tdp_core';
+import { Range } from 'tdp_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core';

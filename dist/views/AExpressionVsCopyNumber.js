@@ -4,7 +4,7 @@
 import { FormSubtype } from '../provider/forms';
 import { ErrorAlertHandler, FormElementType, ResolveUtils, AD3View } from 'tdp_core';
 import * as d3 from 'd3';
-import { SelectionUtils, SelectOperation } from 'phovea_core';
+import { SelectionUtils, SelectOperation } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
 import { jStat } from 'jstat';
 const spearmancoeffTitle = 'Spearman Coefficient: ';

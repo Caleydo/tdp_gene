@@ -1,10 +1,10 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { UserSession } from 'phovea_core';
-import { IDTypeManager } from 'phovea_core';
+import { UserSession } from 'tdp_core';
+import { IDTypeManager } from 'tdp_core';
 import { Categories } from './Categories';
-import { Range } from 'phovea_core';
+import { Range } from 'tdp_core';
 export var Species;
 (function (Species) {
     Species.availableSpecies = [
