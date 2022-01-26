@@ -1,4 +1,7 @@
-import { ResolveUtils } from 'tdp_core';
+/**
+ * Created by Holger Stitz on 12.08.2016.
+ */
+import { IDTypeManager } from 'tdp_core';
 import { FormElementType } from 'tdp_core';
 import { ErrorAlertHandler } from 'tdp_core';
 import * as d3 from 'd3';
@@ -147,7 +150,7 @@ export class ACoExpression extends AD3View {
     }
     updateChart(refGene, refGeneExpression, updateAll = false) {
         const that = this;
-        const ids = this.selection.range.dim(0).asList();
+        const ids = this.selection.selectionIds;
         const idtype = this.selection.idtype;
         const isEmpty = refGene == null || ids.length < 2;
         const noData = refGeneExpression == null || refGeneExpression.length === 0;
@@ -180,8 +183,8 @@ export class ACoExpression extends AD3View {
         const enterOrUpdateAll = (updateAll) ? $plots : $plotsEnter;
         enterOrUpdateAll.each(function (d) {
             const $id = d3.select(this);
-            const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
-                .then((name) => {
+            const promise = IDTypeManager.getInstance().mapNameToFirstName(idtype, [d.id], that.idType)
+                .then(([name]) => {
                 return Promise.all([
                     that.loadData(name),
                     that.loadFirstName(name)

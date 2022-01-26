@@ -1,9 +1,4 @@
-/**
- * Created by sam on 29.05.2017.
- */
-import { RangeLike } from 'tdp_core';
-import { INamedSet } from 'tdp_core';
-import { IDType } from 'tdp_core';
+import { INamedSet, IDType } from 'tdp_core';
 export declare class FieldUtils {
     /**
      * converts the field in the given array 2^<value>
@@ -15,5 +10,5 @@ export declare class FieldUtils {
     /**
      * limit the number of score rows if it doesn't exceed some criteria
      */
-    static limitScoreRows(param: any, ids: RangeLike, idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet): void;
+    static limitScoreRows(param: any, ids: string[], idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet): void;
 }

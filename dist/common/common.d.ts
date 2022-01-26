@@ -4,7 +4,6 @@
 import { IDType } from 'tdp_core';
 import { IFormSelectOption } from 'tdp_core';
 import { ISelection } from 'tdp_core';
-import { Range } from 'tdp_core';
 interface IAvailableSpecies {
     name: string;
     value: string;
@@ -33,7 +32,7 @@ export declare class SpeciesUtils {
      * @returns {Promise<any>}
      */
     static selectReadableIDType(idType: IDType): Promise<IDType | null>;
-    static mapToId(selection: ISelection, target?: IDType): Range | Promise<Range>;
+    static mapToId(selection: ISelection, target?: IDType): any;
     static createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]>;
     /**
      * Creates a converter to use GeneSymbols, translate them to Ensembl IDs, add these IDs and change the previously detected options (e.g. add a new header, change IDType, ...)

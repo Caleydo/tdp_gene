@@ -1,8 +1,7 @@
 /**
  * Created by Holger Stitz on 12.08.2016.
  */
-import {ISelection, IFormElementDesc} from 'tdp_core';
-import {ResolveUtils} from 'tdp_core';
+import {ISelection, IFormElementDesc, IDTypeManager} from 'tdp_core';
 import {FormElementType, IFormSelectElement, IFormSelectOption} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
@@ -187,7 +186,7 @@ export abstract class ACoExpression extends AD3View {
 
   private updateChart(refGene: IGeneOption, refGeneExpression: ICoExprDataFormatRow[], updateAll = false) {
     const that = this;
-    const ids = this.selection.range.dim(0).asList();
+    const ids = this.selection.selectionIds;
     const idtype = this.selection.idtype;
 
     const isEmpty = refGene == null || ids.length < 2;
@@ -228,8 +227,8 @@ export abstract class ACoExpression extends AD3View {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d: ICoExprDataFormat) {
       const $id = d3.select(this);
-      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
-        .then((name) => {
+      const promise = IDTypeManager.getInstance().mapNameToFirstName(idtype, [d.id], that.idType)
+        .then(([name]) => {
           return Promise.all([
             that.loadData(name),
             that.loadFirstName(name)

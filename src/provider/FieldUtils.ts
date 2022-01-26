@@ -1,10 +1,4 @@
-/**
- * Created by sam on 29.05.2017.
- */
-import {RangeLike, ParseRangeUtils} from 'tdp_core';
-import {INamedSet, ENamedSetType} from 'tdp_core';
-import {IDType} from 'tdp_core';
-
+import {INamedSet, ENamedSetType, IDType} from 'tdp_core';
 
 export class FieldUtils {
   /**
@@ -25,10 +19,9 @@ export class FieldUtils {
   /**
    * limit the number of score rows if it doesn't exceed some criteria
    */
-  static limitScoreRows(param: any, ids: RangeLike, idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet) {
-    const range = ParseRangeUtils.parseRangeLike(ids);
-    if (range.dim(0).length < maxDirectRows) {
-      param[`filter_rangeOf${idTypeOfIDs.id}4${entity}`] = range.toString();
+  static limitScoreRows(param: any, ids: string[], idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet) {
+    if (ids.length < maxDirectRows) {
+      param[`filter_rangeOf${idTypeOfIDs.id}4${entity}`] = ids;
       return;
     }
     if (namedSet) {
