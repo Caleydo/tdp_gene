@@ -1,10 +1,5 @@
-/**
- * Created by Holger Stitz on 21.07.2016.
- */
-
-import {Range} from 'tdp_core';
 import {FormSubtype} from '../provider/forms';
-import {ErrorAlertHandler, IFormElementDesc, FormElementType, ResolveUtils, AD3View} from 'tdp_core';
+import {ErrorAlertHandler, IFormElementDesc, FormElementType, AD3View} from 'tdp_core';
 import * as d3 from 'd3';
 import {SelectionUtils, SelectOperation} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
@@ -84,7 +79,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     this.setBusy(true);
 
     const that = this;
-    const ids = this.selection.range.dim(0).asList();
+    const ids = this.selection.selectionIds;
     const idtype = this.selection.idtype;
 
     const data: ICopyNumberDataFormat[] = ids.map((id) => {

@@ -7,11 +7,9 @@ import {Categories} from '../common/Categories';
 import {select, format, event as d3event, Selection} from 'd3';
 import {SelectionUtils, SelectOperation} from 'tdp_core';
 import {IDType} from 'tdp_core';
-import {Range} from 'tdp_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import {IView, AView} from 'tdp_core';
-import {ResolveUtils} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 
 export interface ISample {
@@ -275,7 +273,7 @@ export abstract class AOncoPrint extends AView {
   private updateChart(updateAll = false) {
     this.setBusy(true);
 
-    const ids = this.selection.range.dim(0).asList();
+    const ids = this.selection.selectionIds;
     const idtype = this.selection.idtype;
 
     const empty = (id) => ({id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});

@@ -8,7 +8,6 @@ import {IFormSelectOption} from 'tdp_core';
 import {ISelection} from 'tdp_core';
 import {IDTypeManager} from 'tdp_core';
 import {Categories} from './Categories';
-import {Range} from 'tdp_core';
 
 // has to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {
@@ -68,16 +67,15 @@ export class SpeciesUtils {
 
   static mapToId(selection: ISelection, target: IDType = null) {
     if (target === null || selection.idtype.id === target.id) {
-      // same just unmap to name
-      return selection.range;
+      return selection.selectionIds;
     }
     // assume mappable
-    return IDTypeManager.getInstance().mapToFirstID(selection.idtype, selection.range, target).then((r) => Range.list(r));
+    return IDTypeManager.getInstance().mapNameToFirstName(selection.idtype, selection.selectionIds, target);
   }
 
 
   static createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]> {
-    if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {
+    if (ensgs === null || ensgs.length === 0 || selection.selectionIds?.length === 0) {
       return Promise.resolve([]);
     }
 
@@ -89,7 +87,7 @@ export class SpeciesUtils {
         return ensgs.map((ensg) => ({value: ensg, name: ensg, data: [ensg, ensg]}));
       }
       // map and use names
-      return IDTypeManager.getInstance().mapToFirstName(base, ids, target).then((names) => {
+      return IDTypeManager.getInstance().mapNameToFirstName(base, ids, target).then((names) => {
         return names.map((name, i) => ({
           value: ensgs[i],
           name: name ? `${name} (${ensgs[i]})` : ensgs[i],
