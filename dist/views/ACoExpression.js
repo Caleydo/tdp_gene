@@ -150,7 +150,7 @@ export class ACoExpression extends AD3View {
     }
     updateChart(refGene, refGeneExpression, updateAll = false) {
         const that = this;
-        const ids = this.selection.selectionIds;
+        const ids = this.selection.ids;
         const idtype = this.selection.idtype;
         const isEmpty = refGene == null || ids.length < 2;
         const noData = refGeneExpression == null || refGeneExpression.length === 0;

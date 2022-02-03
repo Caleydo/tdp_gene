@@ -4,11 +4,9 @@
 import { Categories } from '../common/Categories';
 import { select, format, event as d3event } from 'd3';
 import { SelectionUtils, SelectOperation } from 'tdp_core';
-import { Range } from 'tdp_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core';
-import { ResolveUtils } from 'tdp_core';
 import { ErrorAlertHandler } from 'tdp_core';
 function unknownSample(sample, sampleId) {
     return {
@@ -215,7 +213,7 @@ export class AOncoPrint extends AView {
     }
     updateChart(updateAll = false) {
         this.setBusy(true);
-        const ids = this.selection.range.dim(0).asList();
+        const ids = this.selection.ids;
         const idtype = this.selection.idtype;
         const empty = (id) => ({ id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null });
         // merge the old rows with the current selection

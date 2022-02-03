@@ -1,7 +1,3 @@
-/**
- * Created by Holger Stitz on 21.07.2016.
- */
-import { Range } from 'tdp_core';
 import { IFormElementDesc, AD3View } from 'tdp_core';
 export declare abstract class AExpressionVsCopyNumber extends AD3View {
     private readonly margin;

@@ -32,7 +32,7 @@ export declare class SpeciesUtils {
      * @returns {Promise<any>}
      */
     static selectReadableIDType(idType: IDType): Promise<IDType | null>;
-    static mapToId(selection: ISelection, target?: IDType): any;
+    static mapToId(selection: ISelection, target?: IDType): string[] | Promise<string[]>;
     static createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]>;
     /**
      * Creates a converter to use GeneSymbols, translate them to Ensembl IDs, add these IDs and change the previously detected options (e.g. add a new header, change IDType, ...)

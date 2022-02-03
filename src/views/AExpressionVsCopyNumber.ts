@@ -79,7 +79,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     this.setBusy(true);
 
     const that = this;
-    const ids = this.selection.selectionIds;
+    const ids = this.selection.ids;
     const idtype = this.selection.idtype;
 
     const data: ICopyNumberDataFormat[] = ids.map((id) => {

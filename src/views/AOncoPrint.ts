@@ -273,7 +273,7 @@ export abstract class AOncoPrint extends AView {
   private updateChart(updateAll = false) {
     this.setBusy(true);
 
-    const ids = this.selection.selectionIds;
+    const ids = this.selection.ids;
     const idtype = this.selection.idtype;
 
     const empty = (id) => ({id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});

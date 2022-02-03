@@ -1,8 +1,5 @@
-/**
- * Created by Holger Stitz on 21.07.2016.
- */
 import { FormSubtype } from '../provider/forms';
-import { ErrorAlertHandler, FormElementType, ResolveUtils, AD3View } from 'tdp_core';
+import { ErrorAlertHandler, FormElementType, AD3View } from 'tdp_core';
 import * as d3 from 'd3';
 import { SelectionUtils, SelectOperation } from 'tdp_core';
 import { ViewUtils } from './ViewUtils';
@@ -70,7 +67,7 @@ export class AExpressionVsCopyNumber extends AD3View {
     updateCharts(updateAll = false) {
         this.setBusy(true);
         const that = this;
-        const ids = this.selection.range.dim(0).asList();
+        const ids = this.selection.ids;
         const idtype = this.selection.idtype;
         const data = ids.map((id) => {
             return { id, geneName: '', rows: [] };

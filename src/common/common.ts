@@ -67,15 +67,15 @@ export class SpeciesUtils {
 
   static mapToId(selection: ISelection, target: IDType = null) {
     if (target === null || selection.idtype.id === target.id) {
-      return selection.selectionIds;
+      return selection.ids;
     }
     // assume mappable
-    return IDTypeManager.getInstance().mapNameToFirstName(selection.idtype, selection.selectionIds, target);
+    return IDTypeManager.getInstance().mapNameToFirstName(selection.idtype, selection.ids, target);
   }
 
 
   static createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]> {
-    if (ensgs === null || ensgs.length === 0 || selection.selectionIds?.length === 0) {
+    if (ensgs === null || ensgs.length === 0 || selection.ids?.length === 0) {
       return Promise.resolve([]);
     }
 

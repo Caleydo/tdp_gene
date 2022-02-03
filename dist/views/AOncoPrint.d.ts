@@ -2,7 +2,6 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 import { IDType } from 'tdp_core';
-import { Range } from 'tdp_core';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core';
 export interface ISample {
