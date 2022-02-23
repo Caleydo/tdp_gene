@@ -1,10 +1,7 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { IDType } from 'tdp_core';
-import { IFormSelectOption } from 'tdp_core';
-import { ISelection } from 'tdp_core';
-import { Range } from 'tdp_core';
+import { IDType, IFormSelectOption, ISelection, Range } from 'tdp_core';
 interface IAvailableSpecies {
     name: string;
     value: string;
@@ -14,7 +11,7 @@ interface ISpeciesFilterObject {
     species: string;
     [key: string]: any;
 }
-export declare module Species {
+export declare namespace Species {
     const availableSpecies: IAvailableSpecies[];
     const defaultSpecies: string;
     const DEFAULT_ENTITY_TYPE = "Ensembl";
@@ -47,3 +44,4 @@ export declare class SpeciesUtils {
     static filterSpecies(filter: ISpeciesFilterObject): boolean;
 }
 export {};
+//# sourceMappingURL=common.d.ts.map

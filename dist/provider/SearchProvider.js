@@ -1,6 +1,5 @@
-//redeclare to avoid dependency
-import { SpeciesUtils } from '../common/common';
 import { RestBaseUtils } from 'tdp_core';
+import { SpeciesUtils } from '../common/common';
 export class SearchProvider {
     constructor(dataSource) {
         this.dataSource = dataSource;
@@ -20,11 +19,11 @@ export class SearchProvider {
             species: SpeciesUtils.getSelectedSpecies(),
             query,
             page,
-            limit: pageSize
+            limit: pageSize,
         }).then((data) => {
             return {
                 items: data.items.map(SearchProvider.mapItems),
-                more: data.more
+                more: data.more,
             };
         });
     }

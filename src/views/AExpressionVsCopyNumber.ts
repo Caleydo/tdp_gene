@@ -2,27 +2,31 @@
  * Created by Holger Stitz on 21.07.2016.
  */
 
-import {Range} from 'tdp_core';
-import {FormSubtype} from '../provider/forms';
-import {ErrorAlertHandler, IFormElementDesc, FormElementType, ResolveUtils, AD3View} from 'tdp_core';
+import { Range, ErrorAlertHandler, IFormElementDesc, FormElementType, ResolveUtils, AD3View, SelectionUtils, SelectOperation } from 'tdp_core';
 import * as d3 from 'd3';
-import {SelectionUtils, SelectOperation} from 'tdp_core';
-import {ViewUtils} from './ViewUtils';
-import {jStat} from 'jstat';
+import { jStat } from 'jstat';
+import { ViewUtils } from './ViewUtils';
+import { FormSubtype } from '../provider/forms';
 
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
 export abstract class AExpressionVsCopyNumber extends AD3View {
-  private readonly margin = {top: 40, right: 5, bottom: 50, left: 90};
+  private readonly margin = { top: 40, right: 5, bottom: 50, left: 90 };
+
   private readonly width = 280 - this.margin.left - this.margin.right;
+
   private readonly height = 320 - this.margin.top - this.margin.bottom;
 
   private $legend: d3.Selection<any>;
 
   private x = d3.scale.linear();
+
   private y = d3.scale.log();
+
   private readonly color = ViewUtils.colorScale();
+
   private xAxis = d3.svg.axis().orient('bottom').scale(this.x);
+
   private yAxis = d3.svg.axis().orient('left').scale(this.y).tickFormat(this.y.tickFormat(2, '.1f'));
 
   protected initImpl() {
@@ -32,8 +36,8 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     return this.updateCharts();
   }
 
-  protected abstract getExpressionValues(): {name: string, value: string, data: any}[];
-  protected abstract getCopyNumberValues(): {name: string, value: string, data: any}[];
+  protected abstract getExpressionValues(): { name: string; value: string; data: any }[];
+  protected abstract getCopyNumberValues(): { name: string; value: string; data: any }[];
 
   protected getParameterFormDescs(): IFormElementDesc[] {
     return [
@@ -42,19 +46,19 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         label: 'Expression',
         id: FormSubtype.FORM_EXPRESSION_SUBTYPE_ID,
         options: {
-          optionsData: this.getExpressionValues()
+          optionsData: this.getExpressionValues(),
         },
-        useSession: false
+        useSession: false,
       },
       {
         type: FormElementType.SELECT,
         label: 'Copy Number',
         id: FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID,
         options: {
-          optionsData: this.getCopyNumberValues()
+          optionsData: this.getCopyNumberValues(),
         },
-        useSession: false
-      }
+        useSession: false,
+      },
     ];
   }
 
@@ -83,12 +87,13 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
   private updateCharts(updateAll = false) {
     this.setBusy(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     const ids = this.selection.range.dim(0).asList();
-    const idtype = this.selection.idtype;
+    const { idtype } = this.selection;
 
     const data: ICopyNumberDataFormat[] = ids.map((id) => {
-      return {id, geneName: '', rows: []};
+      return { id, geneName: '', rows: [] };
     });
 
     const $ids = this.$node.selectAll('div.ids').data<ICopyNumberDataFormat>(<any>data, (d) => d.id.toString());
@@ -96,26 +101,24 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
-    const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
+    const enterOrUpdateAll = updateAll ? $ids : $idsEnter;
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
-        .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
+      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType).then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
-      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
-        .catch((error) => {
-          console.error(error);
-          that.setBusy(false);
-        });
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert).catch((error) => {
+        console.error(error);
+        that.setBusy(false);
+      });
 
       // on success
       promise.then((input: any[]) => {
         d.rows = that.filterZeroValues(input[0]);
         d.geneName = input[1];
 
-        //console.log('loaded data for', d.geneName);
+        // console.log('loaded data for', d.geneName);
 
         that.initChart($id);
         that.resizeChart($id);
@@ -125,7 +128,9 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       });
     });
 
-    $ids.exit().remove()
+    $ids
+      .exit()
+      .remove()
       .each(function (d) {
         that.setBusy(false);
       });
@@ -141,79 +146,72 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       return;
     }
 
-    const svg = $parent.append('svg')
-      .append('g')
-      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+    const svg = $parent.append('svg').append('g').attr('transform', `translate(${this.margin.left},${this.margin.top})`);
 
-    svg.append('g')
-      .attr('class', 'title')
-      .attr('transform', 'translate(0,' + this.height + ')');
+    svg.append('g').attr('class', 'title').attr('transform', `translate(0,${this.height})`);
 
-    svg.append('text')
-      .attr('class', 'title')
-      .style('text-anchor', 'middle');
+    svg.append('text').attr('class', 'title').style('text-anchor', 'middle');
 
-    svg.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', 'translate(0,' + this.height + ')');
+    svg.append('g').attr('class', 'x axis').attr('transform', `translate(0,${this.height})`);
 
-    svg.append('text')
-      .attr('class', 'x label')
-      .style('text-anchor', 'middle')
-      .text(this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name);
+    svg.append('text').attr('class', 'x label').style('text-anchor', 'middle').text(this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name);
 
-    svg.append('g')
-      .attr('class', 'y axis');
+    svg.append('g').attr('class', 'y axis');
 
-    svg.append('text')
+    svg
+      .append('text')
       .attr('class', 'y label')
       .attr('transform', 'rotate(-90)')
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text(this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name);
 
-    $parent.append('div').classed('statistics', true)
-      .append('div')
-      .attr('class', 'spearmancoeff');
-   }
+    $parent.append('div').classed('statistics', true).append('div').attr('class', 'spearmancoeff');
+  }
 
   private resizeChart($parent: d3.Selection<any>) {
     this.x.range([0, this.width]);
     this.y.range([this.height, 0]);
 
-    const svg = $parent.select('svg')
+    const svg = $parent
+      .select('svg')
       .attr('width', this.width + this.margin.left + this.margin.right)
       .attr('height', this.height + this.margin.top + this.margin.bottom);
 
-    svg.select('text.title').attr('transform', 'translate(' + (this.width / 2) + ' ,' + -0.25 * this.margin.top + ')');
+    svg.select('text.title').attr('transform', `translate(${this.width / 2} ,${-0.25 * this.margin.top})`);
 
     svg.select('g.x.axis').call(this.xAxis);
     svg.select('g.y.axis').call(this.yAxis);
 
-    svg.select('text.x.label').attr('transform', 'translate(' + (this.width / 2) + ' ,' + (this.height + 0.75 * this.margin.bottom) + ')');
-    svg.select('text.y.label').attr('y', 0 - this.margin.left).attr('x', 0 - (this.height / 2));
+    svg.select('text.x.label').attr('transform', `translate(${this.width / 2} ,${this.height + 0.75 * this.margin.bottom})`);
+    svg
+      .select('text.y.label')
+      .attr('y', 0 - this.margin.left)
+      .attr('x', 0 - this.height / 2);
 
     // shift also the points on resizing
     // causes the d3 error: `<circle> attribute cx: Expected length, "NaN".`
-    /*svg.selectAll('.mark')
+    /* svg.selectAll('.mark')
      .transition().attr({
      cx: (d) => this.x(d.expression),
      cy: (d) => this.y(d.cn),
-     });*/
+     }); */
   }
 
   private updateChartData($parent: d3.Selection<any>) {
-
     const data: ICopyNumberDataFormat = $parent.datum();
-    const geneName = data.geneName;
+    const { geneName } = data;
     const rows = data.rows.slice();
 
     // sort missing colors to the front
-    rows.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
+    rows.sort((a, b) => (a.color === b.color ? 0 : a.color === null ? -1 : b.color === null ? 1 : 0));
 
     this.x.domain([0, d3.max(rows, (d) => d.cn)]);
     this.y.domain([1, d3.max(rows, (d) => d.expression)]).clamp(true);
-    ViewUtils.integrateColors(this.color, rows.map((d) => d.color));
+    ViewUtils.integrateColors(
+      this.color,
+      rows.map((d) => d.color),
+    );
     ViewUtils.legend(<HTMLElement>this.$legend.node(), this.color);
 
     const $g = $parent.select('svg g');
@@ -224,8 +222,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     $g.select('g.x.axis').call(this.xAxis);
     $g.select('g.y.axis').call(this.yAxis);
 
-
-    let title = 'No data for ' + geneName;
+    let title = `No data for ${geneName}`;
     if (rows[0]) {
       title = geneName;
     }
@@ -233,15 +230,20 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     // statistics
     const formatter = d3.format('.4f');
-    const spearmancoeff = jStat.jStat.spearmancoeff(rows.map((d) => d.cn), rows.map((d) => d.expression));
+    const spearmancoeff = jStat.jStat.spearmancoeff(
+      rows.map((d) => d.cn),
+      rows.map((d) => d.expression),
+    );
     $parent.select('div.statistics .spearmancoeff').text(spearmancoeffTitle + formatter(spearmancoeff));
 
     const marks = $g.selectAll('.mark').data(rows);
-    marks.enter().append('circle')
+    marks
+      .enter()
+      .append('circle')
       .classed('mark', true)
       .attr('r', 2)
       .on('click', (d) => {
-        const target: EventTarget = (<Event>d3.event).target;
+        const { target } = <Event>d3.event;
 
         const selectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
@@ -253,22 +255,32 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         }
         d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
         this.select(newSelection);
-      }).append('title');
+      })
+      .append('title');
 
     marks.attr('data-id', (d) => d._id);
     marks.attr('data-color', (d) => String(d.color));
     marks.classed('disabled', false); // show all and reset filtering
-    marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
-    marks.transition().attr({
-      cx: (d) => this.x(d.cn),
-      cy: (d) => this.y(d.expression),
-    }).style('fill', (d) => d.color ? this.color(d.color) : null);
+    marks
+      .select('title')
+      .text(
+        (d) =>
+          `${d.samplename} (${this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${
+            this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name
+          }: ${d.expression}, color: ${d.color})`,
+      );
+    marks
+      .transition()
+      .attr({
+        cx: (d) => this.x(d.cn),
+        cy: (d) => this.y(d.expression),
+      })
+      .style('fill', (d) => (d.color ? this.color(d.color) : null));
 
     marks.exit().remove();
   }
 
   protected abstract select(r: Range): void;
-
 }
 
 export interface ICopyNumberDataFormatRow {

@@ -2,13 +2,8 @@
  * Created by Samuel Gratzl on 11.05.2016.
  */
 
-import {UserSession} from 'tdp_core';
-import {IDType} from 'tdp_core';
-import {IFormSelectOption} from 'tdp_core';
-import {ISelection} from 'tdp_core';
-import {IDTypeManager} from 'tdp_core';
-import {Categories} from './Categories';
-import {Range} from 'tdp_core';
+import { UserSession, IDType, IFormSelectOption, ISelection, IDTypeManager, Range } from 'tdp_core';
+import { Categories } from './Categories';
 
 // has to work for all data sources (gene, tissue, cell line)
 interface IAvailableSpecies {
@@ -21,11 +16,12 @@ interface ISpeciesFilterObject {
   [key: string]: any;
 }
 
-export module Species {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace Species {
   export const availableSpecies: IAvailableSpecies[] = [
     { name: 'Human', value: 'human', iconClass: 'fa-male' },
-    //{ name: 'Rat', value: 'rat' },
-    { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' }
+    // { name: 'Rat', value: 'rat' },
+    { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' },
   ];
 
   export const defaultSpecies = availableSpecies[0].value;
@@ -34,14 +30,11 @@ export module Species {
   export const SPECIES_SESSION_KEY = 'species';
 }
 
-
-
 export interface IPostProcessor {
-  process: (importResults: {[key: string]: any}, data: string[][]) => Promise<string[][]>;
+  process: (importResults: { [key: string]: any }, data: string[][]) => Promise<string[][]>;
 }
 
 export class SpeciesUtils {
-
   static getSelectedSpecies() {
     return UserSession.getInstance().retrieve(Species.SPECIES_SESSION_KEY, Species.defaultSpecies);
   }
@@ -51,12 +44,12 @@ export class SpeciesUtils {
    * @param idType
    * @returns {Promise<any>}
    */
-  static async selectReadableIDType(idType: IDType): Promise<IDType|null> {
+  static async selectReadableIDType(idType: IDType): Promise<IDType | null> {
     if (idType.id === Categories.GENE_IDTYPE) {
       const targetMapping = 'GeneSymbol';
       const species = SpeciesUtils.getSelectedSpecies();
       const mapsTo = await IDTypeManager.getInstance().getCanBeMappedTo(idType);
-      let target = mapsTo.find((d) => d.name === targetMapping + '_' + species);
+      let target = mapsTo.find((d) => d.name === `${targetMapping}_${species}`);
       if (!target) {
         target = mapsTo.find((d) => d.name === targetMapping);
       }
@@ -72,31 +65,36 @@ export class SpeciesUtils {
       return selection.range;
     }
     // assume mappable
-    return IDTypeManager.getInstance().mapToFirstID(selection.idtype, selection.range, target).then((r) => Range.list(r));
+    return IDTypeManager.getInstance()
+      .mapToFirstID(selection.idtype, selection.range, target)
+      .then((r) => Range.list(r));
   }
-
 
   static createOptions(ensgs: string[], selection: ISelection, base: IDType): Promise<IFormSelectOption[]> {
     if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {
       return Promise.resolve([]);
     }
 
-    return Promise.all([SpeciesUtils.mapToId(selection, base), SpeciesUtils.selectReadableIDType(base)]).then((results): Promise<IFormSelectOption[]>|IFormSelectOption[] => {
-      const ids = results[0];
-      const target = results[1];
+    return Promise.all([SpeciesUtils.mapToId(selection, base), SpeciesUtils.selectReadableIDType(base)]).then(
+      (results): Promise<IFormSelectOption[]> | IFormSelectOption[] => {
+        const ids = results[0];
+        const target = results[1];
 
-      if (!target) {
-        return ensgs.map((ensg) => ({value: ensg, name: ensg, data: [ensg, ensg]}));
-      }
-      // map and use names
-      return IDTypeManager.getInstance().mapToFirstName(base, ids, target).then((names) => {
-        return names.map((name, i) => ({
-          value: ensgs[i],
-          name: name ? `${name} (${ensgs[i]})` : ensgs[i],
-          data: [ensgs[i], name]
-        }));
-      });
-    });
+        if (!target) {
+          return ensgs.map((ensg) => ({ value: ensg, name: ensg, data: [ensg, ensg] }));
+        }
+        // map and use names
+        return IDTypeManager.getInstance()
+          .mapToFirstName(base, ids, target)
+          .then((names) => {
+            return names.map((name, i) => ({
+              value: ensgs[i],
+              name: name ? `${name} (${ensgs[i]})` : ensgs[i],
+              data: [ensgs[i], name],
+            }));
+          });
+      },
+    );
   }
 
   /**
@@ -104,53 +102,55 @@ export class SpeciesUtils {
    */
   static convertGeneSymbolToEnsembl(): IPostProcessor {
     return {
-    process: async function process(importResults: {[key: string]: any}, data: string[][]): Promise<string[][]> {
-      if(importResults.idType.includes('GeneSymbol')) {
-        const idType = IDTypeManager.getInstance().resolveIdType(importResults.idType);
+      process: async function process(importResults: { [key: string]: any }, data: string[][]): Promise<string[][]> {
+        if (importResults.idType.includes('GeneSymbol')) {
+          const idType = IDTypeManager.getInstance().resolveIdType(importResults.idType);
 
-        const geneSymbols = data.map((row) => row[importResults.idColumn]);
-        const ensgs = await IDTypeManager.getInstance().mapNameToName(idType, geneSymbols, Categories.GENE_IDTYPE);
+          const geneSymbols = data.map((row) => row[importResults.idColumn]);
+          const ensgs = await IDTypeManager.getInstance().mapNameToName(idType, geneSymbols, Categories.GENE_IDTYPE);
 
-        // append converted ENSGs to each row
-        // ensgs is an Array of Arrays
-        // if a 1:1 mapping is found, only 1 row is added
-        // if a 1:n mapping is found, multiple rows are added with different Ensembl IDs
-        const newData = [];
-        data.forEach((row, i) => {
-          if(ensgs[i] && ensgs[i].length > 0) {
-            ensgs[i].forEach((mapping) => {
-              newData.push([...row, mapping]);
-            });
-          } else {
-            newData.push([...row, '']);
-          }
-        });
+          // append converted ENSGs to each row
+          // ensgs is an Array of Arrays
+          // if a 1:1 mapping is found, only 1 row is added
+          // if a 1:n mapping is found, multiple rows are added with different Ensembl IDs
+          const newData = [];
+          data.forEach((row, i) => {
+            if (ensgs[i] && ensgs[i].length > 0) {
+              ensgs[i].forEach((mapping) => {
+                newData.push([...row, mapping]);
+              });
+            } else {
+              newData.push([...row, '']);
+            }
+          });
 
-        // TODO: return newConfig instead of changing it by reference?
-        const newConfig = importResults;
+          // TODO: return newConfig instead of changing it by reference?
+          const newConfig = importResults;
 
-        delete newConfig.columns[newConfig.idColumn].idType;
+          delete newConfig.columns[newConfig.idColumn].idType;
 
-        // add new column header
-        newConfig.columns.push({
-          color: '#DDDDDD',
-          column: newConfig.columns.length,
-          idType: Categories.GENE_IDTYPE,
-          label: Categories.GENE_IDTYPE,
-          type: 'string'
-        });
+          // add new column header
+          newConfig.columns.push({
+            color: '#DDDDDD',
+            column: newConfig.columns.length,
+            idType: Categories.GENE_IDTYPE,
+            label: Categories.GENE_IDTYPE,
+            type: 'string',
+          });
 
-        newConfig.idType = Categories.GENE_IDTYPE;
-        newConfig.idColumn = newConfig.columns.length - 1;
-        newConfig.notes.push('The column Ensembl was added based on the detected Gene Symbols. 1:n mappings between Gene Symbols and Ensembl IDs were resolved by showing all possible combinations.');
+          newConfig.idType = Categories.GENE_IDTYPE;
+          newConfig.idColumn = newConfig.columns.length - 1;
+          newConfig.notes.push(
+            'The column Ensembl was added based on the detected Gene Symbols. 1:n mappings between Gene Symbols and Ensembl IDs were resolved by showing all possible combinations.',
+          );
 
-        return newData;
-      } else {
+          return newData;
+        }
         return data;
-      }
-    }
+      },
     };
   }
+
   /**
    * Filters elements containing the selected species from the given data array by using the provided accessor function
    * @param filter Object
