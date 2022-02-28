@@ -1,10 +1,8 @@
 /**
  * Created by Holger Stitz on 07.12.2016.
  */
+import { FormElementType, ProxyView, IDTypeManager } from 'tdp_core';
 import { GeneProxyView } from './GeneProxyView';
-import { FormElementType } from 'tdp_core';
-import { ProxyView } from 'tdp_core';
-import { IDTypeManager } from 'tdp_core';
 /**
  * helper view for proxying an existing external website
  */
@@ -31,7 +29,7 @@ export class UniProtProxyView extends GeneProxyView {
                 options: {
                     optionsData: [],
                 },
-                useSession: true
+                useSession: true,
             },
             {
                 type: FormElementType.SELECT,
@@ -40,8 +38,8 @@ export class UniProtProxyView extends GeneProxyView {
                 options: {
                     optionsData: [],
                 },
-                useSession: true
-            }
+                useSession: true,
+            },
         ];
     }
     parameterChanged(name) {
@@ -74,18 +72,19 @@ export class UniProtProxyView extends GeneProxyView {
     updateUniProtSelect(forceUseLastSelection = false) {
         const selectedItemSelect = this.getParameterElement(UniProtProxyView.SELECTED_UNIPROT_ITEM);
         const ensg = this.getParameter(ProxyView.FORM_ID_SELECTED_ITEM).value;
-        //convert to uid
-        return this.selection.idtype.map([ensg]).then((ids) => {
+        // convert to uid
+        return this.selection.idtype
+            .map([ensg])
+            .then((ids) => {
             // convert to uniprot
             return IDTypeManager.getInstance().mapToName(this.selection.idtype, ids, UniProtProxyView.OUTPUT_IDTYPE);
-        }).then((uniProtIds) => {
+        })
+            .then((uniProtIds) => {
             // use uniProtIds[0] since we passed only one selected _id
             if (uniProtIds[0] === null) {
                 return Promise.reject('Empty list of UniProt IDs');
             }
-            else {
-                return Promise.all([uniProtIds[0], this.getUniProtSelectData(uniProtIds[0])]);
-            }
+            return Promise.all([uniProtIds[0], this.getUniProtSelectData(uniProtIds[0])]);
         })
             .catch((reject) => {
             selectedItemSelect.setVisible(false);

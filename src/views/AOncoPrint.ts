@@ -2,17 +2,11 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-
-import {Categories} from '../common/Categories';
-import {select, format, event as d3event, Selection} from 'd3';
-import {SelectionUtils, SelectOperation} from 'tdp_core';
-import {IDType} from 'tdp_core';
-import {Range} from 'tdp_core';
+import { select, format, event as d3event, Selection } from 'd3';
+import { SelectionUtils, SelectOperation, IDType, Range, IView, AView, ResolveUtils, ErrorAlertHandler } from 'tdp_core';
 import * as $ from 'jquery';
+import { Categories } from '../common/Categories';
 import 'jquery-ui/ui/widgets/sortable';
-import {IView, AView} from 'tdp_core';
-import {ResolveUtils} from 'tdp_core';
-import {ErrorAlertHandler} from 'tdp_core';
 
 export interface ISample {
   name: string;
@@ -32,7 +26,7 @@ export interface IDataFormat {
   geneName: string;
   ensg: string;
   alterationFreq: number;
-  //with loaded rows
+  // with loaded rows
   promise: Promise<IDataFormat>;
   rows: IDataFormatRow[];
 }
@@ -43,7 +37,7 @@ function unknownSample(sample: string, sampleId: number): IDataFormatRow {
     sampleId,
     cn: Categories.unknownCopyNumberValue, // unknown --> see Common.
     expr: 0,
-    aa_mutated: Categories.unknownMutationValue // unknown
+    aa_mutated: Categories.unknownMutationValue, // unknown
   };
 }
 
@@ -65,34 +59,38 @@ function computeAlterationFrequency(rows: IDataFormatRow[]) {
   // reduce and compute both
   // amplified += 1 if isMutated or isCopyNumberAltered
   // total += if hasData
-  const [amplified, total] = rows.reduce(([amplified, total], r) => [amplified + ((isMutated(r) || isCopyNumberAltered(r)) ? 1 : 0), total + (hasData(r) ? 1 : 0)], [0, 0]);
-  //console.log(amplified, total);
-  return (total === 0) ? 0 : amplified / total; // handle division by 0
+  const [amplified, total] = rows.reduce(([a, t], r) => [a + (isMutated(r) || isCopyNumberAltered(r) ? 1 : 0), t + (hasData(r) ? 1 : 0)], [0, 0]);
+  // console.log(amplified, total);
+  return total === 0 ? 0 : amplified / total; // handle division by 0
 }
 
-const FIRST_IS_NULL = 1; //null at the end
+const FIRST_IS_NULL = 1; // null at the end
 
 function compareCNV(a: number, b: number) {
   // order: >0, <0, 0, NaN
   if (a === b) {
     return 0;
   }
-  if (a === undefined || a === null || isNaN(a)) {
+  if (a === undefined || a === null || Number.isNaN(a)) {
     return FIRST_IS_NULL;
   }
-  if (b === undefined || b === null || isNaN(b)) {
+  if (b === undefined || b === null || Number.isNaN(b)) {
     return -FIRST_IS_NULL;
   }
-  if (a > 0) { // b is 0 or < 0
+  if (a > 0) {
+    // b is 0 or < 0
     return -1;
   }
-  if (b > 0) { // a is 0 or < 0
+  if (b > 0) {
+    // a is 0 or < 0
     return 1;
   }
-  if (a < 0) { // b is 0
+  if (a < 0) {
+    // b is 0
     return -1;
   }
-  if (b < 0) { // a is 0
+  if (b < 0) {
+    // a is 0
     return 1;
   }
   return 0;
@@ -115,27 +113,29 @@ function compareMutation(a: boolean, b: boolean) {
 function sort(sampleList: string[], rows: IDataFormatRow[][]) {
   const rowLookups: any[] = rows.map((row) => {
     const r = {};
-    row.forEach((d) => r[d.name] = d);
+    row.forEach((d) => (r[d.name] = d));
     return r;
   });
-  //sort such that missing values are in the end
-  //hierarchy: cn, mut, expression
+  // sort such that missing values are in the end
+  // hierarchy: cn, mut, expression
   function compare(a: string, b: string) {
     for (const row of rowLookups) {
       const aRow: IDataFormatRow = row[a];
       const bRow: IDataFormatRow = row[b];
-      { // undefined
-        if (aRow === bRow) { //e.g. both undefined
-          continue;
-        }
-        if (aRow === undefined || aRow === null) {
-          return FIRST_IS_NULL; //for a not defined -> bigger
-        }
-        if (bRow === undefined || bRow === null) {
-          return -FIRST_IS_NULL;
-        }
+
+      // undefined
+      if (aRow === bRow) {
+        // e.g. both undefined
+        continue;
       }
-      //first condition can be false positive, null vs 'null', so if both are missing don't compare
+      if (aRow === undefined || aRow === null) {
+        return FIRST_IS_NULL; // for a not defined -> bigger
+      }
+      if (bRow === undefined || bRow === null) {
+        return -FIRST_IS_NULL;
+      }
+
+      // first condition can be false positive, null vs 'null', so if both are missing don't compare
       if (aRow.cn !== bRow.cn && !(isMissingCNV(aRow.cn) && isMissingCNV(bRow.cn))) {
         return compareCNV(aRow.cn, bRow.cn);
       }
@@ -145,7 +145,7 @@ function sort(sampleList: string[], rows: IDataFormatRow[][]) {
       // ignore not encoded expression value
       // if (a_row.expr !== b_row.expr) {
       //  return compareExpression(a_row.expr, b_row.expr);
-      //}
+      // }
     }
     // fallback to the name
     return a.localeCompare(b);
@@ -160,7 +160,6 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
 }
 
 export abstract class AOncoPrint extends AView {
-
   private $table: Selection<IView>;
 
   private sampleListPromise: Promise<ISample[]> = null;
@@ -169,14 +168,16 @@ export abstract class AOncoPrint extends AView {
    * flag if the user specified the gene sorting order
    * @type {boolean}
    */
-  private manuallyResorted: boolean = false;
+  private manuallyResorted = false;
 
   async init(params: HTMLElement, onParameterChange: (name: string, value: any, previousValue: any) => Promise<any>) {
     await super.init(params, onParameterChange);
 
     // inject stats
-    const base = <HTMLElement>params.querySelector('form')|| params;
-    base.insertAdjacentHTML('afterbegin', `
+    const base = <HTMLElement>params.querySelector('form') || params;
+    base.insertAdjacentHTML(
+      'afterbegin',
+      `
     <div class="col-sm-auto my-2 oncoPrintScale" data-scale="">
       <button class="fas fa-search-minus"></button>
       <div>
@@ -185,7 +186,8 @@ export abstract class AOncoPrint extends AView {
         <div></div>
       </div>
       <button class="fas fa-search-plus"></button>
-    </div>`);
+    </div>`,
+    );
 
     let s = 0;
     const scaleElem = <HTMLElement>base.lastElementChild!;
@@ -227,10 +229,7 @@ export abstract class AOncoPrint extends AView {
     const $node = select(this.node);
     $node.classed('oncoPrint', true);
 
-    this.$table = $node
-      .append('div').classed('geneTableWrapper', true)
-      .append('table')
-      .append('tbody');
+    this.$table = $node.append('div').classed('geneTableWrapper', true).append('table').append('tbody');
 
     const $legend = $node.append('div').classed('legend', true);
 
@@ -249,8 +248,8 @@ export abstract class AOncoPrint extends AView {
     Categories.mutationCat.forEach((d) => {
       $mutLegend.append('li').attr('data-mut', d.value).text(d.name);
     });
-      // append the legend for missing values
-    $mutLegend.append('li').attr('data-mut', Categories.unknownMutationValue ).text('Missing Values');
+    // append the legend for missing values
+    $mutLegend.append('li').attr('data-mut', Categories.unknownMutationValue).text('Missing Values');
 
     $node.append('div').attr('class', 'alert alert-info alert-dismissible').attr('role', 'alert').html(`
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -276,24 +275,24 @@ export abstract class AOncoPrint extends AView {
     this.setBusy(true);
 
     const ids = this.selection.range.dim(0).asList();
-    const idtype = this.selection.idtype;
+    const { idtype } = this.selection;
 
-    const empty = (id) => ({id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null});
+    const empty = (id) => ({ id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null });
     // merge the old rows with the current selection
-    const merge = (ids: number[], old: IDataFormat[]) => {
+    const merge = (i: number[], old: IDataFormat[]) => {
       if (old.length === 0) {
-        return ids.map(empty);
+        return i.map(empty);
       }
       const lookup = new Map<number, IDataFormat>();
       old.forEach((d) => lookup.set(d.id, d));
       if (this.manuallyResorted) {
-        //different strategy if already resorted try to keep the original sorting as good as possible
-        //keep old + newly added ones
-        const existing = old.filter((d) => ids.indexOf(d.id) >= 0);
-        const added = ids.filter((id) => !lookup.has(id)).map((id) => empty(id));
+        // different strategy if already resorted try to keep the original sorting as good as possible
+        // keep old + newly added ones
+        const existing = old.filter((d) => i.indexOf(d.id) >= 0);
+        const added = i.filter((id) => !lookup.has(id)).map((id) => empty(id));
         return existing.concat(added);
       }
-      return ids.map((id) => lookup.get(id) || empty(id));
+      return i.map((id) => lookup.get(id) || empty(id));
     };
 
     const data: IDataFormat[] = merge(ids, this.$table.selectAll('tr.gene').data());
@@ -303,22 +302,20 @@ export abstract class AOncoPrint extends AView {
 
     // decide whether to load data for newly added items
     // or to reload the data for all items (e.g. due to parameter change)
-    const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
+    const enterOrUpdateAll = updateAll ? $ids : $idsEnter;
 
     const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType))
-        .then((ensg: string) => {
-          d.ensg = ensg;
-          return Promise.all<any>([
-            this.loadRows(ensg), // load always may have changed
-            d.geneName || this.loadFirstName(ensg),
-            this.sampleListPromise
-          ]);
-        });
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType)).then((ensg: string) => {
+        d.ensg = ensg;
+        return Promise.all<any>([
+          this.loadRows(ensg), // load always may have changed
+          d.geneName || this.loadFirstName(ensg),
+          this.sampleListPromise,
+        ]);
+      });
 
       // on error
-      promise.catch(ErrorAlertHandler.getInstance().errorAlert)
-        .catch(this.logErrorAndMarkReady.bind(this));
+      promise.catch(ErrorAlertHandler.getInstance().errorAlert).catch(this.logErrorAndMarkReady.bind(this));
 
       // on success
       d.promise = promise.then((input) => {
@@ -336,7 +333,7 @@ export abstract class AOncoPrint extends AView {
       renderRow(select(this), d);
     });
 
-    //assume that all data will have a promise
+    // assume that all data will have a promise
     // wait for all data and then sort the things
     Promise.all([<Promise<any>>this.sampleListPromise].concat(data.map((d) => d.promise))).then((result: any[]) => {
       const samples: string[] = result.shift().map((d) => d.name);
@@ -344,17 +341,23 @@ export abstract class AOncoPrint extends AView {
       if (!this.manuallyResorted) {
         rows.sort(byAlterationFrequency);
       }
-      const sortedSamples = sort(samples, rows.map((r) => r.rows));
+      const sortedSamples = sort(
+        samples,
+        rows.map((r) => r.rows),
+      );
       const $genes = this.sortCells(sortedSamples);
       if (!this.manuallyResorted) {
-        //sort genes=row by frequency
+        // sort genes=row by frequency
         $genes.sort(byAlterationFrequency);
       }
     });
 
-    $ids.exit().remove().each(() => this.setBusy(false));
+    $ids
+      .exit()
+      .remove()
+      .each(() => this.setBusy(false));
 
-    //sortable
+    // sortable
     (<any>$(this.$table.node())) // jquery
       .sortable({
         handle: 'th.geneLabel',
@@ -362,20 +365,23 @@ export abstract class AOncoPrint extends AView {
         items: '> :not(.nodrag)',
         update: () => {
           this.manuallyResorted = true;
-          //order has changed trigger a resort
+          // order has changed trigger a resort
           this.sampleListPromise.then((samples) => {
             const rows = <IDataFormat[]>this.$table.selectAll('tr.gene').data();
-            const sortedSamples = sort(samples.map((d) => d.name), rows.map((r) => r.rows));
+            const sortedSamples = sort(
+              samples.map((d) => d.name),
+              rows.map((r) => r.rows),
+            );
 
             this.sortCells(sortedSamples);
           });
-        }
+        },
       });
   }
 
   private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
-    //console.log(data.geneName);
-    let rows: IDataFormatRow[] = data.rows;
+    // console.log(data.geneName);
+    let { rows } = data;
     rows = this.alignData(rows, samples);
 
     // count amplification/deletions and divide by total number of rows
@@ -387,7 +393,9 @@ export abstract class AOncoPrint extends AView {
     $th.exit().remove();
 
     const $cells = $parent.selectAll('td.cell').data(rows);
-    $cells.enter().append('td')
+    $cells
+      .enter()
+      .append('td')
       .classed('cell', true)
       .on('click', (row) => {
         this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(<MouseEvent>d3event));
@@ -396,7 +404,7 @@ export abstract class AOncoPrint extends AView {
       .classed('mut', true);
 
     $cells
-      .attr('data-title', (d) => d.name) //JSON.stringify(d))
+      .attr('data-title', (d) => d.name) // JSON.stringify(d))
       .attr('data-id', (d) => d.sampleId)
       .attr('data-cnv', (d) => String(isMissingCNV(d.cn) ? Categories.unknownCopyNumberValue : d.cn))
       .attr('data-mut', (d) => String(isMissingMutation(d.aa_mutated) ? Categories.unknownMutationValue : d.aa_mutated))
@@ -410,12 +418,12 @@ export abstract class AOncoPrint extends AView {
   }
 
   private isSampleSelected(sampleId: number) {
-    const {range} = this.getItemSelection();
+    const { range } = this.getItemSelection();
     return range.dim(0).contains(sampleId);
   }
 
   private selectSample(sampleId: number, op: SelectOperation) {
-    const {range} = this.getItemSelection();
+    const { range } = this.getItemSelection();
     const current = range.dim(0);
     let newSelection: Range = null;
     const single = Range.list([sampleId]);
@@ -433,9 +441,11 @@ export abstract class AOncoPrint extends AView {
       case SelectOperation.ADD:
         newSelection = range.union(single);
         break;
+      default:
+        break;
     }
     this.updateSelectionHighlight(newSelection);
-    this.setItemSelection({range: newSelection, idtype: this.getSampleIdType()});
+    this.setItemSelection({ range: newSelection, idtype: this.getSampleIdType() });
   }
 
   get itemIDType() {
@@ -443,7 +453,7 @@ export abstract class AOncoPrint extends AView {
   }
 
   protected updateSelectionHighlight(range: Range) {
-    //use plain version to avoid data binding issues
+    // use plain version to avoid data binding issues
     const table = <HTMLTableElement>this.$table.node();
     if (range.isAll) {
       Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
@@ -459,9 +469,9 @@ export abstract class AOncoPrint extends AView {
   protected abstract getSampleIdType(): IDType;
 
   private sortCells(sortedSamples: string[]) {
-    //name to index
+    // name to index
     const lookup: any = {};
-    sortedSamples.forEach((d, i) => lookup[d] = i);
+    sortedSamples.forEach((d, i) => (lookup[d] = i));
 
     const $genes = this.$table.selectAll('tr.gene');
     $genes.selectAll('td.cell').sort((a: IDataFormatRow, b: IDataFormatRow) => {
@@ -476,7 +486,7 @@ export abstract class AOncoPrint extends AView {
   private alignData(rows: IDataFormatRow[], samples: ISample[]) {
     // build hash map first for faster access
     const hash: any = {};
-    rows.forEach((r) => hash[r.name] = r);
+    rows.forEach((r) => (hash[r.name] = r));
 
     // align items --> fill missing values up to match sample list
     return samples.map((sample) => {

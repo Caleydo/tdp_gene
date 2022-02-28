@@ -19,3 +19,4 @@ export declare class SearchProvider implements ISearchProvider {
     }>;
     validate(query: string[]): Promise<IResult[]>;
 }
+//# sourceMappingURL=SearchProvider.d.ts.map

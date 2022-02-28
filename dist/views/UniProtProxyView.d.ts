@@ -1,8 +1,8 @@
 /**
  * Created by Holger Stitz on 07.12.2016.
  */
-import { GeneProxyView } from './GeneProxyView';
 import { FormElementType } from 'tdp_core';
+import { GeneProxyView } from './GeneProxyView';
 /**
  * helper view for proxying an existing external website
  */
@@ -25,3 +25,4 @@ export declare class UniProtProxyView extends GeneProxyView {
     private getUniProtSelectData;
     protected updateProxyView(): void;
 }
+//# sourceMappingURL=UniProtProxyView.d.ts.map

@@ -58,3 +58,4 @@ export interface ICoExprDataFormat {
     geneName: string;
     rows: ICoExprDataFormatRow[];
 }
+//# sourceMappingURL=ACoExpression.d.ts.map

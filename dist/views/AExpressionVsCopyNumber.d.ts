@@ -1,8 +1,7 @@
 /**
  * Created by Holger Stitz on 21.07.2016.
  */
-import { Range } from 'tdp_core';
-import { IFormElementDesc, AD3View } from 'tdp_core';
+import { Range, IFormElementDesc, AD3View } from 'tdp_core';
 export declare abstract class AExpressionVsCopyNumber extends AD3View {
     private readonly margin;
     private readonly width;
@@ -53,3 +52,4 @@ export interface ICopyNumberDataFormat {
     geneName: string;
     rows: ICopyNumberDataFormatRow[];
 }
+//# sourceMappingURL=AExpressionVsCopyNumber.d.ts.map
