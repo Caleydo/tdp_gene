@@ -169,7 +169,7 @@ export class ACoExpression extends AD3View {
             return;
         }
         const data = ids
-            .filter((id) => id !== refGene.data._id) // skip refGene, because it's already loaded
+            .filter((id) => id !== refGene.data.id) // skip refGene, because it's already loaded
             .map((id) => {
             return { id, geneName: '', rows: [] };
         });
@@ -295,7 +295,7 @@ export class ACoExpression extends AD3View {
         const hash = d3.map(largerArray, (d) => d.samplename);
         const data2 = smallerArray.reduce((result, d) => {
             if (hash.has(d.samplename)) {
-                result.push({ expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, _id: d._id });
+                result.push({ expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, id: d.id });
             }
             return result;
         }, []);
@@ -317,15 +317,15 @@ export class ACoExpression extends AD3View {
             const target = d3.event.target;
             const selectOperation = SelectionUtils.toSelectOperation(d3.event);
             const oldSelection = this.getItemSelection();
-            const id = d._id;
-            const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
+            const id = d.id;
+            const newSelection = SelectionUtils.integrateSelection(oldSelection.ids, [id], selectOperation);
             if (selectOperation === SelectOperation.SET) {
                 d3.selectAll('circle.mark.clicked').classed('clicked', false);
             }
             d3.select(target).classed('clicked', selectOperation !== SelectOperation.REMOVE);
             this.select(newSelection);
         }).append('title');
-        marks.attr('data-id', (d) => d._id);
+        marks.attr('data-id', (d) => d.id);
         marks.attr('data-color', (d) => String(d.color));
         marks.classed('disabled', false); // show all and reset filtering
         marks.select('title').text((d) => `${d.title} (${refGene.symbol}: ${firstIsReference ? d.expr1 : d.expr2}, ${geneName}: ${firstIsReference ? d.expr2 : d.expr1}, color: ${d.color})`);

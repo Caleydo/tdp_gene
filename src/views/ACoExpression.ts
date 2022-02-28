@@ -5,7 +5,6 @@ import {ISelection, IFormElementDesc, IDTypeManager} from 'tdp_core';
 import {FormElementType, IFormSelectElement, IFormSelectOption} from 'tdp_core';
 import {ErrorAlertHandler} from 'tdp_core';
 import * as d3 from 'd3';
-import {Range} from 'tdp_core';
 import {SelectionUtils, SelectOperation} from 'tdp_core';
 import {AD3View} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
@@ -209,7 +208,7 @@ export abstract class ACoExpression extends AD3View {
     }
 
     const data: ICoExprDataFormat[] = ids
-      .filter((id) => id !== refGene.data._id) // skip refGene, because it's already loaded
+      .filter((id) => id !== refGene.data.id) // skip refGene, because it's already loaded
       .map((id) => {
         return {id, geneName: '', rows: []};
       });
@@ -373,10 +372,10 @@ export abstract class ACoExpression extends AD3View {
 
     const data2 = smallerArray.reduce((result, d) => {
       if (hash.has(d.samplename)) {
-        result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, _id: d._id});
+        result.push({expr1: d.expression, expr2: hash.get(d.samplename).expression, title: d.samplename, color: d.color, id: d.id});
       }
       return result;
-    }, <{expr1: number, expr2: number, title: string, color: string, _id: number}[]>[]);
+    }, <{expr1: number, expr2: number, title: string, color: string, id: string}[]>[]);
 
     // sort missing colors to the front
     data2.sort((a, b) => a.color === b.color ? 0 : (a.color === null ? -1 : (b.color === null ? 1 : 0)));
@@ -400,8 +399,8 @@ export abstract class ACoExpression extends AD3View {
 
         const selectOperation: SelectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
-        const id: number = d._id;
-        const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
+        const id: string = d.id;
+        const newSelection = SelectionUtils.integrateSelection(oldSelection.ids, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
@@ -411,7 +410,7 @@ export abstract class ACoExpression extends AD3View {
       }).append('title');
 
 
-    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-id', (d) => d.id);
     marks.attr('data-color', (d) => String(d.color));
     marks.classed('disabled', false); // show all and reset filtering
     marks.select('title').text((d) => `${d.title} (${refGene.symbol}: ${firstIsReference ? d.expr1 : d.expr2}, ${geneName}: ${firstIsReference ? d.expr2 : d.expr1}, color: ${d.color})`);
@@ -429,7 +428,7 @@ export abstract class ACoExpression extends AD3View {
 
   protected abstract getAttributeName(): string;
 
-  protected abstract select(r: Range): void;
+  protected abstract select(r: string[]): void;
 
 }
 
@@ -437,11 +436,11 @@ export interface ICoExprDataFormatRow {
   samplename: string;
   expression: number;
   color?: string;
-  _id: number;
+  id: string;
 }
 
 export interface ICoExprDataFormat {
-  id: number;
+  id: string;
   geneName: string;
   rows: ICoExprDataFormatRow[];
 }

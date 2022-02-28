@@ -1,5 +1,5 @@
 import {FormSubtype} from '../provider/forms';
-import {ErrorAlertHandler, IFormElementDesc, FormElementType, AD3View} from 'tdp_core';
+import {ErrorAlertHandler, IFormElementDesc, FormElementType, AD3View, IDTypeManager} from 'tdp_core';
 import * as d3 from 'd3';
 import {SelectionUtils, SelectOperation} from 'tdp_core';
 import {ViewUtils} from './ViewUtils';
@@ -95,7 +95,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType)
+      const promise = IDTypeManager.getInstance().mapOneNameToFirstName(idtype, d.id, that.idType)
         .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
@@ -240,8 +240,8 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
         const selectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
-        const id: number = d._id;
-        const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
+        const id: string = d.id;
+        const newSelection = SelectionUtils.integrateSelection(oldSelection.ids, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
@@ -250,7 +250,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
         this.select(newSelection);
       }).append('title');
 
-    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-id', (d) => d.id);
     marks.attr('data-color', (d) => String(d.color));
     marks.classed('disabled', false); // show all and reset filtering
     marks.select('title').text((d) => `${d.samplename} (${this.getParameter(FormSubtype.FORM_COPYNUMBER_SUBTYPE_ID).name}: ${d.cn}, ${this.getParameter(FormSubtype.FORM_EXPRESSION_SUBTYPE_ID).name}: ${d.expression}, color: ${d.color})`);
@@ -262,7 +262,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     marks.exit().remove();
   }
 
-  protected abstract select(r: Range): void;
+  protected abstract select(ids: string[]): void;
 
 }
 
@@ -271,11 +271,11 @@ export interface ICopyNumberDataFormatRow {
   expression: number;
   color?: string;
   cn: number;
-  _id: number;
+  id: string;
 }
 
 export interface ICopyNumberDataFormat {
-  id: number;
+  id: string;
   geneName: string;
   rows: ICopyNumberDataFormatRow[];
 }

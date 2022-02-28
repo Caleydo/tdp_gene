@@ -3,7 +3,7 @@
  */
 import { Categories } from '../common/Categories';
 import { select, format, event as d3event } from 'd3';
-import { SelectionUtils, SelectOperation } from 'tdp_core';
+import { IDTypeManager, SelectionUtils, SelectOperation } from 'tdp_core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import { AView } from 'tdp_core';
@@ -239,7 +239,7 @@ export class AOncoPrint extends AView {
         // or to reload the data for all items (e.g. due to parameter change)
         const enterOrUpdateAll = (updateAll) ? $ids : $idsEnter;
         const renderRow = ($id, d) => {
-            const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType))
+            const promise = (d.ensg ? Promise.resolve(d.ensg) : IDTypeManager.getInstance().mapOneNameToFirstName(idtype, d.id, this.idType))
                 .then((ensg) => {
                 d.ensg = ensg;
                 return Promise.all([
@@ -327,32 +327,31 @@ export class AOncoPrint extends AView {
         }
     }
     isSampleSelected(sampleId) {
-        const { range } = this.getItemSelection();
-        return range.dim(0).contains(sampleId);
+        const { ids } = this.getItemSelection();
+        return ids.includes(sampleId);
     }
     selectSample(sampleId, op) {
-        const { range } = this.getItemSelection();
-        const current = range.dim(0);
+        const { ids } = this.getItemSelection();
+        const current = ids;
         let newSelection = null;
-        const single = Range.list([sampleId]);
         switch (op) {
             case SelectOperation.SET:
-                if (current.contains(sampleId)) {
-                    newSelection = Range.none();
+                if (current.includes(sampleId)) {
+                    newSelection = [];
                 }
                 else {
-                    newSelection = single;
+                    newSelection = [sampleId];
                 }
                 break;
             case SelectOperation.REMOVE:
-                newSelection = range.without(single);
+                newSelection = current.filter((c) => c !== sampleId);
                 break;
             case SelectOperation.ADD:
-                newSelection = range.union(single);
+                newSelection = current.concat([sampleId]);
                 break;
         }
         this.updateSelectionHighlight(newSelection);
-        this.setItemSelection({ range: newSelection, idtype: this.getSampleIdType() });
+        this.setItemSelection({ ids: newSelection, idtype: this.getSampleIdType() });
     }
     get itemIDType() {
         return this.getSampleIdType();
@@ -360,12 +359,13 @@ export class AOncoPrint extends AView {
     updateSelectionHighlight(range) {
         //use plain version to avoid data binding issues
         const table = this.$table.node();
-        if (range.isAll) {
-            Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
-            return;
-        }
+        //TODO:: Figure out how to implement this optimization (just how to check if the range has selected every possible row)
+        // if (range.isAll) {
+        //   Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
+        //   return;
+        // }
         Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.remove('selected'));
-        range.dim(0).forEach((sampleId) => {
+        range.forEach((sampleId) => {
             Array.from(table.querySelectorAll(`td.cell[data-id="${sampleId}"]`)).forEach((c) => c.classList.add('selected'));
         });
     }

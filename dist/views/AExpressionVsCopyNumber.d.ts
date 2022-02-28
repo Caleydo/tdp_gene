@@ -35,17 +35,17 @@ export declare abstract class AExpressionVsCopyNumber extends AD3View {
     private initChart;
     private resizeChart;
     private updateChartData;
-    protected abstract select(r: Range): void;
+    protected abstract select(ids: string[]): void;
 }
 export interface ICopyNumberDataFormatRow {
     samplename: string;
     expression: number;
     color?: string;
     cn: number;
-    _id: number;
+    id: string;
 }
 export interface ICopyNumberDataFormat {
-    id: number;
+    id: string;
     geneName: string;
     rows: ICopyNumberDataFormatRow[];
 }
