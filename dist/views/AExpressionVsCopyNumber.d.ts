@@ -49,3 +49,4 @@ export interface ICopyNumberDataFormat {
     geneName: string;
     rows: ICopyNumberDataFormatRow[];
 }
+//# sourceMappingURL=AExpressionVsCopyNumber.d.ts.map

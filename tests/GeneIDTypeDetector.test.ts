@@ -1,4 +1,4 @@
-import {GeneIDTypeDetector} from '../src/provider/GeneIDTypeDetector';
+import { GeneIDTypeDetector } from '../src/provider/GeneIDTypeDetector';
 
 describe('GeneIDTypeDetector', () => {
   const accessor: (row: any) => string = (row: any) => row.toString();
@@ -36,14 +36,13 @@ describe('GeneIDTypeDetector', () => {
 
   it('Sample size smaller than data length', () => {
     const data = ['ENSG0000123', 'ENSG0000234', 'foo', 'bar'];
-    const sampleSize = 2;
-    expect(GeneIDTypeDetector.geneIDTypeDetector().detectIDType(data, accessor, sampleSize)).toEqual(1); // 0 because only the first two items will be checked they are EnsemblIDs
+    const samSize = 2;
+    expect(GeneIDTypeDetector.geneIDTypeDetector().detectIDType(data, accessor, samSize)).toEqual(1); // 0 because only the first two items will be checked they are EnsemblIDs
   });
 
   it('Detect items from the beginning', () => {
     const data = ['foo', 'bar', 'ENSG0000123', 'ENSG0000234'];
-    const sampleSize = 2;
-    expect(GeneIDTypeDetector.geneIDTypeDetector().detectIDType(data, accessor, sampleSize)).toEqual(0); // 0 because only the first two items will be checked they are not EnsemblIDs
+    const samSize = 2;
+    expect(GeneIDTypeDetector.geneIDTypeDetector().detectIDType(data, accessor, samSize)).toEqual(0); // 0 because only the first two items will be checked they are not EnsemblIDs
   });
-
 });

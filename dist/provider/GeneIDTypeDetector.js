@@ -16,8 +16,8 @@ export class GeneIDTypeDetector {
         let validSize = 0;
         for (let i = 0; i < testSize; ++i) {
             const v = accessor(data[i]);
-            if (v == null || typeof (v) !== 'string' || v.trim().length === 0) {
-                continue; //skip empty samples
+            if (v == null || typeof v !== 'string' || v.trim().length === 0) {
+                continue; // skip empty samples
             }
             if (v.indexOf('ENS') === 0 || v.indexOf('LRG') === 0) {
                 ++foundIDTypes;
@@ -28,7 +28,7 @@ export class GeneIDTypeDetector {
     }
     static geneIDTypeDetector() {
         return {
-            detectIDType: GeneIDTypeDetector.detectIDType
+            detectIDType: GeneIDTypeDetector.detectIDType,
         };
     }
 }

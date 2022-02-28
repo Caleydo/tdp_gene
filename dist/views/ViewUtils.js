@@ -4,7 +4,7 @@ export class ViewUtils {
         const old = new Set(scale.domain());
         colors = Array.from(new Set(colors.filter((d) => Boolean(d) && !old.has(d)))); // just valid ones
         colors.sort(); // sort by name
-        //append new ones
+        // append new ones
         scale.domain(scale.domain().concat(colors));
     }
     static colorScale() {
@@ -17,14 +17,17 @@ export class ViewUtils {
             legend.innerHTML = '';
             return;
         }
-        const cats = scale.domain().map((category) => {
+        const cats = scale
+            .domain()
+            .map((category) => {
             return `
           <div>
               <span style="background-color: ${scale(category)}"></span>
               <span>${category}</span>
           </div>
       `;
-        }).join('\n');
+        })
+            .join('\n');
         legend.innerHTML = `
           <div>
               <span></span>
@@ -39,7 +42,7 @@ export class ViewUtils {
             const disabled = d.classList.toggle('disabled');
             if (i === 0) {
                 // all
-                Array.from(legend.children).forEach((d) => d.classList.toggle('disabled', disabled));
+                Array.from(legend.children).forEach((lgd) => lgd.classList.toggle('disabled', disabled));
                 Array.from(legend.parentElement.querySelectorAll(`.mark`)).forEach((s) => s.classList.toggle('disabled', disabled));
             }
             else {

@@ -11,7 +11,7 @@ export class GeneProxyView extends ProxyView {
         return SpeciesUtils.createOptions(ensgs, this.selection, this.idType);
     }
     updateProxyView() {
-        const extra = this.options.extra;
+        const { extra } = this.options;
         extra.species = SpeciesUtils.getSelectedSpecies();
         super.updateProxyView();
     }

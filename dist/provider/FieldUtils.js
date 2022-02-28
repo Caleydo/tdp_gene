@@ -9,7 +9,7 @@ export class FieldUtils {
     static convertLog2ToLinear(rows, field) {
         console.log('convert log2 score to linear scale');
         return rows.map((row) => {
-            row[field] = Math.pow(2, row[field]);
+            row[field] = 2 ** row[field];
             return row;
         });
     }
@@ -29,6 +29,8 @@ export class FieldUtils {
                     break;
                 case ENamedSetType.NAMEDSET:
                     param[`filter_namedset4${entity}`] = namedSet.id;
+                    break;
+                default:
                     break;
             }
         }

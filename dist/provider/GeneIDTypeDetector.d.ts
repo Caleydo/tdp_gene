@@ -12,3 +12,4 @@ export declare class GeneIDTypeDetector {
         detectIDType: typeof GeneIDTypeDetector.detectIDType;
     };
 }
+//# sourceMappingURL=GeneIDTypeDetector.d.ts.map

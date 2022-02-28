@@ -1,15 +1,15 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { UserSession } from 'tdp_core';
-import { IDTypeManager } from 'tdp_core';
+import { UserSession, IDTypeManager } from 'tdp_core';
 import { Categories } from './Categories';
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export var Species;
 (function (Species) {
     Species.availableSpecies = [
         { name: 'Human', value: 'human', iconClass: 'fa-male' },
-        //{ name: 'Rat', value: 'rat' },
-        { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' }
+        // { name: 'Rat', value: 'rat' },
+        { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' },
     ];
     Species.defaultSpecies = Species.availableSpecies[0].value;
     Species.DEFAULT_ENTITY_TYPE = Categories.GENE_IDTYPE;
@@ -29,7 +29,7 @@ export class SpeciesUtils {
             const targetMapping = 'GeneSymbol';
             const species = SpeciesUtils.getSelectedSpecies();
             const mapsTo = await IDTypeManager.getInstance().getCanBeMappedTo(idType);
-            let target = mapsTo.find((d) => d.name === targetMapping + '_' + species);
+            let target = mapsTo.find((d) => d.name === `${targetMapping}_${species}`);
             if (!target) {
                 target = mapsTo.find((d) => d.name === targetMapping);
             }
@@ -57,11 +57,13 @@ export class SpeciesUtils {
                 return ensgs.map((ensg) => ({ value: ensg, name: ensg, data: [ensg, ensg] }));
             }
             // map and use names
-            return IDTypeManager.getInstance().mapNameToFirstName(base, ids, target).then((names) => {
+            return IDTypeManager.getInstance()
+                .mapNameToFirstName(base, ids, target)
+                .then((names) => {
                 return names.map((name, i) => ({
                     value: ensgs[i],
                     name: name ? `${name} (${ensgs[i]})` : ensgs[i],
-                    data: [ensgs[i], name]
+                    data: [ensgs[i], name],
                 }));
             });
         });
@@ -100,17 +102,15 @@ export class SpeciesUtils {
                         column: newConfig.columns.length,
                         idType: Categories.GENE_IDTYPE,
                         label: Categories.GENE_IDTYPE,
-                        type: 'string'
+                        type: 'string',
                     });
                     newConfig.idType = Categories.GENE_IDTYPE;
                     newConfig.idColumn = newConfig.columns.length - 1;
                     newConfig.notes.push('The column Ensembl was added based on the detected Gene Symbols. 1:n mappings between Gene Symbols and Ensembl IDs were resolved by showing all possible combinations.');
                     return newData;
                 }
-                else {
-                    return data;
-                }
-            }
+                return data;
+            },
         };
     }
     /**

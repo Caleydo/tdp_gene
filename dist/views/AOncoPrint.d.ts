@@ -1,9 +1,8 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import { IDType } from 'tdp_core';
+import { IDType, AView } from 'tdp_core';
 import 'jquery-ui/ui/widgets/sortable';
-import { AView } from 'tdp_core';
 export interface ISample {
     name: string;
     id: string;
@@ -50,3 +49,4 @@ export declare abstract class AOncoPrint extends AView {
     private sortCells;
     private alignData;
 }
+//# sourceMappingURL=AOncoPrint.d.ts.map

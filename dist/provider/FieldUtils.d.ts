@@ -12,3 +12,4 @@ export declare class FieldUtils {
      */
     static limitScoreRows(param: any, ids: string[], idTypeOfIDs: IDType, entity: string, maxDirectRows: number, namedSet?: INamedSet): void;
 }
+//# sourceMappingURL=FieldUtils.d.ts.map
