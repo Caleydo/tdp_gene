@@ -1,12 +1,8 @@
-/**
- * Created by Holger Stitz on 21.07.2016.
- */
-
-import { Range, ErrorAlertHandler, IFormElementDesc, FormElementType, ResolveUtils, AD3View, SelectionUtils, SelectOperation } from 'tdp_core';
+import { ErrorAlertHandler, IFormElementDesc, FormElementType, AD3View, IDTypeManager, SelectionUtils, SelectOperation } from 'tdp_core';
 import * as d3 from 'd3';
 import { jStat } from 'jstat';
-import { ViewUtils } from './ViewUtils';
 import { FormSubtype } from '../provider/forms';
+import { ViewUtils } from './ViewUtils';
 
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 
@@ -89,7 +85,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
-    const ids = this.selection.range.dim(0).asList();
+    const { ids } = this.selection;
     const { idtype } = this.selection;
 
     const data: ICopyNumberDataFormat[] = ids.map((id) => {
@@ -105,7 +101,9 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
     enterOrUpdateAll.each(function (this: HTMLElement, d) {
       const $id = d3.select(this);
-      const promise = ResolveUtils.resolveId(idtype, d.id, that.idType).then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
+      const promise = IDTypeManager.getInstance()
+        .mapOneNameToFirstName(idtype, d.id, that.idType)
+        .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
 
       // on error
       promise.catch(ErrorAlertHandler.getInstance().errorAlert).catch((error) => {
@@ -247,8 +245,8 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
 
         const selectOperation = SelectionUtils.toSelectOperation(<MouseEvent>d3.event);
         const oldSelection = this.getItemSelection();
-        const id: number = d._id;
-        const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
+        const { id } = d;
+        const newSelection = SelectionUtils.integrateSelection(oldSelection.ids, [id], selectOperation);
 
         if (selectOperation === SelectOperation.SET) {
           d3.selectAll('circle.mark.clicked').classed('clicked', false);
@@ -258,7 +256,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
       })
       .append('title');
 
-    marks.attr('data-id', (d) => d._id);
+    marks.attr('data-id', (d) => d.id);
     marks.attr('data-color', (d) => String(d.color));
     marks.classed('disabled', false); // show all and reset filtering
     marks
@@ -280,7 +278,7 @@ export abstract class AExpressionVsCopyNumber extends AD3View {
     marks.exit().remove();
   }
 
-  protected abstract select(r: Range): void;
+  protected abstract select(ids: string[]): void;
 }
 
 export interface ICopyNumberDataFormatRow {
@@ -288,11 +286,11 @@ export interface ICopyNumberDataFormatRow {
   expression: number;
   color?: string;
   cn: number;
-  _id: number;
+  id: string;
 }
 
 export interface ICopyNumberDataFormat {
-  id: number;
+  id: string;
   geneName: string;
   rows: ICopyNumberDataFormatRow[];
 }

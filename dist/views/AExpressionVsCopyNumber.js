@@ -1,11 +1,8 @@
-/**
- * Created by Holger Stitz on 21.07.2016.
- */
-import { ErrorAlertHandler, FormElementType, ResolveUtils, AD3View, SelectionUtils, SelectOperation } from 'tdp_core';
+import { ErrorAlertHandler, FormElementType, AD3View, IDTypeManager, SelectionUtils, SelectOperation } from 'tdp_core';
 import * as d3 from 'd3';
 import { jStat } from 'jstat';
-import { ViewUtils } from './ViewUtils';
 import { FormSubtype } from '../provider/forms';
+import { ViewUtils } from './ViewUtils';
 const spearmancoeffTitle = 'Spearman Coefficient: ';
 export class AExpressionVsCopyNumber extends AD3View {
     constructor() {
@@ -70,7 +67,7 @@ export class AExpressionVsCopyNumber extends AD3View {
         this.setBusy(true);
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const that = this;
-        const ids = this.selection.range.dim(0).asList();
+        const { ids } = this.selection;
         const { idtype } = this.selection;
         const data = ids.map((id) => {
             return { id, geneName: '', rows: [] };
@@ -82,7 +79,9 @@ export class AExpressionVsCopyNumber extends AD3View {
         const enterOrUpdateAll = updateAll ? $ids : $idsEnter;
         enterOrUpdateAll.each(function (d) {
             const $id = d3.select(this);
-            const promise = ResolveUtils.resolveId(idtype, d.id, that.idType).then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
+            const promise = IDTypeManager.getInstance()
+                .mapOneNameToFirstName(idtype, d.id, that.idType)
+                .then((name) => Promise.all([that.loadData(name), that.loadFirstName(name)]));
             // on error
             promise.catch(ErrorAlertHandler.getInstance().errorAlert).catch((error) => {
                 console.error(error);
@@ -183,8 +182,8 @@ export class AExpressionVsCopyNumber extends AD3View {
             const { target } = d3.event;
             const selectOperation = SelectionUtils.toSelectOperation(d3.event);
             const oldSelection = this.getItemSelection();
-            const id = d._id;
-            const newSelection = SelectionUtils.integrateSelection(oldSelection.range, [id], selectOperation);
+            const { id } = d;
+            const newSelection = SelectionUtils.integrateSelection(oldSelection.ids, [id], selectOperation);
             if (selectOperation === SelectOperation.SET) {
                 d3.selectAll('circle.mark.clicked').classed('clicked', false);
             }
@@ -192,7 +191,7 @@ export class AExpressionVsCopyNumber extends AD3View {
             this.select(newSelection);
         })
             .append('title');
-        marks.attr('data-id', (d) => d._id);
+        marks.attr('data-id', (d) => d.id);
         marks.attr('data-color', (d) => String(d.color));
         marks.classed('disabled', false); // show all and reset filtering
         marks

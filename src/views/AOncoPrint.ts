@@ -3,14 +3,14 @@
  */
 
 import { select, format, event as d3event, Selection } from 'd3';
-import { SelectionUtils, SelectOperation, IDType, Range, IView, AView, ResolveUtils, ErrorAlertHandler } from 'tdp_core';
+import { IDTypeManager, SelectionUtils, SelectOperation, IDType, IView, AView, ErrorAlertHandler } from 'tdp_core';
 import * as $ from 'jquery';
 import { Categories } from '../common/Categories';
 import 'jquery-ui/ui/widgets/sortable';
 
 export interface ISample {
   name: string;
-  id: number;
+  id: string;
 }
 
 export interface IDataFormatRow {
@@ -18,11 +18,11 @@ export interface IDataFormatRow {
   cn: number;
   expr: number;
   aa_mutated: boolean;
-  sampleId: number;
+  sampleId: string;
 }
 
 export interface IDataFormat {
-  id: number;
+  id: string;
   geneName: string;
   ensg: string;
   alterationFreq: number;
@@ -31,7 +31,7 @@ export interface IDataFormat {
   rows: IDataFormatRow[];
 }
 
-function unknownSample(sample: string, sampleId: number): IDataFormatRow {
+function unknownSample(sample: string, sampleId: string): IDataFormatRow {
   return {
     name: sample,
     sampleId,
@@ -274,16 +274,16 @@ export abstract class AOncoPrint extends AView {
   private updateChart(updateAll = false) {
     this.setBusy(true);
 
-    const ids = this.selection.range.dim(0).asList();
+    const { ids } = this.selection;
     const { idtype } = this.selection;
 
     const empty = (id) => ({ id, geneName: '', ensg: '', alterationFreq: 0, rows: [], promise: null });
     // merge the old rows with the current selection
-    const merge = (i: number[], old: IDataFormat[]) => {
+    const merge = (i: string[], old: IDataFormat[]) => {
       if (old.length === 0) {
         return i.map(empty);
       }
-      const lookup = new Map<number, IDataFormat>();
+      const lookup = new Map<string, IDataFormat>();
       old.forEach((d) => lookup.set(d.id, d));
       if (this.manuallyResorted) {
         // different strategy if already resorted try to keep the original sorting as good as possible
@@ -305,7 +305,7 @@ export abstract class AOncoPrint extends AView {
     const enterOrUpdateAll = updateAll ? $ids : $idsEnter;
 
     const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
-      const promise = (d.ensg ? Promise.resolve(d.ensg) : ResolveUtils.resolveId(idtype, d.id, this.idType)).then((ensg: string) => {
+      const promise = (d.ensg ? Promise.resolve(d.ensg) : IDTypeManager.getInstance().mapOneNameToFirstName(idtype, d.id, this.idType)).then((ensg: string) => {
         d.ensg = ensg;
         return Promise.all<any>([
           this.loadRows(ensg), // load always may have changed
@@ -417,51 +417,51 @@ export abstract class AOncoPrint extends AView {
     }
   }
 
-  private isSampleSelected(sampleId: number) {
-    const { range } = this.getItemSelection();
-    return range.dim(0).contains(sampleId);
+  private isSampleSelected(sampleId: string) {
+    const { ids } = this.getItemSelection();
+    return ids.includes(sampleId);
   }
 
-  private selectSample(sampleId: number, op: SelectOperation) {
-    const { range } = this.getItemSelection();
-    const current = range.dim(0);
-    let newSelection: Range = null;
-    const single = Range.list([sampleId]);
+  private selectSample(sampleId: string, op: SelectOperation) {
+    const { ids } = this.getItemSelection();
+    const current = ids;
+    let newSelection: string[] = null;
     switch (op) {
       case SelectOperation.SET:
-        if (current.contains(sampleId)) {
-          newSelection = Range.none();
+        if (current.includes(sampleId)) {
+          newSelection = [];
         } else {
-          newSelection = single;
+          newSelection = [sampleId];
         }
         break;
       case SelectOperation.REMOVE:
-        newSelection = range.without(single);
+        newSelection = current.filter((c) => c !== sampleId);
         break;
       case SelectOperation.ADD:
-        newSelection = range.union(single);
+        newSelection = current.concat([sampleId]);
         break;
       default:
         break;
     }
     this.updateSelectionHighlight(newSelection);
-    this.setItemSelection({ range: newSelection, idtype: this.getSampleIdType() });
+    this.setItemSelection({ ids: newSelection, idtype: this.getSampleIdType() });
   }
 
   get itemIDType() {
     return this.getSampleIdType();
   }
 
-  protected updateSelectionHighlight(range: Range) {
-    // use plain version to avoid data binding issues
+  protected updateSelectionHighlight(range: string[]) {
     const table = <HTMLTableElement>this.$table.node();
-    if (range.isAll) {
-      Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
-      return;
-    }
+
+    // TODO:: Figure out how to implement this optimization (just how to check if the range has selected every possible row)
+    // if (range.isAll) {
+    //   Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.add('selected'));
+    //   return;
+    // }
 
     Array.from(table.querySelectorAll('td.cell')).forEach((c) => c.classList.remove('selected'));
-    range.dim(0).forEach((sampleId: number) => {
+    range.forEach((sampleId: string) => {
       Array.from(table.querySelectorAll(`td.cell[data-id="${sampleId}"]`)).forEach((c) => c.classList.add('selected'));
     });
   }

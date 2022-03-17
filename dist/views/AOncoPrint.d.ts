@@ -1,21 +1,21 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import { IDType, Range, AView } from 'tdp_core';
+import { IDType, AView } from 'tdp_core';
 import 'jquery-ui/ui/widgets/sortable';
 export interface ISample {
     name: string;
-    id: number;
+    id: string;
 }
 export interface IDataFormatRow {
     name: string;
     cn: number;
     expr: number;
     aa_mutated: boolean;
-    sampleId: number;
+    sampleId: string;
 }
 export interface IDataFormat {
-    id: number;
+    id: string;
     geneName: string;
     ensg: string;
     alterationFreq: number;
@@ -44,7 +44,7 @@ export declare abstract class AOncoPrint extends AView {
     private isSampleSelected;
     private selectSample;
     get itemIDType(): IDType;
-    protected updateSelectionHighlight(range: Range): void;
+    protected updateSelectionHighlight(range: string[]): void;
     protected abstract getSampleIdType(): IDType;
     private sortCells;
     private alignData;

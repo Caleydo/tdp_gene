@@ -1,7 +1,7 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { UserSession, IDTypeManager, Range } from 'tdp_core';
+import { UserSession, IDTypeManager } from 'tdp_core';
 import { Categories } from './Categories';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export var Species;
@@ -40,16 +40,14 @@ export class SpeciesUtils {
     }
     static mapToId(selection, target = null) {
         if (target === null || selection.idtype.id === target.id) {
-            // same just unmap to name
-            return selection.range;
+            return selection.ids;
         }
         // assume mappable
-        return IDTypeManager.getInstance()
-            .mapToFirstID(selection.idtype, selection.range, target)
-            .then((r) => Range.list(r));
+        return IDTypeManager.getInstance().mapNameToFirstName(selection.idtype, selection.ids, target);
     }
     static createOptions(ensgs, selection, base) {
-        if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {
+        var _a;
+        if (ensgs === null || ensgs.length === 0 || ((_a = selection.ids) === null || _a === void 0 ? void 0 : _a.length) === 0) {
             return Promise.resolve([]);
         }
         return Promise.all([SpeciesUtils.mapToId(selection, base), SpeciesUtils.selectReadableIDType(base)]).then((results) => {
@@ -60,7 +58,7 @@ export class SpeciesUtils {
             }
             // map and use names
             return IDTypeManager.getInstance()
-                .mapToFirstName(base, ids, target)
+                .mapNameToFirstName(base, ids, target)
                 .then((names) => {
                 return names.map((name, i) => ({
                     value: ensgs[i],
