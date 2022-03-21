@@ -18,6 +18,7 @@ export default function (registry) {
         preview: () => import('./assets/previews/ensembl.jpg'),
         group: {
             name: 'External Resources',
+            // 'order: 0
         },
         description: 'Show information on your search from Ensembl.org',
         topics: ['external'],
@@ -51,6 +52,7 @@ export default function (registry) {
         preview: () => import('./assets/previews/uniprot.jpg'),
         group: {
             name: 'External Resources',
+            // 'order: 70
         },
         description: 'Show information on your search from UniProt',
         topics: ['uniprot', 'external'],
@@ -65,6 +67,7 @@ export default function (registry) {
         preview: () => import('./assets/previews/open_targets.jpg'),
         group: {
             name: 'External Resources',
+            // 'order: 40
         },
         filter: {
             species: 'human',
@@ -83,6 +86,7 @@ export default function (registry) {
         preview: () => import('./assets/previews/human_protein_atlas.jpg'),
         group: {
             name: 'External Resources',
+            // 'order: 50
         },
         filter: {
             species: 'human',
@@ -97,6 +101,7 @@ export default function (registry) {
         selection: 'chooser',
         group: {
             name: 'External Resources',
+            // 'order: 60
         },
         filter: {
             species: 'human',
