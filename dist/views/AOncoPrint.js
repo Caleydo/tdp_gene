@@ -12,7 +12,7 @@ function unknownSample(sample, sampleId) {
         sampleId,
         cn: Categories.unknownCopyNumberValue,
         expr: 0,
-        aa_mutated: Categories.unknownMutationValue,
+        aa_mutated: Categories.unknownMutationValue, // unknown
     };
 }
 function isMissingMutation(v) {
