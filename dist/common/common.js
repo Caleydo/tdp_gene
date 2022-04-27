@@ -1,16 +1,15 @@
 /**
  * Created by Samuel Gratzl on 11.05.2016.
  */
-import { UserSession } from 'phovea_core';
-import { IDTypeManager } from 'phovea_core';
+import { UserSession, IDTypeManager } from 'tdp_core';
 import { Categories } from './Categories';
-import { Range } from 'phovea_core';
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export var Species;
 (function (Species) {
     Species.availableSpecies = [
         { name: 'Human', value: 'human', iconClass: 'fa-male' },
-        //{ name: 'Rat', value: 'rat' },
-        { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' }
+        // { name: 'Rat', value: 'rat' },
+        { name: 'Mouse', value: 'mouse', iconClass: 'mouse-icon' },
     ];
     Species.defaultSpecies = Species.availableSpecies[0].value;
     Species.DEFAULT_ENTITY_TYPE = Categories.GENE_IDTYPE;
@@ -30,7 +29,7 @@ export class SpeciesUtils {
             const targetMapping = 'GeneSymbol';
             const species = SpeciesUtils.getSelectedSpecies();
             const mapsTo = await IDTypeManager.getInstance().getCanBeMappedTo(idType);
-            let target = mapsTo.find((d) => d.name === targetMapping + '_' + species);
+            let target = mapsTo.find((d) => d.name === `${targetMapping}_${species}`);
             if (!target) {
                 target = mapsTo.find((d) => d.name === targetMapping);
             }
@@ -41,14 +40,14 @@ export class SpeciesUtils {
     }
     static mapToId(selection, target = null) {
         if (target === null || selection.idtype.id === target.id) {
-            // same just unmap to name
-            return selection.range;
+            return selection.ids;
         }
         // assume mappable
-        return IDTypeManager.getInstance().mapToFirstID(selection.idtype, selection.range, target).then((r) => Range.list(r));
+        return IDTypeManager.getInstance().mapNameToFirstName(selection.idtype, selection.ids, target);
     }
     static createOptions(ensgs, selection, base) {
-        if (ensgs === null || ensgs.length === 0 || selection.range.isNone) {
+        var _a;
+        if (ensgs === null || ensgs.length === 0 || ((_a = selection.ids) === null || _a === void 0 ? void 0 : _a.length) === 0) {
             return Promise.resolve([]);
         }
         return Promise.all([SpeciesUtils.mapToId(selection, base), SpeciesUtils.selectReadableIDType(base)]).then((results) => {
@@ -58,11 +57,13 @@ export class SpeciesUtils {
                 return ensgs.map((ensg) => ({ value: ensg, name: ensg, data: [ensg, ensg] }));
             }
             // map and use names
-            return IDTypeManager.getInstance().mapToFirstName(base, ids, target).then((names) => {
+            return IDTypeManager.getInstance()
+                .mapNameToFirstName(base, ids, target)
+                .then((names) => {
                 return names.map((name, i) => ({
                     value: ensgs[i],
                     name: name ? `${name} (${ensgs[i]})` : ensgs[i],
-                    data: [ensgs[i], name]
+                    data: [ensgs[i], name],
                 }));
             });
         });
@@ -101,17 +102,15 @@ export class SpeciesUtils {
                         column: newConfig.columns.length,
                         idType: Categories.GENE_IDTYPE,
                         label: Categories.GENE_IDTYPE,
-                        type: 'string'
+                        type: 'string',
                     });
                     newConfig.idType = Categories.GENE_IDTYPE;
                     newConfig.idColumn = newConfig.columns.length - 1;
                     newConfig.notes.push('The column Ensembl was added based on the detected Gene Symbols. 1:n mappings between Gene Symbols and Ensembl IDs were resolved by showing all possible combinations.');
                     return newData;
                 }
-                else {
-                    return data;
-                }
-            }
+                return data;
+            },
         };
     }
     /**

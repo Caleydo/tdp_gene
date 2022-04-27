@@ -1,9 +1,7 @@
 /**
  * Created by sam on 06.03.2017.
  */
-import { AStartList, IAStartListOptions } from 'tdp_core';
-import { ISelection, IViewContext } from 'tdp_core';
-import { IParams } from 'tdp_core';
+import { AStartList, IAStartListOptions, ISelection, IViewContext, IParams } from 'tdp_core';
 export interface ICommonDBConfig {
     idType: string;
     name: string;
@@ -29,3 +27,4 @@ export declare abstract class ACommonList extends AStartList {
     protected isValidFilter(key: string): boolean;
 }
 export {};
+//# sourceMappingURL=ACommonList.d.ts.map

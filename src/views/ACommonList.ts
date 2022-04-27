@@ -2,10 +2,8 @@
  * Created by sam on 06.03.2017.
  */
 
-import {AStartList, IAStartListOptions} from 'tdp_core';
-import {ISelection, IViewContext} from 'tdp_core';
-import {RestBaseUtils, IParams} from 'tdp_core';
-import {SpeciesUtils, Species} from '../common/common';
+import { AStartList, IAStartListOptions, ISelection, IViewContext, RestBaseUtils, IParams } from 'tdp_core';
+import { SpeciesUtils, Species } from '../common/common';
 
 export interface ICommonDBConfig {
   idType: string;
@@ -28,21 +26,28 @@ interface ISearchResult {
 export abstract class ACommonList extends AStartList {
   private search: ISearchResult;
 
-  constructor(context:IViewContext, selection: ISelection, parent:HTMLElement, protected readonly dataSource: ICommonDBConfig, options: Partial<IACommonListOptions>) {
-    super(context, selection, parent, Object.assign({
+  constructor(
+    context: IViewContext,
+    selection: ISelection,
+    parent: HTMLElement,
+    protected readonly dataSource: ICommonDBConfig,
+    options: Partial<IACommonListOptions>,
+  ) {
+    super(context, selection, parent, {
       additionalScoreParameter: dataSource,
       itemName: dataSource.name,
       itemIDType: dataSource.idType,
       subType: {
         key: Species.SPECIES_SESSION_KEY,
-        value: SpeciesUtils.getSelectedSpecies()
+        value: SpeciesUtils.getSelectedSpecies(),
       },
       panelAddColumnBtnOptions: {
-        btnClass: 'btn-primary'
-      }
-    }, options));
+        btnClass: 'btn-primary',
+      },
+      ...options,
+    });
 
-    if(!this.namedSet && options) {
+    if (!this.namedSet && options) {
       this.search = options.search;
     }
   }
@@ -53,11 +58,14 @@ export abstract class ACommonList extends AStartList {
 
   protected buildFilter(): IParams {
     const filter: IParams = {
-      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies()
+      [Species.SPECIES_SESSION_KEY]: SpeciesUtils.getSelectedSpecies(),
     };
 
-    Object.assign(filter, this.buildNamedSetFilters(`namedset4${((<any>this.dataSource).namedSetEntityName || this.dataSource.entityName)}`, (key) => this.isValidFilter(key)));
-    if(this.search) {
+    Object.assign(
+      filter,
+      this.buildNamedSetFilters(`namedset4${(<any>this.dataSource).namedSetEntityName || this.dataSource.entityName}`, (key) => this.isValidFilter(key)),
+    );
+    if (this.search) {
       filter[this.dataSource.entityName] = this.search.ids;
     }
 

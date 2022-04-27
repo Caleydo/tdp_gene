@@ -4,7 +4,6 @@
 import { IFormElementDesc } from 'tdp_core';
 import { IFormSelectOption } from 'tdp_core';
 import * as d3 from 'd3';
-import { Range } from 'phovea_core';
 import { AD3View } from 'tdp_core';
 export interface IGeneOption extends IFormSelectOption {
     data: {
@@ -45,16 +44,17 @@ export declare abstract class ACoExpression extends AD3View {
     private updateChartData;
     protected getNoDataErrorMessage(refGene: IGeneOption): string;
     protected abstract getAttributeName(): string;
-    protected abstract select(r: Range): void;
+    protected abstract select(r: string[]): void;
 }
 export interface ICoExprDataFormatRow {
     samplename: string;
     expression: number;
     color?: string;
-    _id: number;
+    id: string;
 }
 export interface ICoExprDataFormat {
-    id: number;
+    id: string;
     geneName: string;
     rows: ICoExprDataFormatRow[];
 }
+//# sourceMappingURL=ACoExpression.d.ts.map

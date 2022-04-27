@@ -1,5 +1,4 @@
 export class GeneIDTypeDetector {
-
   /**
    * Detect items from a data array starting `ENS` or `LRG`.
    * Returns a number between 0 and 1 defining the fraction of matching genes in the array.
@@ -17,14 +16,14 @@ export class GeneIDTypeDetector {
     let foundIDTypes = 0;
     let validSize = 0;
 
-    for(let i = 0; i < testSize; ++i) {
+    for (let i = 0; i < testSize; ++i) {
       const v = accessor(data[i]);
 
-      if (v == null || typeof(v) !== 'string' || v.trim().length === 0) {
-        continue; //skip empty samples
+      if (v == null || typeof v !== 'string' || v.trim().length === 0) {
+        continue; // skip empty samples
       }
 
-      if(v.indexOf('ENS') === 0 || v.indexOf('LRG') === 0) {
+      if (v.indexOf('ENS') === 0 || v.indexOf('LRG') === 0) {
         ++foundIDTypes;
       }
       ++validSize;
@@ -35,7 +34,7 @@ export class GeneIDTypeDetector {
 
   static geneIDTypeDetector() {
     return {
-      detectIDType: GeneIDTypeDetector.detectIDType
+      detectIDType: GeneIDTypeDetector.detectIDType,
     };
   }
 }

@@ -7,3 +7,4 @@ export declare class ViewUtils {
     static colorScale(): d3Scale.Ordinal<string, string>;
     static legend(legend: HTMLElement, scale: d3Scale.Ordinal<string, string>): void;
 }
+//# sourceMappingURL=ViewUtils.d.ts.map
