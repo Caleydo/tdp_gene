@@ -1,4 +1,4 @@
-import { scale as d3Scale } from 'd3';
+import { scale as d3Scale } from 'd3v3';
 export class ViewUtils {
     static integrateColors(scale, colors) {
         const old = new Set(scale.domain());

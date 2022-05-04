@@ -1,5 +1,5 @@
 import { ErrorAlertHandler, IFormElementDesc, FormElementType, AD3View, IDTypeManager, SelectionUtils, SelectOperation } from 'tdp_core';
-import * as d3 from 'd3';
+import * as d3 from 'd3v3';
 import { jStat } from 'jstat';
 import { FormSubtype } from '../provider/forms';
 import { ViewUtils } from './ViewUtils';

@@ -4,7 +4,7 @@
 import { ISelection, IFormElementDesc, IDTypeManager } from 'tdp_core';
 import { FormElementType, IFormSelectElement, IFormSelectOption } from 'tdp_core';
 import { ErrorAlertHandler } from 'tdp_core';
-import * as d3 from 'd3';
+import * as d3 from 'd3v3';
 import { SelectionUtils, SelectOperation } from 'tdp_core';
 import { AD3View } from 'tdp_core';
 import { jStat } from 'jstat';

@@ -1,4 +1,4 @@
-import { scale as d3Scale } from 'd3';
+import { scale as d3Scale } from 'd3v3';
 
 export class ViewUtils {
   static base = d3Scale.category20().range().slice(); // splice out the orange since used for selection;
