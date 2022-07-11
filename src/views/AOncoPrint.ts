@@ -2,7 +2,7 @@
  * Created by Samuel Gratzl on 27.04.2016.
  */
 
-import { select, format, event as d3event, Selection } from 'd3v3';
+import * as d3v3 from 'd3v3';
 import { IDTypeManager, SelectionUtils, SelectOperation, IDType, IView, AView, ErrorAlertHandler } from 'tdp_core';
 import * as $ from 'jquery';
 import { Categories } from '../common/Categories';
@@ -160,7 +160,7 @@ function byAlterationFrequency(a: IDataFormat, b: IDataFormat) {
 }
 
 export abstract class AOncoPrint extends AView {
-  private $table: Selection<IView>;
+  private $table: d3v3.Selection<IView>;
 
   private sampleListPromise: Promise<ISample[]> = null;
 
@@ -226,7 +226,7 @@ export abstract class AOncoPrint extends AView {
   }
 
   private build() {
-    const $node = select(this.node);
+    const $node = d3v3.select(this.node);
     $node.classed('oncoPrint', true);
 
     this.$table = $node.append('div').classed('geneTableWrapper', true).append('table').append('tbody');
@@ -304,7 +304,7 @@ export abstract class AOncoPrint extends AView {
     // or to reload the data for all items (e.g. due to parameter change)
     const enterOrUpdateAll = updateAll ? $ids : $idsEnter;
 
-    const renderRow = ($id: Selection<IDataFormat>, d: IDataFormat) => {
+    const renderRow = ($id: d3v3.Selection<IDataFormat>, d: IDataFormat) => {
       const promise = (d.ensg ? Promise.resolve(d.ensg) : IDTypeManager.getInstance().mapOneNameToFirstName(idtype, d.id, this.idType)).then((ensg: string) => {
         d.ensg = ensg;
         return Promise.all<any>([
@@ -330,7 +330,7 @@ export abstract class AOncoPrint extends AView {
     };
 
     enterOrUpdateAll.each(function (d: IDataFormat) {
-      renderRow(select(this), d);
+      renderRow(d3v3.select(this), d);
     });
 
     // assume that all data will have a promise
@@ -379,7 +379,7 @@ export abstract class AOncoPrint extends AView {
       });
   }
 
-  private updateChartData(data: IDataFormat, $parent: Selection<IDataFormat>, samples: ISample[]) {
+  private updateChartData(data: IDataFormat, $parent: d3v3.Selection<IDataFormat>, samples: ISample[]) {
     // console.log(data.geneName);
     let { rows } = data;
     rows = this.alignData(rows, samples);
@@ -389,7 +389,7 @@ export abstract class AOncoPrint extends AView {
 
     const $th = $parent.selectAll('th.geneLabel').data([data]);
     $th.enter().append('th').classed('geneLabel', true);
-    $th.html((d: any) => `<span class="alterationFreq">${format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
+    $th.html((d: any) => `<span class="alterationFreq">${d3v3.format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
     $th.exit().remove();
 
     const $cells = $parent.selectAll('td.cell').data(rows);
@@ -398,7 +398,7 @@ export abstract class AOncoPrint extends AView {
       .append('td')
       .classed('cell', true)
       .on('click', (row) => {
-        this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(<MouseEvent>d3event));
+        this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(<MouseEvent>d3v3.event));
       })
       .append('div')
       .classed('mut', true);

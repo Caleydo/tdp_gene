@@ -1,14 +1,14 @@
-import { scale as d3Scale } from 'd3v3';
+import * as d3v3 from 'd3v3';
 
 export class ViewUtils {
-  static base = d3Scale.category20().range().slice(); // splice out the orange since used for selection;
+  static base = d3v3.scale.category20().range().slice(); // splice out the orange since used for selection;
 
   static removed = ViewUtils.base.splice(2, 2);
 
   // reorder such that repeat after the primary colors
   static colors = ViewUtils.base.filter((d, i) => i % 2 === 0).concat(ViewUtils.base.filter((d, i) => i % 2 === 1));
 
-  static integrateColors(scale: d3Scale.Ordinal<string, string>, colors: string[]) {
+  static integrateColors(scale: d3v3.scale.Ordinal<string, string>, colors: string[]) {
     const old = new Set(scale.domain());
     colors = Array.from(new Set(colors.filter((d) => Boolean(d) && !old.has(d)))); // just valid ones
     colors.sort(); // sort by name
@@ -17,10 +17,10 @@ export class ViewUtils {
   }
 
   static colorScale() {
-    return d3Scale.ordinal<string, string>().range(ViewUtils.colors);
+    return d3v3.scale.ordinal<string, string>().range(ViewUtils.colors);
   }
 
-  static legend(legend: HTMLElement, scale: d3Scale.Ordinal<string, string>) {
+  static legend(legend: HTMLElement, scale: d3v3.scale.Ordinal<string, string>) {
     legend.classList.add('tdp-legend');
     const categories = scale.domain();
     if (categories.length === 0) {
