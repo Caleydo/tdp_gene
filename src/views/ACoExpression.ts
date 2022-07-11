@@ -178,7 +178,7 @@ export abstract class ACoExpression extends AD3View {
 
   protected abstract loadData(ensg: string): Promise<ICoExprDataFormatRow[]>;
 
-  protected abstract loadGeneList(ensgs: string[]): Promise<{ id: string; symbol: string; _id: number }[]>;
+  protected abstract loadGeneList(ensgs: string[]): Promise<{ id: string; symbol: string }[]>;
 
   protected abstract loadFirstName(ensg: string): Promise<string>;
 
