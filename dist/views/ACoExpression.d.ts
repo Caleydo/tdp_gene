@@ -3,7 +3,7 @@
  */
 import { IFormElementDesc } from 'tdp_core';
 import { IFormSelectOption } from 'tdp_core';
-import * as d3 from 'd3v3';
+import * as d3v3 from 'd3v3';
 import { AD3View } from 'tdp_core';
 export interface IGeneOption extends IFormSelectOption {
     data: {
@@ -16,8 +16,8 @@ export declare abstract class ACoExpression extends AD3View {
     private readonly margin;
     private readonly width;
     private readonly height;
-    protected $errorMessage: d3.Selection<any>;
-    protected $legend: d3.Selection<any>;
+    protected $errorMessage: d3v3.Selection<any>;
+    protected $legend: d3v3.Selection<any>;
     private refGene;
     private refGeneExpression;
     private readonly x;
@@ -35,7 +35,6 @@ export declare abstract class ACoExpression extends AD3View {
     protected abstract loadGeneList(ensgs: string[]): Promise<{
         id: string;
         symbol: string;
-        _id: number;
     }[]>;
     protected abstract loadFirstName(ensg: string): Promise<string>;
     private updateChart;

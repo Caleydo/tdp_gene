@@ -1,7 +1,7 @@
 /**
  * Created by Samuel Gratzl on 27.04.2016.
  */
-import { select, format, event as d3event } from 'd3v3';
+import * as d3v3 from 'd3v3';
 import { IDTypeManager, SelectionUtils, SelectOperation, AView, ErrorAlertHandler } from 'tdp_core';
 import * as $ from 'jquery';
 import { Categories } from '../common/Categories';
@@ -179,7 +179,7 @@ export class AOncoPrint extends AView {
         this.updateChart();
     }
     build() {
-        const $node = select(this.node);
+        const $node = d3v3.select(this.node);
         $node.classed('oncoPrint', true);
         this.$table = $node.append('div').classed('geneTableWrapper', true).append('table').append('tbody');
         const $legend = $node.append('div').classed('legend', true);
@@ -259,7 +259,7 @@ export class AOncoPrint extends AView {
             });
         };
         enterOrUpdateAll.each(function (d) {
-            renderRow(select(this), d);
+            renderRow(d3v3.select(this), d);
         });
         // assume that all data will have a promise
         // wait for all data and then sort the things
@@ -305,7 +305,7 @@ export class AOncoPrint extends AView {
         data.alterationFreq = computeAlterationFrequency(rows);
         const $th = $parent.selectAll('th.geneLabel').data([data]);
         $th.enter().append('th').classed('geneLabel', true);
-        $th.html((d) => `<span class="alterationFreq">${format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
+        $th.html((d) => `<span class="alterationFreq">${d3v3.format('.0%')(d.alterationFreq)}</span> ${d.geneName} <span class="ensg">${d.ensg}</span>`);
         $th.exit().remove();
         const $cells = $parent.selectAll('td.cell').data(rows);
         $cells
@@ -313,7 +313,7 @@ export class AOncoPrint extends AView {
             .append('td')
             .classed('cell', true)
             .on('click', (row) => {
-            this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(d3event));
+            this.selectSample(row.sampleId, SelectionUtils.toSelectOperation(d3v3.event));
         })
             .append('div')
             .classed('mut', true);
