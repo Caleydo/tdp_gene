@@ -148,7 +148,7 @@ export class AOncoPrint extends AView {
       <button class="fas fa-search-plus"></button>
     </div>`);
         let s = 0;
-        const scaleElem = base.lastElementChild;
+        const scaleElem = base.firstElementChild;
         scaleElem.firstElementChild.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
