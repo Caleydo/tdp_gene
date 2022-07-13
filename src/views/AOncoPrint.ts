@@ -190,7 +190,7 @@ export abstract class AOncoPrint extends AView {
     );
 
     let s = 0;
-    const scaleElem = <HTMLElement>base.lastElementChild!;
+    const scaleElem = <HTMLElement>base.firstElementChild!;
 
     scaleElem.firstElementChild!.addEventListener('click', (e) => {
       e.preventDefault();
