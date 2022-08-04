@@ -2,6 +2,8 @@ name: publish
 
 on: workflow_dispatch
 
+env: ${{ secrets }}
+
 jobs:
   publish:
     uses: datavisyn/github-workflows/.github/workflows/publish-node.yml@main
