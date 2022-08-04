@@ -35,7 +35,6 @@ export declare abstract class ACoExpression extends AD3View {
     protected abstract loadGeneList(ensgs: string[]): Promise<{
         id: string;
         symbol: string;
-        _id: number;
     }[]>;
     protected abstract loadFirstName(ensg: string): Promise<string>;
     private updateChart;
