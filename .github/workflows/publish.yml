@@ -7,4 +7,5 @@ env: ${{ secrets }}
 jobs:
   publish:
     uses: datavisyn/github-workflows/.github/workflows/publish-node.yml@main
-    secrets: inherit       
+    secrets:
+      DV_DEVOPS: ${{ secrets.DV_DEVOPS }}
