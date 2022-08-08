@@ -9,3 +9,7 @@ jobs:
     uses: datavisyn/github-workflows/.github/workflows/publish-node.yml@main
     secrets:
       DV_DEVOPS: ${{ secrets.DV_DEVOPS }}
+      PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      DATAVISYN_BOT_REPO_TOKEN: ${{ secrets.DATAVISYN_BOT_REPO_TOKEN }}
