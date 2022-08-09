@@ -27,3 +27,4 @@ node_modules/
 *.css
 /.cache-loader
 package-lock.json
+/dist/
