@@ -61,11 +61,11 @@
     "jstat": "^1.9.4",
     "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "^15.1.0",
+    "tdp_core": "git+ssh://git@github.com/datavisyn/tdp_core.git#visyn_scripts",
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts.git#develop"
   },
   "optionalDependencies": {
-    "ordino": "git+ssh://git@github.com:Caleydo/ordino#semver:^12.1.0"
+    "ordino": "git+ssh://git@github.com:Caleydo/ordino#visyn_scripts"
   },
   "visyn": {
     "entries": {
