@@ -13,7 +13,9 @@
     },
     "libraryAliases": {},
     "libraryExternals": [],
-    "entries": "./index.js",
+    "entries": {
+      "app": "./index.js"
+    },
     "ignores": [],
     "today": "Sun, 06 Nov 2016 23:20:08 GMT",
     "promptValues": {
