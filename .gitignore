@@ -3,7 +3,7 @@
 /.eslintcache
 /.idea
 /build/
-/dist/tsBuildInfoFile
+/dist/
 /lib/
 *.egg-info/
 *.egg
