@@ -58,8 +58,11 @@
     "jstat": "^1.9.4",
     "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
-    "ordino": "git+ssh://git@github.com:Caleydo/ordino#visyn_scripts",
+    "tdp_core": "git+ssh://git@github.com:datavisyn/tdp_core#visyn_scripts"
     "visyn_scripts": "git+ssh://git@github.com/datavisyn/visyn_scripts.git#develop"
+  },
+  "optionalDependencies": {
+    "ordino": "git+ssh://git@github.com:Caleydo/ordino#visyn_scripts",
   },
   "visyn": {
     "entries": {
