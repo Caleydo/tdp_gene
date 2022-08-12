@@ -3,7 +3,7 @@
 /.eslintcache
 /.idea
 /build/
-/dist/tsBuildInfoFile
+/dist/
 /lib/
 *.egg-info/
 *.egg
@@ -27,3 +27,4 @@ node_modules/
 *.css
 /.cache-loader
 package-lock.json
+/dist/
