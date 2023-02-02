@@ -3,7 +3,7 @@ DEPRECATED: tdp_gene
 [![Phovea][phovea-image]][phovea-url] [![NPM version][npm-image]][npm-url] [![CircleCI][circleci-image]][circleci-url]
 
 # DEPRECATION Information
-Please note that this project has been archived and is no longer being maintained. There is an active development under https://github.com/datavisyn/tdp_core and we will also contribute our future changes to it.
+Please note that this project has been archived and is no longer being maintained. There is an active development under https://github.com/Caleydo/tdp_publicdb and we will also contribute our future changes to it.
 
 
 This repository provides a collection of TDP views and visualization that could be used independent from entry point.
