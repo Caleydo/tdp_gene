@@ -84,9 +84,9 @@
     "jstat": "^1.9.4",
     "jquery": "~3.5.1",
     "jquery-ui": "1.12.1",
-    "tdp_core": "git+ssh://git@github.com:datavisyn/tdp_core#develop"
+    "tdp_core": "^16.2.2"
   },
   "optionalDependencies": {
-    "ordino": "git+ssh://git@github.com:Caleydo/ordino#develop"
+    "ordino": "git+ssh://git@github.com:Caleydo/ordino#semver:^13.0.1"
   }
 }
